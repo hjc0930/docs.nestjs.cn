@@ -1,47 +1,55 @@
-<!-- 此文件从 content/security/csrf.md 自动生成，请勿直接修改此文件 -->
-<!-- 生成时间: 2026-02-24T02:52:54.881Z -->
-<!-- 源文件: content/security/csrf.md -->
+### CSRF 防护
 
-### CSRF 保护
+跨站请求伪造（CSRF 或 XSRF）是一种攻击类型，其中**未经授权的**命令从受信任的用户发送到 Web 应用程序。为了帮助防止这种情况，您可以使用 [csrf-csrf](https://github.com/Psifi-Solutions/csrf-csrf) 包。
 
-跨站请求伪造 (CSRF 或 XSRF) 是一种攻击方式，攻击者可以从受信任的用户发送未经授权的命令到 Web 应用程序。为了帮助防止这种攻击，您可以使用 __LINK_8__ 包。
-
-#### 使用 Express (默认)
+#### 与 Express 一起使用（默认）
 
 首先安装所需的包：
 
 ```bash
-$ npm install --save @nestjs/terminus
+$ npm i csrf-csrf
 ```
 
-> 警告 **警告** 如 __LINK_9__ 中所述，这个中间件需要会话中间件或 __INLINE_CODE_4__ 前置初始化。请参阅文档获取更多信息。
+:::warning 警告
+如 [csrf-csrf 文档](https://github.com/Psifi-Solutions/csrf-csrf?tab=readme-ov-file#getting-started)中所述，此中间件需要预先初始化会话中间件或 `cookie-parser`。请参阅文档以获取更多详细信息。
+:::
 
-安装完成后，注册 __INLINE_CODE_5__ 中间件为全局中间件。
 
-```typescript title="health.module"
-import { Module } from '@nestjs/common';
-import { TerminusModule } from '@nestjs/terminus';
 
-@Module({
-  imports: [TerminusModule]
-})
-export class HealthModule {}
+安装完成后，将 `csrf-csrf` 中间件注册为全局中间件。
+
+```typescript
+import { doubleCsrf } from 'csrf-csrf';
+// ...
+// 在您的初始化文件中的某处
+const {
+  invalidCsrfTokenError, // 如果您计划创建自己的中间件，这纯粹是为了方便而提供的。
+  generateToken, // 在您的路由中使用它来生成和提供 CSRF 哈希，以及令牌 cookie 和令牌。
+  validateRequest, // 如果您计划制作自己的中间件，这也是一个便利功能。
+  doubleCsrfProtection, // 这是默认的 CSRF 保护中间件。
+} = doubleCsrf(doubleCsrfOptions);
+app.use(doubleCsrfProtection);
 ```
 
-#### 使用 Fastify
+#### 与 Fastify 一起使用
 
 首先安装所需的包：
 
 ```bash
-$ nest g controller health
+$ npm i --save @fastify/csrf-protection
 ```
 
-安装完成后，注册 __INLINE_CODE_6__ 插件，以下所示：
+安装完成后，注册 `@fastify/csrf-protection` 插件，如下所示：
 
-```bash
-$ npm i --save @nestjs/axios axios
+```typescript
+import fastifyCsrf from '@fastify/csrf-protection';
+// ...
+// 在注册某些存储插件后，在您的初始化文件中的某处
+await app.register(fastifyCsrf);
 ```
 
-> 警告 **警告** 如 __INLINE_CODE_7__ 文档 __LINK_10__ 中所述，这个插件需要存储插件先行初始化。请阅读该文档获取更多信息。
+:::warning 警告
+如 `@fastify/csrf-protection` 文档[这里](https://github.com/fastify/csrf-protection#usage)所解释的，此插件需要首先初始化存储插件。请参阅该文档以获取进一步的说明。
+:::
 
-Note: I have translated the content to Chinese, removed the 
+

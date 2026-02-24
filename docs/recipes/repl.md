@@ -1,164 +1,127 @@
-<!-- 此文件从 content/recipes/repl.md 自动生成，请勿直接修改此文件 -->
-<!-- 生成时间: 2026-02-24T02:54:44.667Z -->
-<!-- 源文件: content/recipes/repl.md -->
+### 读取-求值-输出循环（REPL）
 
-### Read-Eval-Print-Loop (REPL)
+REPL 是一种简单的交互式环境，能够接收用户输入的单条命令，执行后立即返回结果。通过 REPL 功能，您可以直接在终端检查依赖关系图，并对提供者（及控制器）调用方法。
 
-REPL 是一个简单的交互式环境，它可以处理单个用户输入，执行它们，并将结果返回给用户。
-REPL 功能允许您检查依赖关系图并在终端直接从控制器或服务中调用方法。
+#### 使用方法
 
-#### 使用
+要在 REPL 模式下运行 NestJS 应用，请新建 `repl.ts` 文件（与现有的 `main.ts` 文件同级），并在其中添加以下代码：
 
-要在 REPL 模式下运行 NestJS 应用程序，请创建一个新的文件（与现有文件 __INLINE_CODE_11__ 一起），并在其中添加以下代码：
+ ```typescript title="repl.ts"
+import { repl } from '@nestjs/core';
+import { AppModule } from './src/app.module';
+
+async function bootstrap() {
+  await repl(AppModule);
+}
+bootstrap();
+```
+
+现在在终端中，使用以下命令启动 REPL：
 
 ```bash
-$ npm i @mikro-orm/core @mikro-orm/nestjs @mikro-orm/sqlite
+$ npm run start -- --entryFile repl
 ```
 
-现在，在您的终端中，使用以下命令启动 REPL：
+:::info 提示
+`repl` 返回一个 [Node.js REPL 服务器](https://nodejs.org/api/repl.html)对象。
+:::
+
+当它启动并运行后，你将在控制台中看到以下消息：
+
+```bash
+LOG [NestFactory] Starting Nest application...
+LOG [InstanceLoader] AppModule dependencies initialized
+LOG REPL initialized
+```
+
+现在你可以开始与依赖关系图进行交互。例如，你可以获取一个 `AppService`（这里我们以启动项目为例）并调用 `getHello()` 方法：
 
 ```typescript
-import { SqliteDriver } from '@mikro-orm/sqlite';
-
-@Module({
-  imports: [
-    MikroOrmModule.forRoot({
-      entities: ['./dist/entities'],
-      entitiesTs: ['./src/entities'],
-      dbName: 'my-db-name.sqlite3',
-      driver: SqliteDriver,
-    }),
-  ],
-  controllers: [AppController],
-  providers: [AppService],
-})
-export class AppModule {}
+> get(AppService).getHello()
+'Hello World!'
 ```
 
-> info **提示** __INLINE_CODE_12__ 返回一个 __LINK_36__ 对象。
-
-启动后，您将在控制台中看到以下消息：
+你可以在终端内执行任何 JavaScript 代码，例如将 `AppController` 的实例赋值给局部变量，并使用 `await` 调用异步方法：
 
 ```typescript
-@Module({
-  imports: [
-    MikroOrmModule.forRoot(),
-  ],
-  ...
-})
-export class AppModule {}
+> appController = get(AppController)
+AppController { appService: AppService {} }
+> await appController.getHello()
+'Hello World!'
 ```
 
-现在，您可以开始与依赖关系图进行交互。例如，您可以获取一个 __INLINE_CODE_13__ (在这里，我们使用 starter 项目作为示例)并调用 `@mikro-orm/nestjs` 方法：
+要显示给定提供者或控制器上所有可用的公共方法，请使用 `methods()` 函数，如下所示：
 
 ```typescript
-import config from './mikro-orm.config'; // your ORM config
+> methods(AppController)
 
-@Module({
-  imports: [
-    MikroOrmModule.forRoot(config),
-  ],
-  ...
-})
-export class AppModule {}
+Methods:
+ ◻ getHello
 ```
 
-您可以在终端中执行任何 JavaScript 代码，例如，赋值一个 `@mikro-orm/nestjs` 实例到局部变量，并使用 `postgres` 调用异步方法：
-
-```ts
-// 导入 everything from your driver package or `@mikro-orm/knex`
-import { EntityManager, MikroORM } from '@mikro-orm/sqlite';
-
-@Injectable()
-export class MyService {
-  constructor(
-    private readonly orm: MikroORM,
-    private readonly em: EntityManager,
-  ) {}
-}
-```
-
-要显示给定提供者或控制器的所有公共方法，可以使用 `sqlite` 函数，例如：
+要打印所有已注册模块及其控制器和提供者的列表，请使用 `debug()`。
 
 ```typescript
-// photo.module.ts
-@Module({
-  imports: [MikroOrmModule.forFeature([Photo])],
-  providers: [PhotoService],
-  controllers: [PhotoController],
-})
-export class PhotoModule {}
-```
+> debug()
 
-要打印所有已注册的模块作为列表，连同它们的控制器和提供者一起，可以使用 `mongo`。
-
-```typescript
-// app.module.ts
-@Module({
-  imports: [MikroOrmModule.forRoot(...), PhotoModule],
-})
-export class AppModule {}
+AppModule:
+ - controllers:
+  ◻ AppController
+ - providers:
+  ◻ AppService
 ```
 
 快速演示：
 
-__HTML_TAG_33____HTML_TAG_34____HTML_TAG_35__
+<figure><img src="/assets/repl.gif" alt="REPL example" /></figure>
 
-可以在下面部分找到关于现有预定义 native 方法的更多信息。
+您可以在下方章节中找到有关现有预定义原生方法的更多信息。
 
 #### 原生函数
 
-NestJS REPL 自带了一些原生函数，当您启动 REPL 时，它们将被全局可用。您可以使用 `MikroOrmModule` 列出它们。
+内置的 NestJS REPL 附带了一些原生函数，这些函数在启动 REPL 时全局可用。你可以调用 `help()` 来列出它们。
 
-如果您不记得某个函数的签名（即：期望的参数和返回类型），可以使用 `AppModule`。
-例如：
+如果你不记得某个函数的签名（即预期参数和返回类型），可以调用 `<function_name>.help`。例如：
+
+```text
+> $.help
+Retrieves an instance of either injectable or controller, otherwise, throws exception.
+Interface: $(token: InjectionToken) => any
+```
+
+:::info 提示
+这些函数接口是用 [TypeScript 函数类型表达式语法](https://www.typescriptlang.org/docs/handbook/2/functions.html#function-type-expressions)编写的。
+:::
+
+
+
+| 功能     | 描述                                                         | 签名                                                            |
+| -------- | ------------------------------------------------------------ | --------------------------------------------------------------- |
+| `debug`  | 以列表形式打印所有已注册模块及其控制器和提供程序。           | `debug(moduleCls?: ClassRef \| string) => void`                |
+| `get` 或 `$` | 获取可注入对象或控制器的实例，否则抛出异常。                 | `get(token: InjectionToken) => any`                            |
+| `methods` | 显示给定提供者或控制器上所有可用的公共方法。                 | `methods(token: ClassRef \| string) => void`                   |
+| `resolve` | 解析可注入对象或控制器的临时或请求作用域实例，否则抛出异常。 | `resolve(token: InjectionToken, contextId: any) => Promise<any>` |
+| `select` | 允许在模块树中进行导航，例如从选定的模块中提取特定实例。     | `select(token: DynamicModule \| ClassRef) => INestApplicationContext` |
+
+#### 监视模式
+
+在开发过程中，以监视模式运行 REPL 非常有用，它能自动反映所有代码变更：
+
+```bash
+$ npm run start -- --watch --entryFile repl
+```
+
+这种方式存在一个缺陷：每次重新加载后 REPL 的命令历史记录都会被丢弃，这可能带来不便。幸运的是，有个非常简单的解决方案。像这样修改你的 `bootstrap` 函数：
 
 ```typescript
-@Injectable()
-export class PhotoService {
-  constructor(
-    @InjectRepository(Photo)
-    private readonly photoRepository: EntityRepository<Photo>,
-  ) {}
+async function bootstrap() {
+  const replServer = await repl(AppModule);
+  replServer.setupHistory('.nestjs_repl_history', (err) => {
+    if (err) {
+      console.error(err);
+    }
+  });
 }
 ```
 
-> info **提示** 函数接口是写在 __LINK_37__ 中的。
-
-| 函数     | 描述                                                                                                        | 签名                                                             |
-| -------- | ------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------- |
-| `forRoot()`      | 打印所有已注册的模块作为列表，连同它们的控制器和提供者一起。                              | `init()`                       |
-| `mikro-orm.config.ts` 或 `forRoot()` | 获取 injectable 或控制器的实例，否则抛出异常。                             | `EntityManager`                                   |
-| `EntityManager`    | 显示给定提供者或控制器的所有公共方法。                                            | `@mikro-orm/driver`                          |
-| `mysql`    | 解析瞬态或请求作用域的 injectable 或控制器实例，否则抛出异常。     | `sqlite`      |
-| `postgres`     | 允许通过模块树来导航，例如， pull out 一个特定的实例从所选模块。 | `@mikro-orm/knex` |
-
-#### 监听模式
-
-在开发中，运行 REPL 在监听模式下非常有用，可以自动反映所有代码更改：
-
-```ts
-// `**./author.entity.ts**`
-@Entity({ repository: () => AuthorRepository })
-export class Author {
-  // to allow inference in `em.getRepository()`
-  [EntityRepositoryType]?: AuthorRepository;
-}
-
-// `**./author.repository.ts**`
-export class AuthorRepository extends EntityRepository<Author> {
-  // your custom methods...
-}
-```
-
-这有一个缺点，即 REPL 的命令历史将在每次重新加载时被丢弃，这可能会很麻烦。
-幸运的是，有一个非常简单的解决方案。修改您的 `EntityManager` 函数如下：
-
-```ts
-@Injectable()
-export class MyService {
-  constructor(private readonly repo: AuthorRepository) {}
-}
-```
-
-现在，历史将在运行之间被保留。
+现在运行/重新加载之间的历史记录都能保留了。
