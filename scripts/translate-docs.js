@@ -63,6 +63,9 @@ class DocumentTranslator {
     // 代码块保护
     this.codeBlockPlaceholders = new Map();
     this.placeholderCounter = 0;
+
+    // 路径映射
+    this.pathMapping = new Map();
   }
 
   /**
@@ -130,6 +133,86 @@ class DocumentTranslator {
     } catch (error) {
       console.warn('⚠️ Failed to save translation cache:', error.message);
     }
+  }
+
+  /**
+   * 构建已有中文文档的路径映射
+   */
+  async buildPathMapping() {
+    try {
+      const pattern = path.join(this.docsDir, '**', '*.md').replace(/\\/g, '/');
+      const files = await glob(pattern);
+
+      for (const file of files) {
+        const fileName = path.basename(file);
+        const relativeToDocs = path.relative(this.docsDir, file).replace(/\\/g, '/');
+
+        // 如果文件在 unaudited 中，跳过记录（等审核正式移动之后再记录作为映射基础）
+        // 这样可以避免一直死循环放在 unaudited 里的情况
+        if (relativeToDocs.includes('unaudited/')) {
+          continue;
+        }
+
+        if (!this.pathMapping.has(fileName)) {
+          this.pathMapping.set(fileName, []);
+        }
+        // 数组形式存放，应对同名文件
+        this.pathMapping.get(fileName).push(relativeToDocs);
+      }
+
+      if (this.verbose) {
+        console.log(`🗺️ Built path mapping with ${this.pathMapping.size} unique file names`);
+      }
+    } catch (error) {
+      console.warn('⚠️ Failed to build path mapping:', error.message);
+    }
+  }
+
+  /**
+   * 查找最佳匹配路径（根据文件名和上游路径路径深度比对）
+   */
+  findBestMatchPath(fileName, originalRelativePath) {
+    if (!this.pathMapping.has(fileName)) {
+      return null;
+    }
+
+    const candidates = this.pathMapping.get(fileName);
+    if (candidates.length === 1) {
+      return candidates[0];
+    }
+
+    // 多个候选项时，拆分 originalRelativePath
+    // 例如 content/websockets/pipes.md -> [websockets, pipes.md]
+    const originalParts = originalRelativePath.replace(/\\/g, '/').split('/');
+
+    let bestMatch = candidates[0];
+    let maxScore = -1;
+
+    for (const candidate of candidates) {
+      const candidateParts = candidate.split('/');
+      let score = 0;
+
+      // 从后往前匹配各个目录层级（跳过文件名本身）
+      let i = originalParts.length - 2;
+      let j = candidateParts.length - 2;
+
+      while (i >= 0 && j >= 0) {
+        if (originalParts[i] === candidateParts[j]) {
+          score++;
+        } else {
+          break; // 一旦断层则停止加分
+        }
+        i--;
+        j--;
+      }
+
+      if (score > maxScore) {
+        maxScore = score;
+        bestMatch = candidate;
+      }
+    }
+
+    return bestMatch;
   }
 
   /**
@@ -337,14 +420,23 @@ Please translate the following English technical documentation to Chinese follow
   async translateFile(contentPath) {
     try {
       const relativePath = path.relative(this.contentDir, contentPath);
-      const outputPath = path.join(this.docsDir, relativePath);
+      const fileName = path.basename(relativePath);
+
+      // 使用智能层级查找寻找最贴切的真实结构位
+      let targetRelativePath = this.findBestMatchPath(fileName, relativePath);
+
+      if (!targetRelativePath) {
+        targetRelativePath = path.join('unaudited', relativePath);
+      }
+
+      const outputPath = path.join(this.docsDir, targetRelativePath);
 
       this.processedFiles++;
 
       // 检查是否需要更新
       if (!this.needsUpdate(contentPath, outputPath)) {
         if (this.verbose) {
-          console.log(`⏭️ Skipped (up to date): ${relativePath}`);
+          console.log(`⏭️ Skipped (up to date): ${targetRelativePath}`);
         }
         this.skippedFiles++;
         return false;
@@ -361,7 +453,7 @@ Please translate the following English technical documentation to Chinese follow
       // 使用 AI 翻译内容
       let translatedContent = content;
       if (this.useAI) {
-        console.log(`🤖 Translating: ${relativePath}`);
+        console.log(`🤖 Translating: ${relativePath} -> ${targetRelativePath}`);
         translatedContent = await this.translateWithAI(content, relativePath);
       }
 
@@ -375,7 +467,7 @@ Please translate the following English technical documentation to Chinese follow
       const sourceStats = fs.statSync(contentPath);
       fs.utimesSync(outputPath, sourceStats.atime, sourceStats.mtime);
 
-      console.log(`✅ Translated: ${relativePath}`);
+      console.log(`✅ Translated: ${relativePath} -> ${targetRelativePath}`);
       this.translatedFiles++;
       return true;
     } catch (error) {
@@ -486,6 +578,9 @@ Please translate the following English technical documentation to Chinese follow
       if (!fs.existsSync(this.contentDir)) {
         throw new Error(`Source directory '${this.contentDir}' does not exist`);
       }
+
+      // 构建智能路径映射字典
+      await this.buildPathMapping();
 
       // 查找所有 Markdown 文件
       const pattern = path.join(this.contentDir, '**', '*.md').replace(/\\/g, '/');
