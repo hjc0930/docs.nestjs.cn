@@ -116,6 +116,11 @@ jobs:
           
           # Switch back to main to continue workflow
           git checkout main
+          
+          # VITAL FIX: git checkout main restores the working tree to the current state of main, 
+          # effectively ERASING the newly updated content folder. We must re-copy it!
+          rm -rf content
+          cp -r official-docs/content ./content
       - name: Compare and sync assets folder
         id: sync-assets
         run: |
