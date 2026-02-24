@@ -60,7 +60,7 @@ jobs:
           # 检查 content 文件夹是否存在差异
           if [ -d "content" ]; then
             # 使用 rsync 的 dry-run 模式检查差异
-            if ! rsync -avu --dry-run --delete official-docs/content/ content/ > /tmp/content-diff.log 2>&1; then
+            if ! rsync -avui --dry-run --delete official-docs/content/ content/ > /tmp/content-diff.log 2>&1; then
               CONTENT_CHANGED=true
             elif [ -s /tmp/content-diff.log ]; then
               # 检查是否有实际的文件差异（过滤掉仅有的时间戳差异）
@@ -135,7 +135,7 @@ jobs:
             # 检查 assets 文件夹是否存在差异
             if [ -d "public/assets" ]; then
               # 使用 rsync 的 dry-run 模式检查差异
-              if ! rsync -avu --dry-run --delete official-docs/src/assets/ public/assets/ > /tmp/assets-diff.log 2>&1; then
+              if ! rsync -avui --dry-run --delete official-docs/src/assets/ public/assets/ > /tmp/assets-diff.log 2>&1; then
                 ASSETS_CHANGED=true
               elif [ -s /tmp/assets-diff.log ]; then
                 # 检查是否有实际的文件差异
