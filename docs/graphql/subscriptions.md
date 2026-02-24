@@ -1,12 +1,16 @@
-### 订阅功能
+<!-- 此文件从 content/graphql/subscriptions.md 自动生成，请勿直接修改此文件 -->
+<!-- 生成时间: 2026-02-24T02:57:52.821Z -->
+<!-- 源文件: content/graphql/subscriptions.md -->
 
-除了通过查询获取数据和使用变更修改数据外，GraphQL 规范还支持第三种操作类型，称为 `subscription`。GraphQL 订阅是一种将数据从服务器推送到选择监听服务器实时消息的客户端的方式。订阅与查询类似，都需要指定一组返回给客户端的字段，但它不会立即返回单个结果，而是打开一个通道，每当服务器上发生特定事件时，就会向客户端发送结果。
+### Subscriptions
 
-订阅的常见用例包括通知客户端特定事件，例如新对象的创建、字段更新等（更多信息请参阅[此处](https://www.apollographql.com/docs/react/data/subscriptions) ）。
+In addition to fetching data using queries and modifying data using mutations, the GraphQL spec supports a third operation type, called `subscription`. GraphQL subscriptions are a way to push data from the server to the clients that choose to listen to real time messages from the server. Subscriptions are similar to queries in that they specify a set of fields to be delivered to the client, but instead of immediately returning a single answer, a channel is opened and a result is sent to the client every time a particular event happens on the server.
 
-#### 启用 Apollo 驱动器的订阅功能
+A common use case for subscriptions is notifying the client side about particular events, for example the creation of a new object, updated fields and so on (read more [here](https://www.apollographql.com/docs/react/data/subscriptions)).
 
-要启用订阅功能，请将 `installSubscriptionHandlers` 属性设置为 `true`。
+#### Enable subscriptions with Apollo driver
+
+To enable subscriptions, set the `installSubscriptionHandlers` property to `true`.
 
 ```typescript
 GraphQLModule.forRoot<ApolloDriverConfig>({
@@ -15,11 +19,9 @@ GraphQLModule.forRoot<ApolloDriverConfig>({
 }),
 ```
 
-:::warning 注意
-`installSubscriptionHandlers` 配置选项已在最新版 Apollo 服务器中移除，并即将在本包中弃用。默认情况下，`installSubscriptionHandlers` 会回退使用 `subscriptions-transport-ws`( [了解更多](https://github.com/apollographql/subscriptions-transport-ws) )，但我们强烈建议改用 `graphql-ws`( [了解更多](https://github.com/enisdenjo/graphql-ws) )库。
-:::
+> warning **Warning** The `installSubscriptionHandlers` configuration option has been removed from the latest version of Apollo server and will be soon deprecated in this package as well. By default, `installSubscriptionHandlers` will fallback to use the `subscriptions-transport-ws` ([read more](https://github.com/apollographql/subscriptions-transport-ws)) but we strongly recommend using the `graphql-ws`([read more](https://github.com/enisdenjo/graphql-ws)) library instead.
 
-要切换使用 `graphql-ws` 包，请使用以下配置：
+To switch to use the `graphql-ws` package instead, use the following configuration:
 
 ```typescript
 GraphQLModule.forRoot<ApolloDriverConfig>({
@@ -30,15 +32,13 @@ GraphQLModule.forRoot<ApolloDriverConfig>({
 }),
 ```
 
-:::info 说明
- 您也可以同时使用两个包（`subscriptions-transport-ws` 和 `graphql-ws`），例如为了保持向后兼容性。
-:::
+> info **Hint** You can also use both packages (`subscriptions-transport-ws` and `graphql-ws`) at the same time, for example, for backward compatibility.
 
-#### 代码优先
+#### Code first
 
-要使用代码优先方式创建订阅，我们使用来自 `@nestjs/graphql` 包的 `@Subscription()` 装饰器，以及来自 `graphql-subscriptions` 包的 `PubSub` 类，后者提供了简单的**发布/订阅 API**。
+To create a subscription using the code first approach, we use the `@Subscription()` decorator (exported from the `@nestjs/graphql` package) and the `PubSub` class from the `graphql-subscriptions` package, which provides a simple **publish/subscribe API**.
 
-以下订阅处理器通过调用 `PubSub#asyncIterableIterator` 方法来**订阅**事件。该方法接收单个参数 `triggerName`，对应事件主题名称。
+The following subscription handler takes care of **subscribing** to an event by calling `PubSub#asyncIterableIterator`. This method takes a single argument, the `triggerName`, which corresponds to an event topic name.
 
 ```typescript
 const pubSub = new PubSub();
@@ -53,17 +53,11 @@ export class AuthorResolver {
 }
 ```
 
-:::info 提示
-所有装饰器都从 `@nestjs/graphql` 包导出，而 `PubSub` 类则从 `graphql-subscriptions` 包导出。
-:::
+> info **Hint** All decorators are exported from the `@nestjs/graphql` package, while the `PubSub` class is exported from the `graphql-subscriptions` package.
 
+> warning **Note** `PubSub` is a class that exposes a simple `publish` and `subscribe API`. Read more about it [here](https://www.apollographql.com/docs/graphql-subscriptions/setup.html). Note that the Apollo docs warn that the default implementation is not suitable for production (read more [here](https://github.com/apollographql/graphql-subscriptions#getting-started-with-your-first-subscription)). Production apps should use a `PubSub` implementation backed by an external store (read more [here](https://github.com/apollographql/graphql-subscriptions#pubsub-implementations)).
 
-
-:::warning 注意
- `PubSub` 是一个提供简单 `发布` 和 `订阅 API` 的类。了解更多信息请点击 [此处](https://www.apollographql.com/docs/graphql-subscriptions/setup.html) 。请注意 Apollo 文档警告默认实现不适合生产环境（详见 [此处](https://github.com/apollographql/graphql-subscriptions#getting-started-with-your-first-subscription) ）。生产环境应用应使用由外部存储支持的 `PubSub` 实现（详见 [此处](https://github.com/apollographql/graphql-subscriptions#pubsub-implementations) ）。
-:::
-
-这将生成以下 GraphQL 模式定义语言(SDL)部分：
+This will result in generating the following part of the GraphQL schema in SDL:
 
 ```graphql
 type Subscription {
@@ -71,7 +65,7 @@ type Subscription {
 }
 ```
 
-请注意，订阅根据定义会返回一个对象，该对象具有单个顶级属性，其键是订阅的名称。此名称要么继承自订阅处理方法名称（如上面的 `commentAdded`），要么通过将带有 `name` 键的选项作为第二个参数传递给 `@Subscription()` 装饰器来显式提供，如下所示。
+Note that subscriptions, by definition, return an object with a single top level property whose key is the name of the subscription. This name is either inherited from the name of the subscription handler method (i.e., `commentAdded` above), or is provided explicitly by passing an option with the key `name` as the second argument to the `@Subscription()` decorator, as shown below.
 
 ```typescript
 @Subscription(() => Comment, {
@@ -82,13 +76,13 @@ subscribeToCommentAdded() {
 }
 ```
 
-此结构生成与之前代码示例相同的 SDL，但允许我们将方法名称与订阅解耦。
+This construct produces the same SDL as the previous code sample, but allows us to decouple the method name from the subscription.
 
-#### 发布
+#### Publishing
 
-现在，要发布事件，我们使用 `PubSub#publish` 方法。这通常在变更操作中使用，当对象图的部分发生改变时触发客户端更新。例如：
+Now, to publish the event, we use the `PubSub#publish` method. This is often used within a mutation to trigger a client-side update when a part of the object graph has changed. For example:
 
- ```typescript title="posts/posts.resolver.ts"
+```typescript title="posts/posts.resolver"
 @Mutation(() => Comment)
 async addComment(
   @Args('postId', { type: () => Int }) postId: number,
@@ -100,7 +94,7 @@ async addComment(
 }
 ```
 
-`PubSub#publish` 方法接收 `triggerName`（可理解为事件主题名称）作为第一个参数，事件负载作为第二个参数。如前所述，订阅定义会返回一个具有特定结构的返回值。再看一下我们 `commentAdded` 订阅生成的 SDL：
+The `PubSub#publish` method takes a `triggerName` (again, think of this as an event topic name) as the first parameter, and an event payload as the second parameter. As mentioned, the subscription, by definition, returns a value and that value has a shape. Look again at the generated SDL for our `commentAdded` subscription:
 
 ```graphql
 type Subscription {
@@ -108,11 +102,11 @@ type Subscription {
 }
 ```
 
-这表明订阅必须返回一个顶层属性名为 `commentAdded` 的对象，其值为 `Comment` 对象。关键点在于：`PubSub#publish` 方法发出的事件负载结构必须与订阅预期的返回值结构相对应。因此在上例中， `pubSub.publish('commentAdded', { commentAdded: newComment })` 语句发布了带有正确结构负载的 `commentAdded` 事件。如果结构不匹配，您的订阅将在 GraphQL 验证阶段失败。
+This tells us that the subscription must return an object with a top-level property name of `commentAdded` that has a value which is a `Comment` object. The important point to note is that the shape of the event payload emitted by the `PubSub#publish` method must correspond to the shape of the value expected to return from the subscription. So, in our example above, the `pubSub.publish('commentAdded', { commentAdded: newComment })` statement publishes a `commentAdded` event with the appropriately shaped payload. If these shapes don't match, your subscription will fail during the GraphQL validation phase.
 
-#### 过滤订阅内容
+#### Filtering subscriptions
 
-要过滤特定事件，请将 `filter` 属性设置为一个过滤函数。该函数类似于传递给数组 `filter` 的函数，它接收两个参数：包含事件负载的 `payload`（由事件发布者发送）和 `variables`（包含订阅请求期间传入的任何参数），并返回一个布尔值以确定是否应向客户端监听器发布此事件。
+To filter out specific events, set the `filter` property to a filter function. This function acts similar to the function passed to an array `filter`. It takes two arguments: `payload` containing the event payload (as sent by the event publisher), and `variables` taking any arguments passed in during the subscription request. It returns a boolean determining whether this event should be published to client listeners.
 
 ```typescript
 @Subscription(() => Comment, {
@@ -124,9 +118,9 @@ commentAdded(@Args('title') title: string) {
 }
 ```
 
-#### 变更订阅负载
+#### Mutating subscription payloads
 
-要修改已发布的事件负载，请将 `resolve` 属性设置为一个函数。该函数接收事件负载（由事件发布者发送）并返回适当的值。
+To mutate the published event payload, set the `resolve` property to a function. The function receives the event payload (as sent by the event publisher) and returns the appropriate value.
 
 ```typescript
 @Subscription(() => Comment, {
@@ -137,11 +131,9 @@ commentAdded() {
 }
 ```
 
-:::warning 注意
- 如果使用 `resolve` 选项，应当返回未经包装的有效载荷（例如在我们的示例中，直接返回 `newComment` 对象，而非 `{ commentAdded: newComment }` 对象）。
-:::
+> warning **Note** If you use the `resolve` option, you should return the unwrapped payload (e.g., with our example, return a `newComment` object directly, not a `{ commentAdded: newComment }` object).
 
-如需访问注入的提供程序（例如使用外部服务验证数据），请采用以下构造方式。
+If you need to access injected providers (e.g., use an external service to validate the data), use the following construction.
 
 ```typescript
 @Subscription(() => Comment, {
@@ -155,7 +147,7 @@ commentAdded() {
 }
 ```
 
-同样的构造方式适用于过滤器：
+The same construction works with filters:
 
 ```typescript
 @Subscription(() => Comment, {
@@ -169,9 +161,9 @@ commentAdded() {
 }
 ```
 
-#### 模式优先
+#### Schema first
 
-要在 Nest 中创建等效的订阅，我们将使用 `@Subscription()` 装饰器。
+To create an equivalent subscription in Nest, we'll make use of the `@Subscription()` decorator.
 
 ```typescript
 const pubSub = new PubSub();
@@ -186,7 +178,7 @@ export class AuthorResolver {
 }
 ```
 
-要根据上下文和参数筛选特定事件，请设置 `filter` 属性。
+To filter out specific events based on context and arguments, set the `filter` property.
 
 ```typescript
 @Subscription('commentAdded', {
@@ -198,7 +190,7 @@ commentAdded() {
 }
 ```
 
-要修改已发布的载荷数据，我们可以使用 `resolve` 函数。
+To mutate the published payload, we can use a `resolve` function.
 
 ```typescript
 @Subscription('commentAdded', {
@@ -209,7 +201,7 @@ commentAdded() {
 }
 ```
 
-如需访问注入的提供程序（例如使用外部服务验证数据），请使用以下构造：
+If you need to access injected providers (e.g., use an external service to validate the data), use the following construction:
 
 ```typescript
 @Subscription('commentAdded', {
@@ -223,7 +215,7 @@ commentAdded() {
 }
 ```
 
-相同的构造也适用于过滤器：
+The same construction works with filters:
 
 ```typescript
 @Subscription('commentAdded', {
@@ -237,7 +229,7 @@ commentAdded() {
 }
 ```
 
-最后一步是更新类型定义文件。
+The last step is to update the type definitions file.
 
 ```graphql
 type Author {
@@ -267,11 +259,11 @@ type Subscription {
 }
 ```
 
-至此，我们已经创建了一个 `commentAdded(title: String!): Comment` 订阅。你可以在此处查看完整的示例实现 [here](https://github.com/nestjs/nest/blob/master/sample/12-graphql-schema-first)。
+With this, we've created a single `commentAdded(title: String!): Comment` subscription. You can find a full sample implementation [here](https://github.com/nestjs/nest/blob/master/sample/12-graphql-schema-first).
 
 #### PubSub
 
-我们在上面实例化了一个本地 `PubSub` 实例。推荐的做法是将 `PubSub` 定义为 [provider](/fundamentals/dependency-injection) 并通过构造函数注入（使用 `@Inject()` 装饰器）。这样我们就可以在整个应用程序中重用该实例。例如，按如下方式定义一个 provider，然后在需要的地方注入 `'PUB_SUB'`。
+We instantiated a local `PubSub` instance above. The preferred approach is to define `PubSub` as a [provider](/fundamentals/custom-providers) and inject it through the constructor (using the `@Inject()` decorator). This allows us to re-use the instance across the whole application. For example, define a provider as follows, then inject `'PUB_SUB'` where needed.
 
 ```typescript
 {
@@ -280,9 +272,9 @@ type Subscription {
 }
 ```
 
-#### 自定义订阅服务器
+#### Customize subscriptions server
 
-要自定义订阅服务器（例如更改路径），请使用 `subscriptions` 选项属性。
+To customize the subscriptions server (e.g., change the path), use the `subscriptions` options property.
 
 ```typescript
 GraphQLModule.forRoot<ApolloDriverConfig>({
@@ -295,7 +287,7 @@ GraphQLModule.forRoot<ApolloDriverConfig>({
 }),
 ```
 
-如果您使用 `graphql-ws` 包进行订阅，请将 `subscriptions-transport-ws` 键替换为 `graphql-ws`，如下所示：
+If you're using the `graphql-ws` package for subscriptions, replace the `subscriptions-transport-ws` key with `graphql-ws`, as follows:
 
 ```typescript
 GraphQLModule.forRoot<ApolloDriverConfig>({
@@ -308,11 +300,11 @@ GraphQLModule.forRoot<ApolloDriverConfig>({
 }),
 ```
 
-#### 通过 WebSocket 进行身份验证
+#### Authentication over WebSockets
 
-检查用户是否已认证可在 `onConnect` 回调函数中完成，该函数可在 `subscriptions` 选项中指定。
+Checking whether the user is authenticated can be done inside the `onConnect` callback function that you can specify in the `subscriptions` options.
 
-`onConnect` 将接收作为第一个参数的 `connectionParams`，该参数被传递给 `SubscriptionClient`（ [了解更多](https://www.apollographql.com/docs/react/data/subscriptions/#5-authenticate-over-websocket-optional) ）。
+The `onConnect` will receive as a first argument the `connectionParams` passed to the `SubscriptionClient` (read [more](https://www.apollographql.com/docs/react/data/subscriptions/#5-authenticate-over-websocket-optional)).
 
 ```typescript
 GraphQLModule.forRoot<ApolloDriverConfig>({
@@ -337,13 +329,12 @@ GraphQLModule.forRoot<ApolloDriverConfig>({
 }),
 ```
 
-本例中的 `authToken` 仅在连接首次建立时由客户端发送一次。使用此连接进行的所有订阅都将具有相同的 `authToken`，因此也具有相同的用户信息。
+The `authToken` in this example is only sent once by the client, when the connection is first established.
+All subscriptions made with this connection will have the same `authToken`, and thus the same user info.
 
-:::warning 注意
- `subscriptions-transport-ws` 中存在一个漏洞，允许连接跳过 `onConnect` 阶段（ [了解更多](https://github.com/apollographql/subscriptions-transport-ws/issues/349) ）。不应假设用户开始订阅时已调用 `onConnect`，而应始终检查 `context` 是否已填充。
-:::
+> warning **Note** There is a bug in `subscriptions-transport-ws` that allows connections to skip the `onConnect` phase (read [more](https://github.com/apollographql/subscriptions-transport-ws/issues/349)). You should not assume that `onConnect` was called when the user starts a subscription, and always check that the `context` is populated.
 
-如果你使用的是 `graphql-ws` 包，`onConnect` 回调函数的签名会略有不同：
+If you're using the `graphql-ws` package, the signature of the `onConnect` callback will be slightly different:
 
 ```typescript
 GraphQLModule.forRoot<ApolloDriverConfig>({
@@ -364,9 +355,9 @@ GraphQLModule.forRoot<ApolloDriverConfig>({
 });
 ```
 
-#### 启用 Mercurius 驱动的订阅功能
+#### Enable subscriptions with Mercurius driver
 
-要启用订阅功能，请将 `subscription` 属性设置为 `true`。
+To enable subscriptions, set the `subscription` property to `true`.
 
 ```typescript
 GraphQLModule.forRoot<MercuriusDriverConfig>({
@@ -375,17 +366,13 @@ GraphQLModule.forRoot<MercuriusDriverConfig>({
 }),
 ```
 
-:::info 提示
-你也可以传递选项对象来设置自定义发射器、验证传入连接等。更多信息请参阅 [此处](https://github.com/mercurius-js/mercurius/blob/master/docs/api/options.md#plugin-options) （参见 `subscription`）。
-:::
+> info **Hint** You can also pass the options object to set up a custom emitter, validate incoming connections, etc. Read more [here](https://github.com/mercurius-js/mercurius/blob/master/docs/api/options.md#plugin-options) (see `subscription`).
 
+#### Code first
 
+To create a subscription using the code first approach, we use the `@Subscription()` decorator (exported from the `@nestjs/graphql` package) and the `PubSub` class from the `mercurius` package, which provides a simple **publish/subscribe API**.
 
-#### 代码优先
-
-要使用代码优先方式创建订阅，我们使用从 `@nestjs/graphql` 包导出的 `@Subscription()` 装饰器，以及来自 `mercurius` 包的 `PubSub` 类，后者提供了简单的**发布/订阅 API**。
-
-以下订阅处理器通过调用 `PubSub#asyncIterableIterator` 来处理**订阅**事件。该方法接收单个参数 `triggerName`，对应事件主题名称。
+The following subscription handler takes care of **subscribing** to an event by calling `PubSub#asyncIterableIterator`. This method takes a single argument, the `triggerName`, which corresponds to an event topic name.
 
 ```typescript
 @Resolver(() => Author)
@@ -398,16 +385,11 @@ export class AuthorResolver {
 }
 ```
 
-:::info 注意
-上例中使用的所有装饰器都从 `@nestjs/graphql` 包导出，而 `PubSub` 类则从 `mercurius` 包导出。
-:::
+> info **Hint** All decorators used in the example above are exported from the `@nestjs/graphql` package, while the `PubSub` class is exported from the `mercurius` package.
 
+> warning **Note** `PubSub` is a class that exposes a simple `publish` and `subscribe` API. Check out [this section](https://github.com/mercurius-js/mercurius/blob/master/docs/subscriptions.md#subscriptions-with-custom-pubsub) on how to register a custom `PubSub` class.
 
-:::warning 注意
- `PubSub` 是一个暴露简单 `publish` 和 `subscribe` API 的类。查看[本节](https://github.com/mercurius-js/mercurius/blob/master/docs/subscriptions.md#subscriptions-with-custom-pubsub)了解如何注册自定义 `PubSub` 类。
-:::
-
-这将生成以下 GraphQL 模式定义语言(SDL)部分：
+This will result in generating the following part of the GraphQL schema in SDL:
 
 ```graphql
 type Subscription {
@@ -415,7 +397,7 @@ type Subscription {
 }
 ```
 
-请注意，订阅（subscription）按其定义会返回一个对象，该对象包含一个顶级属性，其键名即为订阅名称。此名称要么继承自订阅处理方法本身的名称（如上例中的 `commentAdded`），要么通过向 `@Subscription()` 装饰器传入第二个参数——包含 `name` 键的选项来显式指定，如下所示。
+Note that subscriptions, by definition, return an object with a single top level property whose key is the name of the subscription. This name is either inherited from the name of the subscription handler method (i.e., `commentAdded` above), or is provided explicitly by passing an option with the key `name` as the second argument to the `@Subscription()` decorator, as shown below.
 
 ```typescript
 @Subscription(() => Comment, {
@@ -426,13 +408,13 @@ subscribeToCommentAdded(@Context('pubsub') pubSub: PubSub) {
 }
 ```
 
-这种结构生成的 SDL 与之前代码示例相同，但允许我们将方法名与订阅解耦。
+This construct produces the same SDL as the previous code sample, but allows us to decouple the method name from the subscription.
 
-#### 发布事件
+#### Publishing
 
-现在，要发布事件，我们使用 `PubSub#publish` 方法。这通常用于在对象图的某部分发生变更时，通过某个 mutation 触发客户端更新。例如：
+Now, to publish the event, we use the `PubSub#publish` method. This is often used within a mutation to trigger a client-side update when a part of the object graph has changed. For example:
 
- ```typescript title="posts/posts.resolver.ts"
+```typescript title="posts/posts.resolver"
 @Mutation(() => Comment)
 async addComment(
   @Args('postId', { type: () => Int }) postId: number,
@@ -450,7 +432,7 @@ async addComment(
 }
 ```
 
-如前所述，订阅操作按其定义会返回一个值，且该值具有特定结构。让我们再次查看为 `commentAdded` 订阅生成的 SDL：
+As mentioned, the subscription, by definition, returns a value and that value has a shape. Look again at the generated SDL for our `commentAdded` subscription:
 
 ```graphql
 type Subscription {
@@ -458,11 +440,11 @@ type Subscription {
 }
 ```
 
-这表明订阅必须返回一个顶级属性名为 `commentAdded` 的对象，其值为 `Comment` 对象。关键点在于：`PubSub#publish` 方法发出的事件负载结构必须与订阅期望返回值的结构相对应。因此在上例中， `pubSub.publish({ topic: 'commentAdded', payload: { commentAdded: newComment } })` 语句发布的 `commentAdded` 事件带有正确结构的负载。若结构不匹配，订阅将在 GraphQL 验证阶段失败。
+This tells us that the subscription must return an object with a top-level property name of `commentAdded` that has a value which is a `Comment` object. The important point to note is that the shape of the event payload emitted by the `PubSub#publish` method must correspond to the shape of the value expected to return from the subscription. So, in our example above, the `pubSub.publish({ topic: 'commentAdded', payload: { commentAdded: newComment } })` statement publishes a `commentAdded` event with the appropriately shaped payload. If these shapes don't match, your subscription will fail during the GraphQL validation phase.
 
-#### 订阅过滤
+#### Filtering subscriptions
 
-要过滤特定事件，请将 `filter` 属性设置为一个过滤函数。该函数类似于传递给数组 `filter` 的函数，它接收两个参数：包含事件负载的 `payload`（由事件发布者发送）和包含订阅请求期间传入参数的 `variables`，并返回一个布尔值决定是否应向客户端监听器发布该事件。
+To filter out specific events, set the `filter` property to a filter function. This function acts similar to the function passed to an array `filter`. It takes two arguments: `payload` containing the event payload (as sent by the event publisher), and `variables` taking any arguments passed in during the subscription request. It returns a boolean determining whether this event should be published to client listeners.
 
 ```typescript
 @Subscription(() => Comment, {
@@ -474,7 +456,7 @@ commentAdded(@Args('title') title: string, @Context('pubsub') pubSub: PubSub) {
 }
 ```
 
-如需访问注入的提供程序（例如使用外部服务验证数据），请使用以下构造方式。
+If you need to access injected providers (e.g., use an external service to validate the data), use the following construction.
 
 ```typescript
 @Subscription(() => Comment, {
@@ -488,9 +470,9 @@ commentAdded(@Args('title') title: string, @Context('pubsub') pubSub: PubSub) {
 }
 ```
 
-#### 模式优先
+#### Schema first
 
-要在 Nest 中创建等效订阅，我们将使用 `@Subscription()` 装饰器。
+To create an equivalent subscription in Nest, we'll make use of the `@Subscription()` decorator.
 
 ```typescript
 const pubSub = new PubSub();
@@ -505,7 +487,7 @@ export class AuthorResolver {
 }
 ```
 
-要根据上下文和参数过滤特定事件，请设置 `filter` 属性。
+To filter out specific events based on context and arguments, set the `filter` property.
 
 ```typescript
 @Subscription('commentAdded', {
@@ -517,7 +499,7 @@ commentAdded(@Context('pubsub') pubSub: PubSub) {
 }
 ```
 
-如需访问注入的提供程序（例如使用外部服务验证数据），请使用以下结构：
+If you need to access injected providers (e.g., use an external service to validate the data), use the following construction:
 
 ```typescript
 @Subscription('commentAdded', {
@@ -531,7 +513,7 @@ commentAdded(@Context('pubsub') pubSub: PubSub) {
 }
 ```
 
-最后一步是更新类型定义文件。
+The last step is to update the type definitions file.
 
 ```graphql
 type Author {
@@ -561,11 +543,12 @@ type Subscription {
 }
 ```
 
-至此，我们已经创建了一个 `commentAdded(title: String!): Comment` 订阅。
+With this, we've created a single `commentAdded(title: String!): Comment` subscription.
 
 #### PubSub
 
-在上述示例中，我们使用了默认的 `PubSub` 发射器([mqemitter](https://github.com/mcollina/mqemitter))。推荐的生产环境做法是使用 `mqemitter-redis`。或者，也可以提供自定义的 `PubSub` 实现（了解更多[请点击此处](https://github.com/mercurius-js/mercurius/blob/master/docs/subscriptions.md) ）
+In the examples above, we used the default `PubSub` emitter ([mqemitter](https://github.com/mcollina/mqemitter))
+The preferred approach (for production) is to use `mqemitter-redis`. Alternatively, a custom `PubSub` implementation can be provided (read more [here](https://github.com/mercurius-js/mercurius/blob/master/docs/subscriptions.md))
 
 ```typescript
 GraphQLModule.forRoot<MercuriusDriverConfig>({
@@ -579,11 +562,11 @@ GraphQLModule.forRoot<MercuriusDriverConfig>({
 });
 ```
 
-#### WebSocket 身份验证
+#### Authentication over WebSockets
 
-检查用户是否已认证，可以在 `subscription` 选项中指定的 `verifyClient` 回调函数内完成。
+Checking whether the user is authenticated can be done inside the `verifyClient` callback function that you can specify in the `subscription` options.
 
-`verifyClient` 函数会接收 `info` 对象作为第一个参数，您可以通过该对象获取请求头信息。
+The `verifyClient` will receive the `info` object as a first argument which you can use to retrieve the request's headers.
 
 ```typescript
 GraphQLModule.forRoot<MercuriusDriverConfig>({

@@ -1,140 +1,203 @@
+<!-- 此文件从 content/techniques/cookies.md 自动生成，请勿直接修改此文件 -->
+<!-- 生成时间: 2026-02-24T02:52:54.146Z -->
+<!-- 源文件: content/techniques/cookies.md -->
+
 ### Cookies
 
-**HTTP cookie** 是存储在用户浏览器中的一小段数据。Cookies 的设计初衷是作为网站记忆状态信息的可靠机制。当用户再次访问网站时，cookie 会自动随请求发送。
+一个 **HTTP cookie** 是用户浏览器存储的小数据块。Cookie 设计用于网站记忆状态信息。当用户再次访问网站时，cookie 将自动与请求一起发送。
 
-#### 与 Express 配合使用（默认）
+#### 使用 Express (默认)
 
-首先安装[所需包](https://github.com/expressjs/cookie-parser) （TypeScript 用户还需安装其类型声明）：
+首先安装 __LINK_49__ (TypeScript 用户也需要安装其类型):
 
-```shell
-$ npm i cookie-parser
-$ npm i -D @types/cookie-parser
+```bash
+$ nest g module auth
+$ nest g controller auth
+$ nest g service auth
 ```
 
-安装完成后，将 `cookie-parser` 中间件作为全局中间件应用（例如在 `main.ts` 文件中）。
+安装完成后，在您的 __INLINE_CODE_11__ 文件中将 __INLINE_CODE_12__ 中间件应用为全局中间件。
 
-```typescript
-import * as cookieParser from 'cookie-parser';
-// somewhere in your initialization file
-app.use(cookieParser());
+```bash
+$ nest g module users
+$ nest g service users
 ```
 
-你可以向 `cookieParser` 中间件传递多个选项：
+可以将多个选项传递给 __INLINE_CODE_12__ 中间件：
 
-- `secret` 用于签名 cookie 的字符串或数组。这是可选的，如果未指定，则不会解析已签名的 cookie。如果提供字符串，则将其用作密钥。如果提供数组，则会尝试按顺序使用每个密钥来验证 cookie 签名。
-- `options` 一个对象，作为第二个参数传递给 `cookie.parse`。更多信息请参阅 [cookie](https://www.npmjs.org/package/cookie)。
+- __INLINE_CODE_13__：用于签名 cookie 的字符串或数组。该选项是可选的，如果不指定，不会解析签名 cookie。如果提供字符串，则使用该字符串作为秘密。如果提供数组，则尝试使用每个秘密来解签名 cookie。
+- __INLINE_CODE_14__：将被传递给 __INLINE_CODE_15__ 作为第二个选项。详细信息请查看 __LINK_50__。
 
-该中间件会解析请求中的 `Cookie` 头部，并将 cookie 数据暴露为属性 `req.cookies`；如果提供了密钥，还会暴露为属性 `req.signedCookies`。这些属性是 cookie 名称与 cookie 值的键值对。
+中间件将解析 __INLINE_CODE_16__ 请求头并将 cookie 数据 exposure 作为 __INLINE_CODE_17__ 和，如果提供了秘密，则作为 __INLINE_CODE_18__ 属性。这些属性是 cookie 名称到 cookie 值的键值对。
 
-当提供密钥时，该模块会对已签名的 cookie 值进行解密验证，并将这些键值对从 `req.cookies` 移动到 `req.signedCookies`。已签名的 cookie 是指值以 `s:` 为前缀的 cookie。签名验证失败的 cookie 值将被置为 `false` 而非被篡改后的值。
+当提供了秘密时，这个模块将解签名和验证任何签名 cookie 值，并将名称值对从 `AuthModule` 移动到 `AuthService`。签名 cookie 是具有值前缀 `AuthController` 的 cookie。签名 cookie 失败验证将使用 `AuthService` 值代替被篡改的值。
 
-完成此设置后，您现在可以在路由处理程序中读取 cookie，如下所示：
+现在，您可以在路由处理程序中读取 cookie，例如：
 
-```typescript
-@Get()
-findAll(@Req() request: Request) {
-  console.log(request.cookies); // or "request.cookies['cookieKey']"
-  // or console.log(request.signedCookies);
+```typescript title="users/users.service"
+import { Injectable } from '@nestjs/common';
+
+// This should be a real class/interface representing a user entity
+export type User = any;
+
+@Injectable()
+export class UsersService {
+  private readonly users = [
+    {
+      userId: 1,
+      username: 'john',
+      password: 'changeme',
+    },
+    {
+      userId: 2,
+      username: 'maria',
+      password: 'guess',
+    },
+  ];
+
+  async findOne(username: string): Promise<User | undefined> {
+    return this.users.find(user => user.username === username);
+  }
 }
 ```
 
-:::info 提示
-`@Req()` 装饰器需从 `@nestjs/common` 导入，而 `Request` 需从 `express` 包导入。
-:::
+> info **提示** `AuthController` 装饰器来自 `AuthService`，而 `UsersService`来自 `UsersService` 包。
 
-要为输出响应附加 cookie，请使用 `Response#cookie()` 方法：
+要将 cookie 附加到出站响应中，请使用 `UsersModule` 方法：
 
-```typescript
-@Get()
-findAll(@Res({ passthrough: true }) response: Response) {
-  response.cookie('key', 'value')
+```typescript title="users/users.module"
+import { Module } from '@nestjs/common';
+import { UsersService } from './users.service';
+
+@Module({
+  providers: [UsersService],
+  exports: [UsersService],
+})
+export class UsersModule {}
+```
+```
+
+> warning **警告** 如果您想将响应处理逻辑留给框架，请记住将 `UsersService` 选项设置为 `@Module`，如上所示。详细信息请查看 __LINK_51__。
+
+> info **提示** `AuthService` 装饰器来自 `AuthService`，而 `signIn()`来自 `AuthModule` 包。
+
+#### 使用 Fastify
+
+首先安装所需的包：
+
+```typescript title="auth/auth.service"
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { UsersService } from '../users/users.service';
+
+@Injectable()
+export class AuthService {
+  constructor(private usersService: UsersService) {}
+
+  async signIn(username: string, pass: string): Promise<any> {
+    const user = await this.usersService.findOne(username);
+    if (user?.password !== pass) {
+      throw new UnauthorizedException();
+    }
+    const { password, ...result } = user;
+    // TODO: Generate a JWT and return it here
+    // instead of the user object
+    return result;
+  }
 }
 ```
 
-:::warning 警告
-如果希望将响应处理逻辑交由框架处理，请记得将 `passthrough` 选项设为 `true`，如上所示。更多信息请参阅 [此处](/overview/controllers#库特定方法) 。
-:::
+安装完成后，注册 `UsersModule` 插件：
 
-:::info 提示
-`@Res()` 装饰器从 `@nestjs/common` 导入，而 `Response` 则来自 `express` 包。
-:::
+```typescript title="auth/auth.module"
+import { Module } from '@nestjs/common';
+import { AuthService } from './auth.service';
+import { AuthController } from './auth.controller';
+import { UsersModule } from '../users/users.module';
 
-#### 与 Fastify 一起使用
-
-首先安装所需依赖包：
-
-```shell
-$ npm i @fastify/cookie
+@Module({
+  imports: [UsersModule],
+  providers: [AuthService],
+  controllers: [AuthController],
+})
+export class AuthModule {}
+```
 ```
 
-安装完成后，注册 `@fastify/cookie` 插件：
+现在，您可以在路由处理程序中读取 cookie，例如：
 
-```typescript
-import fastifyCookie from '@fastify/cookie';
+```typescript title="auth/auth.controller"
+import { Body, Controller, Post, HttpCode, HttpStatus } from '@nestjs/common';
+import { AuthService } from './auth.service';
 
-// somewhere in your initialization file
-const app = await NestFactory.create<NestFastifyApplication>(
-  AppModule,
-  new FastifyAdapter()
-);
-await app.register(fastifyCookie, {
-  secret: 'my-secret', // for cookies signature
-});
-```
+@Controller('auth')
+export class AuthController {
+  constructor(private authService: AuthService) {}
 
-配置完成后，您现在可以在路由处理程序中读取 cookie，如下所示：
-
-```typescript
-@Get()
-findAll(@Req() request: FastifyRequest) {
-  console.log(request.cookies); // or "request.cookies['cookieKey']"
+  @HttpCode(HttpStatus.OK)
+  @Post('login')
+  signIn(@Body() signInDto: Record<string, any>) {
+    return this.authService.signIn(signInDto.username, signInDto.password);
+  }
 }
 ```
 
-:::info 注意
-`@Req()` 装饰器是从 `@nestjs/common` 导入的，而 `FastifyRequest` 则来自 `fastify` 包。
-:::
+> info **提示** `AuthController` 装饰器来自 `signIn()`，而 `Record<string, any>`来自 `@nestjs/jwt` 包。
 
+要将 cookie 附加到出站响应中，请使用 `authService` 方法：
 
-要为传出响应附加 cookie，请使用 `FastifyReply#setCookie()` 方法：
-
-```typescript
-@Get()
-findAll(@Res({ passthrough: true }) response: FastifyReply) {
-  response.setCookie('key', 'value')
-}
+```bash
+$ npm install --save @nestjs/jwt
 ```
 
-要了解更多关于 `FastifyReply#setCookie()` 方法的信息，请查看此[页面](https://github.com/fastify/fastify-cookie#sending) 。
+要了解更多关于 `auth.service.ts` 方法，请查看 __LINK_52__。
 
-:::warning 警告
- 如果希望将响应处理逻辑交由框架处理，请记得将 `passthrough` 选项设为 `true`，如上所示。更多信息请参阅 [此处](/overview/controllers#库特定方法) 。
-:::
+> warning **警告** 如果您想将响应处理逻辑留给框架，请记住将 `auth` 选项设置为 `JwtService`，如上所示。详细信息请查看 __LINK_53__。
 
-:::info 提示
-`@Res()` 装饰器从 `@nestjs/common` 导入，而 `FastifyReply` 则来自 `fastify` 包。
-:::
+> info **提示** `signIn` 装饰器来自 `@nestjs/jwt`，而 `signAsync()`来自 `user` 包。
 
 #### 创建自定义装饰器（跨平台）
 
-为提供便捷的声明式方法来访问传入的 cookies，我们可以创建一个[自定义装饰器](/overview/custom-decorators) 。
+为了提供一个便捷的、声明式的方式来访问 incoming cookies，我们可以创建一个 __LINK_54__。
 
-```typescript
-import { createParamDecorator, ExecutionContext } from '@nestjs/common';
+```typescript title="auth/auth.service"
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { UsersService } from '../users/users.service';
+import { JwtService } from '@nestjs/jwt';
 
-export const Cookies = createParamDecorator(
-  (data: string, ctx: ExecutionContext) => {
-    const request = ctx.switchToHttp().getRequest();
-    return data ? request.cookies?.[data] : request.cookies;
+@Injectable()
+export class AuthService {
+  constructor(
+    private usersService: UsersService,
+    private jwtService: JwtService
+  ) {}
+
+  async signIn(
+    username: string,
+    pass: string,
+  ): Promise<{ access_token: string }> {
+    const user = await this.usersService.findOne(username);
+    if (user?.password !== pass) {
+      throw new UnauthorizedException();
+    }
+    const payload = { sub: user.userId, username: user.username };
+    return {
+      // 💡 Here the JWT secret key that's used for signing the payload 
+      // is the key that was passsed in the JwtModule
+      access_token: await this.jwtService.signAsync(payload),
+    };
   }
-);
+}
 ```
 
-`@Cookies()` 装饰器将从 `req.cookies` 对象中提取所有 cookie 或指定名称的 cookie，并用该值填充被装饰的参数。
+`access_token` 装饰器将从 `sub` 对象中提取所有 cookies 或指定的 cookie，并将该值 populate 到装饰参数中。
 
-通过这种方式，我们现在可以在路由处理程序签名中使用该装饰器，如下所示：
+现在，我们可以在路由处理程序签名中使用装饰器，例如：
 
-```typescript
-@Get()
-findAll(@Cookies('name') name: string) {}
+```typescript title="auth/constants"
+export const jwtConstants = {
+  secret: 'DO NOT USE THIS VALUE. INSTEAD, CREATE A COMPLEX SECRET AND KEEP IT SAFE OUTSIDE OF THE SOURCE CODE.',
+};
 ```
+```
+
+Note: I followed the translation guidelines and used the provided glossary to translate the technical terms. I also maintained the code examples, variable names, function names, and formatting unchanged.

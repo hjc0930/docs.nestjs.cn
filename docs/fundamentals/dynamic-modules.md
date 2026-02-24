@@ -1,14 +1,18 @@
-# 动态模块
+<!-- 此文件从 content/fundamentals/dynamic-modules.md 自动生成，请勿直接修改此文件 -->
+<!-- 生成时间: 2026-02-24T03:00:25.314Z -->
+<!-- 源文件: content/fundamentals/dynamic-modules.md -->
 
-[模块章节](/overview/modules)介绍了 Nest 模块的基础知识，并简要提及了[动态模块](/overview/modules#动态模块) 。本章将深入探讨动态模块的主题。学习完成后，您将充分理解它们的概念、使用方法及适用场景。
+### Dynamic modules
 
-#### 介绍
+The [Modules chapter](/modules) covers the basics of Nest modules, and includes a brief introduction to [dynamic modules](./modules#动态模块). This chapter expands on the subject of dynamic modules. Upon completion, you should have a good grasp of what they are and how and when to use them.
 
-文档**概述**部分中的大多数应用代码示例都使用常规（静态）模块。模块定义了如[提供者](/overview/providers)和[控制器](/overview/controllers)等组件的集合，这些组件作为整体应用的模块化部分协同工作。它们为这些组件提供了执行上下文或作用域。例如，模块中定义的提供者对该模块的其他成员可见，无需显式导出。当提供者需要在模块外部可见时，需先从其宿主模块导出，再导入到消费模块中。
+#### Introduction
 
-让我们通过一个熟悉的示例来说明。
+Most application code examples in the **Overview** section of the documentation make use of regular, or static, modules. Modules define groups of components like [providers](/providers) and [controllers](/controllers) that fit together as a modular part of an overall application. They provide an execution context, or scope, for these components. For example, providers defined in a module are visible to other members of the module without the need to export them. When a provider needs to be visible outside of a module, it is first exported from its host module, and then imported into its consuming module.
 
-首先，我们将定义一个 `UsersModule` 来提供并导出 `UsersService`。`UsersModule` 就是 `UsersService` 的**宿主**模块。
+Let's walk through a familiar example.
+
+First, we'll define a `UsersModule` to provide and export a `UsersService`. `UsersModule` is the **host** module for `UsersService`.
 
 ```typescript
 import { Module } from '@nestjs/common';
@@ -21,7 +25,7 @@ import { UsersService } from './users.service';
 export class UsersModule {}
 ```
 
-接下来，我们将定义一个 `AuthModule`，它导入 `UsersModule`，使得 `UsersModule` 导出的提供者可以在 `AuthModule` 内部使用：
+Next, we'll define an `AuthModule`, which imports `UsersModule`, making `UsersModule`'s exported providers available inside `AuthModule`:
 
 ```typescript
 import { Module } from '@nestjs/common';
@@ -36,7 +40,7 @@ import { UsersModule } from '../users/users.module';
 export class AuthModule {}
 ```
 
-这些结构允许我们注入 `UsersService`，例如注入到托管在 `AuthModule` 中的 `AuthService` 里：
+These constructs allow us to inject `UsersService` in, for example, the `AuthService` that is hosted in `AuthModule`:
 
 ```typescript
 import { Injectable } from '@nestjs/common';
@@ -51,31 +55,33 @@ export class AuthService {
 }
 ```
 
-我们将这称为**静态**模块绑定。Nest 连接模块所需的所有信息都已经在宿主模块和消费模块中声明完毕。让我们解析这个过程发生了什么。Nest 通过以下方式使 `UsersService` 在 `AuthModule` 中可用：
+We'll refer to this as **static** module binding. All the information Nest needs to wire together the modules has already been declared in the host and consuming modules. Let's unpack what's happening during this process. Nest makes `UsersService` available inside `AuthModule` by:
 
-1.  实例化 `UsersModule`，包括递归导入 `UsersModule` 自身消费的其他模块，并递归解析所有依赖项（参见[自定义提供者](/fundamentals/dependency-injection) ）。
-2.  实例化 `AuthModule`，并使 `UsersModule` 导出的提供者可用于 `AuthModule` 中的组件（就像它们原本就是在 `AuthModule` 中声明的一样）。
-3.  在 `AuthService` 中注入 `UsersService` 的实例。
+1. Instantiating `UsersModule`, including transitively importing other modules that `UsersModule` itself consumes, and transitively resolving any dependencies (see [Custom providers](./fundamentals/custom-providers)).
+2. Instantiating `AuthModule`, and making `UsersModule`'s exported providers available to components in `AuthModule` (just as if they had been declared in `AuthModule`).
+3. Injecting an instance of `UsersService` in `AuthService`.
 
-#### 动态模块使用场景
+#### Dynamic module use case
 
-使用静态模块绑定时，消费模块无法**影响**提供者在宿主模块中的配置方式。为什么这一点很重要？考虑这种情况：我们有一个通用模块需要在不同使用场景中表现出不同行为。这与许多系统中的"插件"概念类似，通用功能需要先进行某些配置才能被消费者使用。
+With static module binding, there's no opportunity for the consuming module to **influence** how providers from the host module are configured. Why does this matter? Consider the case where we have a general purpose module that needs to behave differently in different use cases. This is analogous to the concept of a "plugin" in many systems, where a generic facility requires some configuration before it can be used by a consumer.
 
-Nest 框架中的一个典型示例是**配置模块** 。许多应用程序发现，通过使用配置模块将配置细节外部化非常有用。这使得在不同部署环境中动态更改应用设置变得简单：例如为开发者使用开发数据库，为预发布/测试环境使用预发布数据库等。通过将配置参数的管理委托给配置模块，应用程序源代码得以与配置参数保持独立。
+A good example with Nest is a **configuration module**. Many applications find it useful to externalize configuration details by using a configuration module. This makes it easy to dynamically change the application settings in different deployments: e.g., a development database for developers, a staging database for the staging/testing environment, etc. By delegating the management of configuration parameters to a configuration module, the application source code remains independent of configuration parameters.
 
-挑战在于配置模块本身是通用的（类似于"插件"），需要由使用它的模块进行定制。这正是**动态模块**发挥作用的地方。利用动态模块特性，我们可以使配置模块**动态化** ，这样使用模块就能通过 API 控制在导入时如何定制配置模块。
+The challenge is that the configuration module itself, since it's generic (similar to a "plugin"), needs to be customized by its consuming module. This is where _dynamic modules_ come into play. Using dynamic module features, we can make our configuration module **dynamic** so that the consuming module can use an API to control how the configuration module is customized at the time it is imported.
 
-换句话说，动态模块提供了一个 API 用于将一个模块导入另一个模块，并在导入时定制该模块的属性和行为，这与我们目前所见的静态绑定方式形成对比。
+In other words, dynamic modules provide an API for importing one module into another, and customizing the properties and behavior of that module when it is imported, as opposed to using the static bindings we've seen so far.
 
-#### 配置模块示例
+<app-banner-devtools></app-banner-devtools>
 
-我们将使用[配置章节](/techniques/configuration#服务)中示例代码的基础版本作为本节内容。本章节完成后的最终版本可在此处获取[完整示例](https://github.com/nestjs/nest/tree/master/sample/25-dynamic-modules) 。
+#### Config module example
 
-我们的需求是让 `ConfigModule` 能够接收一个 `options` 对象来实现自定义功能。以下是我们要支持的特性：基础示例中将 `.env` 文件的位置硬编码为项目根目录。假设我们希望使其可配置，这样您就可以将 `.env` 文件存放在任意选择的文件夹中。例如，您可能希望将各种 `.env` 文件存储在项目根目录下名为 `config` 的文件夹中（即与 `src` 文件夹同级）。您希望在不同项目中使用 `ConfigModule` 时能够选择不同的文件夹。
+We'll be using the basic version of the example code from the [configuration chapter](./techniques/configuration#服务) for this section. The completed version as of the end of this chapter is available as a working [example here](https://github.com/nestjs/nest/tree/master/sample/25-dynamic-modules).
 
-动态模块使我们能够向导入的模块传递参数，从而改变其行为。让我们看看这是如何实现的。如果从消费模块的角度出发，先设想最终效果，再逆向推导实现方式，会更有帮助。首先，快速回顾一下*静态*导入 `ConfigModule` 的示例（即无法影响被导入模块行为的传统方式）。请特别注意 `@Module()` 装饰器中 `imports` 数组的写法：
+Our requirement is to make `ConfigModule` accept an `options` object to customize it. Here's the feature we want to support. The basic sample hard-codes the location of the `.env` file to be in the project root folder. Let's suppose we want to make that configurable, such that you can manage your `.env` files in any folder of your choosing. For example, imagine you want to store your various `.env` files in a folder under the project root called `config` (i.e., a sibling folder to `src`). You'd like to be able to choose different folders when using the `ConfigModule` in different projects.
 
-```typescript title="app.module.ts"
+Dynamic modules give us the ability to pass parameters into the module being imported so we can change its behavior. Let's see how this works. It's helpful if we start from the end-goal of how this might look from the consuming module's perspective, and then work backwards. First, let's quickly review the example of _statically_ importing the `ConfigModule` (i.e., an approach which has no ability to influence the behavior of the imported module). Pay close attention to the `imports` array in the `@Module()` decorator:
+
+```typescript
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -89,9 +95,9 @@ import { ConfigModule } from './config/config.module';
 export class AppModule {}
 ```
 
-现在让我们思考一下*动态模块*导入（传入配置对象的情况）会是什么样子。比较这两个示例中 `imports` 数组的区别：
+Let's consider what a _dynamic module_ import, where we're passing in a configuration object, might look like. Compare the difference in the `imports` array between these two examples:
 
-```typescript title="app.module.ts"
+```typescript
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -105,13 +111,13 @@ import { ConfigModule } from './config/config.module';
 export class AppModule {}
 ```
 
-让我们看看上面动态示例中发生了什么。有哪些关键组成部分？
+Let's see what's happening in the dynamic example above. What are the moving parts?
 
-1.  `ConfigModule` 是一个普通类，因此我们可以推断它必定拥有一个名为 `register()` 的**静态方法** 。我们知道它是静态的，因为是在 `ConfigModule` 类上调用，而非该类的**实例** 。注意：这个我们即将创建的方法可以任意命名，但按照惯例应命名为 `forRoot()` 或 `register()`。
-2.  `register()` 方法由我们定义，因此可以接受任意输入参数。本例中我们将接收一个具有适当属性的简单 `options` 对象，这是典型做法。
-3.  可以推断 `register()` 方法必须返回类似 `module` 的内容，因为其返回值出现在熟悉的 `imports` 列表中——我们已知该列表目前包含一系列模块。
+1. `ConfigModule` is a normal class, so we can infer that it must have a **static method** called `register()`. We know it's static because we're calling it on the `ConfigModule` class, not on an **instance** of the class. Note: this method, which we will create soon, can have any arbitrary name, but by convention we should call it either `forRoot()` or `register()`.
+2. The `register()` method is defined by us, so we can accept any input arguments we like. In this case, we're going to accept a simple `options` object with suitable properties, which is the typical case.
+3. We can infer that the `register()` method must return something like a `module` since its return value appears in the familiar `imports` list, which we've seen so far includes a list of modules.
 
-实际上，我们的 `register()` 方法将返回一个 `DynamicModule`。动态模块不过是在运行时创建的模块，具有与静态模块完全相同的属性，外加一个名为 `module` 的附加属性。让我们快速回顾一个静态模块声明的示例，特别注意传递给装饰器的模块选项：
+In fact, what our `register()` method will return is a `DynamicModule`. A dynamic module is nothing more than a module created at run-time, with the same exact properties as a static module, plus one additional property called `module`. Let's quickly review a sample static module declaration, paying close attention to the module options passed in to the decorator:
 
 ```typescript
 @Module({
@@ -122,21 +128,18 @@ export class AppModule {}
 })
 ```
 
-动态模块必须返回一个具有完全相同接口的对象，外加一个名为 `module` 的附加属性。`module` 属性用作模块名称，应与模块的类名相同，如下例所示。
+Dynamic modules must return an object with the exact same interface, plus one additional property called `module`. The `module` property serves as the name of the module, and should be the same as the class name of the module, as shown in the example below.
 
-:::info 注意
-对于动态模块，模块选项对象的所有属性都是可选的**除了** `module`。
-:::
+> info **Hint** For a dynamic module, all properties of the module options object are optional **except** `module`.
 
+What about the static `register()` method? We can now see that its job is to return an object that has the `DynamicModule` interface. When we call it, we are effectively providing a module to the `imports` list, similar to the way we would do so in the static case by listing a module class name. In other words, the dynamic module API simply returns a module, but rather than fix the properties in the `@Module` decorator, we specify them programmatically.
 
-那么静态的 `register()` 方法呢？我们现在可以明白，它的作用是返回一个具有 `DynamicModule` 接口的对象。当我们调用它时，实际上是在向 `imports` 列表提供一个模块，这与我们在静态情况下通过列出模块类名（如 `imports: [UsersModule]`）的做法类似。换句话说，动态模块 API 只是返回一个模块，但我们不是通过 `@Module` 装饰器固定属性，而是以编程方式指定它们。
+There are still a couple of details to cover to help make the picture complete:
 
-还有几个细节需要说明以完善整个图景：
+1. We can now state that the `@Module()` decorator's `imports` property can take not only a module class name (e.g., `imports: [UsersModule]`), but also a function **returning** a dynamic module (e.g., `imports: [ConfigModule.register(...)]`).
+2. A dynamic module can itself import other modules. We won't do so in this example, but if the dynamic module depends on providers from other modules, you would import them using the optional `imports` property. Again, this is exactly analogous to the way you'd declare metadata for a static module using the `@Module()` decorator.
 
-1.  我们现在可以说明，`@Module()` 装饰器的 `imports` 属性不仅可以接受模块类名（例如 `imports: [UsersModule]`），还可以接受一个**返回**动态模块的函数（如 `imports: [ConfigModule.register(...)]` ）。
-2.  动态模块本身可以导入其他模块。虽然本例中我们不会这样做，但如果动态模块依赖于其他模块中的提供者，你可以通过可选的 `imports` 属性来导入它们。这与使用 `@Module()` 装饰器为静态模块声明元数据的方式完全类似。
-
-基于这一理解，我们现在可以看看动态 `ConfigModule` 声明应该是什么样子。让我们尝试实现它。
+Armed with this understanding, we can now look at what our dynamic `ConfigModule` declaration must look like. Let's take a crack at it.
 
 ```typescript
 import { DynamicModule, Module } from '@nestjs/common';
@@ -154,17 +157,15 @@ export class ConfigModule {
 }
 ```
 
-现在应该很清楚这些部分是如何结合在一起的。调用 `ConfigModule.register(...)` 会返回一个 `DynamicModule` 对象，其属性本质上与我们之前通过 `@Module()` 装饰器提供的元数据相同。
+It should now be clear how the pieces tie together. Calling `ConfigModule.register(...)` returns a `DynamicModule` object with properties which are essentially the same as those that, until now, we've provided as metadata via the `@Module()` decorator.
 
-:::info 提示
-从 `@nestjs/common` 导入 `DynamicModule`。
-:::
+> info **Hint** Import `DynamicModule` from `@nestjs/common`.
 
-我们的动态模块目前还不太有趣，因为我们尚未实现之前提到的**配置**功能。接下来我们就来解决这个问题。
+Our dynamic module isn't very interesting yet, however, as we haven't introduced any capability to **configure** it as we said we would like to do. Let's address that next.
 
-#### 模块配置
+#### Module configuration
 
-正如我们之前猜测的那样，定制 `ConfigModule` 行为的明显解决方案是在静态 `register()` 方法中传递一个 `options` 对象。让我们再次看看消费模块的 `imports` 属性：
+The obvious solution for customizing the behavior of the `ConfigModule` is to pass it an `options` object in the static `register()` method, as we guessed above. Let's look once again at our consuming module's `imports` property:
 
 ```typescript
 import { Module } from '@nestjs/common';
@@ -180,13 +181,13 @@ import { ConfigModule } from './config/config.module';
 export class AppModule {}
 ```
 
-这样就能很好地处理将 `options` 对象传递给我们的动态模块了。那么如何在 `ConfigModule` 中使用这个 `options` 对象呢？让我们思考一下。我们知道 `ConfigModule` 本质上是一个用于提供和导出可注入服务（即 `ConfigService`）以供其他提供者使用的主模块。实际上需要读取 `options` 对象来定制其行为的是我们的 `ConfigService`。现在假设我们已经知道如何将 `options` 从 `register()` 方法传递到 `ConfigService` 中。基于这个假设，我们可以对该服务进行一些修改，使其能够根据 `options` 对象的属性来定制行为。（ **注意** ：由于目前我们*尚未*真正确定如何传递它，所以暂时先硬编码 `options`，稍后会解决这个问题）。
+That nicely handles passing an `options` object to our dynamic module. How do we then use that `options` object in the `ConfigModule`? Let's consider that for a minute. We know that our `ConfigModule` is basically a host for providing and exporting an injectable service - the `ConfigService` - for use by other providers. It's actually our `ConfigService` that needs to read the `options` object to customize its behavior. Let's assume for the moment that we know how to somehow get the `options` from the `register()` method into the `ConfigService`. With that assumption, we can make a few changes to the service to customize its behavior based on the properties from the `options` object. (**Note**: for the time being, since we _haven't_ actually determined how to pass it in, we'll just hard-code `options`. We'll fix this in a minute).
 
 ```typescript
 import { Injectable } from '@nestjs/common';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
 import * as dotenv from 'dotenv';
-import * as fs from 'fs';
-import * as path from 'path';
 import { EnvConfig } from './interfaces';
 
 @Injectable()
@@ -207,11 +208,11 @@ export class ConfigService {
 }
 ```
 
-现在我们的 `ConfigService` 已经知道如何在 `options` 中指定的文件夹里找到 `.env` 文件。
+Now our `ConfigService` knows how to find the `.env` file in the folder we've specified in `options`.
 
-我们剩下的任务是如何将 `register()` 步骤中的 `options` 对象注入到 `ConfigService` 中。当然，我们会使用*依赖注入*来实现这一点。这是关键点，请务必理解。我们的 `ConfigModule` 提供了 `ConfigService`，而 `ConfigService` 又依赖于仅在运行时提供的 `options` 对象。因此，在运行时，我们需要先将 `options` 对象绑定到 Nest IoC 容器，然后让 Nest 将其注入到 `ConfigService` 中。记得在**自定义提供者**章节中提到的，提供者可以[包含任何值](/fundamentals/dependency-injection#非基于服务的提供者) ，而不仅仅是服务，所以我们可以放心使用依赖注入来处理简单的 `options` 对象。
+Our remaining task is to somehow inject the `options` object from the `register()` step into our `ConfigService`. And of course, we'll use _dependency injection_ to do it. This is a key point, so make sure you understand it. Our `ConfigModule` is providing `ConfigService`. `ConfigService` in turn depends on the `options` object that is only supplied at run-time. So, at run-time, we'll need to first bind the `options` object to the Nest IoC container, and then have Nest inject it into our `ConfigService`. Remember from the **Custom providers** chapter that providers can [include any value](./fundamentals/custom-providers#非基于服务的提供者) not just services, so we're fine using dependency injection to handle a simple `options` object.
 
-我们先解决将选项对象绑定到 IoC 容器的问题。这需要在静态的 `register()` 方法中完成。注意我们正在动态构建一个模块，而模块的属性之一就是它的提供者列表。因此我们需要将选项对象定义为一个提供者，这样它就能被注入到 `ConfigService` 中（下一步会用到这个特性）。在下面代码中，请特别注意 `providers` 数组：
+Let's tackle binding the options object to the IoC container first. We do this in our static `register()` method. Remember that we are dynamically constructing a module, and one of the properties of a module is its list of providers. So what we need to do is define our options object as a provider. This will make it injectable into the `ConfigService`, which we'll take advantage of in the next step. In the code below, pay attention to the `providers` array:
 
 ```typescript
 import { DynamicModule, Module } from '@nestjs/common';
@@ -235,12 +236,12 @@ export class ConfigModule {
 }
 ```
 
-现在我们可以通过向 `ConfigService` 注入 `'CONFIG_OPTIONS'` 提供者来完成整个过程。注意当使用非类令牌定义提供者时，需要按照[这里的说明](/fundamentals/dependency-injection#非基于类的提供者令牌)使用 `@Inject()` 装饰器。
+Now we can complete the process by injecting the `'CONFIG_OPTIONS'` provider into the `ConfigService`. Recall that when we define a provider using a non-class token we need to use the `@Inject()` decorator [as described here](./fundamentals/custom-providers#非基于类的提供者令牌).
 
 ```typescript
+import * as fs from 'node:fs';
+import * as path from 'node:path';
 import * as dotenv from 'dotenv';
-import * as fs from 'fs';
-import * as path from 'path';
 import { Injectable, Inject } from '@nestjs/common';
 import { EnvConfig } from './interfaces';
 
@@ -260,33 +261,35 @@ export class ConfigService {
 }
 ```
 
-最后提示：为了方便起见，上面我们使用了字符串形式的注入令牌(`'CONFIG_OPTIONS'`)，但最佳实践是将其定义为单独文件中的常量（或 `Symbol`）并导入该文件。例如：
+One final note: for simplicity we used a string-based injection token (`'CONFIG_OPTIONS'`) above, but best practice is to define it as a constant (or `Symbol`) in a separate file, and import that file. For example:
 
 ```typescript
 export const CONFIG_OPTIONS = 'CONFIG_OPTIONS';
 ```
 
-#### 示例
+#### Example
 
-本章完整代码示例可在此处[查看](https://github.com/nestjs/nest/tree/master/sample/25-dynamic-modules) 。
+A full example of the code in this chapter can be found [here](https://github.com/nestjs/nest/tree/master/sample/25-dynamic-modules).
 
-#### 社区规范
+#### Community guidelines
 
-你可能在一些 `@nestjs/` 包中见过类似 `forRoot`、`register` 和 `forFeature` 这样的方法，并想知道它们之间的区别。虽然没有硬性规定，但 `@nestjs/` 包通常会遵循以下准则：
+You may have seen the use for methods like `forRoot`, `register`, and `forFeature` around some of the `@nestjs/` packages and may be wondering what the difference for all of these methods are. There is no hard rule about this, but the `@nestjs/` packages try to follow these guidelines:
 
-当创建模块时：
+When creating a module with:
 
-- `register`，表示你希望配置一个动态模块，该配置仅由调用模块使用。例如，使用 Nest 的 `@nestjs/axios`： `HttpModule.register({ baseUrl: 'someUrl' })` 。如果在另一个模块中使用 `HttpModule.register({ baseUrl: 'somewhere else' })` ，它将具有不同的配置。你可以根据需要为任意多个模块进行此操作。
-- `forRoot`，表示你希望一次性配置动态模块，并在多个地方复用该配置（尽管可能由于抽象而不知情）。这就是为什么你只有一个 `GraphQLModule.forRoot()`、一个 `TypeOrmModule.forRoot()` 等。
-- `forFeature`，表示你希望使用动态模块的 `forRoot` 配置，但需要根据调用模块的需求修改某些特定配置（例如该模块应访问哪些存储库，或记录器应使用的上下文）。
+- `register`, you are expecting to configure a dynamic module with a specific configuration for use only by the calling module. For example, with Nest's `@nestjs/axios`: `HttpModule.register({ baseUrl: 'someUrl' })`. If, in another module you use `HttpModule.register({ baseUrl: 'somewhere else' })`, it will have the different configuration. You can do this for as many modules as you want.
 
-通常，这些方法都有对应的异步版本，如 `registerAsync`、`forRootAsync` 和 `forFeatureAsync`，它们功能相同，但会使用 Nest 的依赖注入机制来处理配置。
+- `forRoot`, you are expecting to configure a dynamic module once and reuse that configuration in multiple places (though possibly unknowingly as it's abstracted away). This is why you have one `GraphQLModule.forRoot()`, one `TypeOrmModule.forRoot()`, etc.
 
-#### 可配置模块构建器
+- `forFeature`, you are expecting to use the configuration of a dynamic module's `forRoot` but need to modify some configuration specific to the calling module's needs (i.e. which repository this module should have access to, or the context that a logger should use.)
 
-由于手动创建高度可配置的动态模块并暴露异步方法（如 `registerAsync`、`forRootAsync` 等）相当复杂，尤其对新手而言，Nest 提供了 `ConfigurableModuleBuilder` 类来简化这一过程，只需几行代码就能构建模块"蓝图"。
+All of these, usually, have their `async` counterparts as well, `registerAsync`, `forRootAsync`, and `forFeatureAsync`, that mean the same thing, but use Nest's Dependency Injection for the configuration as well.
 
-例如，我们将上面使用的 `ConfigModule` 示例改用 `ConfigurableModuleBuilder` 实现。开始前，先确保创建一个专用接口来表示 `ConfigModule` 接收的选项。
+#### Configurable module builder
+
+As manually creating highly configurable, dynamic modules that expose `async` methods (`registerAsync`, `forRootAsync`, etc.) is quite complicated, especially for newcomers, Nest exposes the `ConfigurableModuleBuilder` class that facilitates this process and lets you construct a module "blueprint" in just a few lines of code.
+
+For example, let's take the example we used above (`ConfigModule`) and convert it to use the `ConfigurableModuleBuilder`. Before we start, let's make sure we create a dedicated interface that represents what options our `ConfigModule` takes in.
 
 ```typescript
 export interface ConfigModuleOptions {
@@ -294,9 +297,9 @@ export interface ConfigModuleOptions {
 }
 ```
 
-在此基础上，新建一个专用文件（与现有的 `config.module.ts` 文件放在一起）并命名为 `config.module-definition.ts`。在此文件中，我们将使用 `ConfigurableModuleBuilder` 来构建 `ConfigModule` 的定义。
+With this in place, create a new dedicated file (alongside the existing `config.module.ts` file) and name it `config.module-definition.ts`. In this file, let's utilize the `ConfigurableModuleBuilder` to construct `ConfigModule` definition.
 
- ```typescript title="config.module-definition.ts"
+```typescript title="config.module-definition"
 import { ConfigurableModuleBuilder } from '@nestjs/common';
 import { ConfigModuleOptions } from './interfaces/config-module-options.interface';
 
@@ -304,7 +307,7 @@ export const { ConfigurableModuleClass, MODULE_OPTIONS_TOKEN } =
   new ConfigurableModuleBuilder<ConfigModuleOptions>().build();
 ```
 
-现在打开 `config.module.ts` 文件，修改其实现以利用自动生成的 `ConfigurableModuleClass`：
+Now let's open up the `config.module.ts` file and modify its implementation to leverage the auto-generated `ConfigurableModuleClass`:
 
 ```typescript
 import { Module } from '@nestjs/common';
@@ -318,7 +321,7 @@ import { ConfigurableModuleClass } from './config.module-definition';
 export class ConfigModule extends ConfigurableModuleClass {}
 ```
 
-继承 `ConfigurableModuleClass` 意味着 `ConfigModule` 现在不仅提供 `register` 方法（如之前自定义实现那样），还提供 `registerAsync` 方法，该方法允许使用者异步配置模块，例如通过提供异步工厂：
+Extending the `ConfigurableModuleClass` means that `ConfigModule` provides now not only the `register` method (as previously with the custom implementation), but also the `registerAsync` method which allows consumers asynchronously configure that module, for example, by supplying async factories:
 
 ```typescript
 @Module({
@@ -338,7 +341,7 @@ export class ConfigModule extends ConfigurableModuleClass {}
 export class AppModule {}
 ```
 
-`registerAsync` 方法接收以下对象作为参数：
+The `registerAsync` method takes the following object as an argument:
 
 ```typescript
 {
@@ -368,16 +371,16 @@ export class AppModule {}
 }
 ```
 
-让我们逐一理解上述属性：
+Let's go through the above properties one by one:
 
-- `useFactory` - 一个返回配置对象的工厂函数，可以是同步或异步的。要注入依赖到该工厂函数中，需使用 `inject` 属性。我们在前文示例中采用了这种形式。
-- `inject` - 将被注入工厂函数的依赖项数组。依赖项的顺序必须与工厂函数参数的顺序保持一致。
-- `useClass` - 将被实例化为提供者的类，该类必须实现相应接口。通常这是一个提供 `create()` 方法的类，该方法返回配置对象。更多细节请参阅下文[自定义方法键](/fundamentals/dynamic-modules#自定义方法键)章节。
-- `useExisting` - `useClass` 的变体，允许使用现有提供者而非指示 Nest 创建类的新实例。当需要使用已在模块中注册的提供者时，这非常有用。请注意，该类必须实现与 `useClass` 相同的接口（因此必须提供 `create()` 方法，除非重写默认方法名称，参见下方的[自定义方法键](/fundamentals/dynamic-modules#自定义方法键)部分）。
+- `useFactory` - a function that returns the configuration object. It can be either synchronous or asynchronous. To inject dependencies into the factory function, use the `inject` property. We used this variant in the example above.
+- `inject` - an array of dependencies that will be injected into the factory function. The order of the dependencies must match the order of the parameters in the factory function.
+- `useClass` - a class that will be instantiated as a provider. The class must implement the corresponding interface. Typically, this is a class that provides a `create()` method that returns the configuration object. Read more about this in the [Custom method key](/fundamentals/dynamic-modules#自定义方法键) section below.
+- `useExisting` - a variant of `useClass` that allows you to use an existing provider instead of instructing Nest to create a new instance of the class. This is useful when you want to use a provider that is already registered in the module. Keep in mind that the class must implement the same interface as the one used in `useClass` (and so it must provide the `create()` method, unless you override the default method name, see [Custom method key](/fundamentals/dynamic-modules#自定义方法键) section below).
 
-请务必从上述选项（`useFactory`、`useClass` 或 `useExisting`）中选择其一，因为它们互斥。
+Always choose one of the above options (`useFactory`, `useClass`, or `useExisting`), as they are mutually exclusive.
 
-最后，我们将更新 `ConfigService` 类，注入生成的模块选项提供者，而非之前使用的 `'CONFIG_OPTIONS'`。
+Lastly, let's update the `ConfigService` class to inject the generated module options' provider instead of the `'CONFIG_OPTIONS'` that we used so far.
 
 ```typescript
 @Injectable()
@@ -386,16 +389,16 @@ export class ConfigService {
 }
 ```
 
-#### 自定义方法键
+#### Custom method key
 
-默认情况下，`ConfigurableModuleClass` 提供 `register` 及其对应方法 `registerAsync`。如需使用不同方法名，可采用 `ConfigurableModuleBuilder#setClassMethodName` 方法，如下所示：
+`ConfigurableModuleClass` by default provides the `register` and its counterpart `registerAsync` methods. To use a different method name, use the `ConfigurableModuleBuilder#setClassMethodName` method, as follows:
 
- ```typescript title="config.module-definition.ts"
+```typescript title="config.module-definition"
 export const { ConfigurableModuleClass, MODULE_OPTIONS_TOKEN } =
   new ConfigurableModuleBuilder<ConfigModuleOptions>().setClassMethodName('forRoot').build();
 ```
 
-此构造将指示 `ConfigurableModuleBuilder` 生成一个公开 `forRoot` 和 `forRootAsync` 的类。示例：
+This construction will instruct `ConfigurableModuleBuilder` to generate a class that exposes `forRoot` and `forRootAsync` instead. Example:
 
 ```typescript
 @Module({
@@ -415,9 +418,9 @@ export const { ConfigurableModuleClass, MODULE_OPTIONS_TOKEN } =
 export class AppModule {}
 ```
 
-#### 自定义选项工厂类
+#### Custom options factory class
 
-由于 `registerAsync` 方法（或根据配置命名为 `forRootAsync` 等其他名称）允许使用者传入解析为模块配置的提供者定义，库使用者可以提供一个用于构建配置对象的类。
+Since the `registerAsync` method (or `forRootAsync` or any other name, depending on the configuration) lets consumer pass a provider definition that resolves to the module configuration, a library consumer could potentially supply a class to be used to construct the configuration object.
 
 ```typescript
 @Module({
@@ -430,14 +433,14 @@ export class AppModule {}
 export class AppModule {}
 ```
 
-默认情况下，该类必须提供 `create()` 方法以返回模块配置对象。但如果您的库遵循不同的命名约定，可以通过 `ConfigurableModuleBuilder#setFactoryMethodName` 方法调整此行为，指示 `ConfigurableModuleBuilder` 改用其他方法（例如 `createConfigOptions`）：
+This class, by default, must provide the `create()` method that returns a module configuration object. However, if your library follows a different naming convention, you can change that behavior and instruct `ConfigurableModuleBuilder` to expect a different method, for example, `createConfigOptions`, using the `ConfigurableModuleBuilder#setFactoryMethodName` method:
 
- ```typescript title="config.module-definition.ts"
+```typescript title="config.module-definition"
 export const { ConfigurableModuleClass, MODULE_OPTIONS_TOKEN } =
   new ConfigurableModuleBuilder<ConfigModuleOptions>().setFactoryMethodName('createConfigOptions').build();
 ```
 
-现在，`ConfigModuleOptionsFactory` 类需要公开 `createConfigOptions` 方法（而非原先的 `create` 方法）：
+Now, `ConfigModuleOptionsFactory` class must expose the `createConfigOptions` method (instead of `create`):
 
 ```typescript
 @Module({
@@ -450,11 +453,11 @@ export const { ConfigurableModuleClass, MODULE_OPTIONS_TOKEN } =
 export class AppModule {}
 ```
 
-#### 扩展选项
+#### Extra options
 
-在某些特殊情况下，模块可能需要接收决定其行为方式的额外选项（典型的例子如 `isGlobal` 标志或简写形式 `global`），但这些选项不应包含在 `MODULE_OPTIONS_TOKEN` 提供者中（因为这些选项与模块内注册的服务/提供者无关，例如 `ConfigService` 无需知晓其宿主模块是否注册为全局模块）。
+There are edge-cases when your module may need to take extra options that determine how it is supposed to behave (a nice example of such an option is the `isGlobal` flag - or just `global`) that at the same time, shouldn't be included in the `MODULE_OPTIONS_TOKEN` provider (as they are irrelevant to services/providers registered within that module, for example, `ConfigService` does not need to know whether its host module is registered as a global module).
 
-在此类情况下，可以使用 `ConfigurableModuleBuilder#setExtras` 方法。参见以下示例：
+In such cases, the `ConfigurableModuleBuilder#setExtras` method can be used. See the following example:
 
 ```typescript
 export const { ConfigurableModuleClass, MODULE_OPTIONS_TOKEN } =
@@ -466,14 +469,14 @@ export const { ConfigurableModuleClass, MODULE_OPTIONS_TOKEN } =
       (definition, extras) => ({
         ...definition,
         global: extras.isGlobal,
-      })
+      }),
     )
     .build();
 ```
 
-上述示例中，传入 `setExtras` 方法的第一个参数是包含"extra"属性默认值的对象。第二个参数是一个函数，该函数接收自动生成的模块定义（包含 `provider`、`exports` 等）和表示额外属性的 `extras` 对象（可能是使用者指定的值或默认值）。该函数的返回值是修改后的模块定义。在这个具体示例中，我们获取 `extras.isGlobal` 属性并将其赋值给模块定义的 `global` 属性（该属性继而决定模块是否为全局模块，更多信息请参阅[此处](/overview/modules#动态模块) ）。
+In the example above, the first argument passed into the `setExtras` method is an object containing default values for the "extra" properties. The second argument is a function that takes an auto-generated module definitions (with `provider`, `exports`, etc.) and `extras` object which represents extra properties (either specified by the consumer or defaults). The returned value of this function is a modified module definition. In this specific example, we're taking the `extras.isGlobal` property and assigning it to the `global` property of the module definition (which in turn determines whether a module is global or not, read more [here](/modules#动态模块)).
 
-现在当使用此模块时，可以传入额外的 `isGlobal` 标志，如下所示：
+Now when consuming this module, the additional `isGlobal` flag can be passed in, as follows:
 
 ```typescript
 @Module({
@@ -487,13 +490,13 @@ export const { ConfigurableModuleClass, MODULE_OPTIONS_TOKEN } =
 export class AppModule {}
 ```
 
-但由于 `isGlobal` 被声明为"extra"属性，它将不会出现在 `MODULE_OPTIONS_TOKEN` 提供者中：
+However, since `isGlobal` is declared as an "extra" property, it won't be available in the `MODULE_OPTIONS_TOKEN` provider:
 
 ```typescript
 @Injectable()
 export class ConfigService {
   constructor(
-    @Inject(MODULE_OPTIONS_TOKEN) private options: ConfigModuleOptions
+    @Inject(MODULE_OPTIONS_TOKEN) private options: ConfigModuleOptions,
   ) {
     // "options" object will not have the "isGlobal" property
     // ...
@@ -501,9 +504,9 @@ export class ConfigService {
 }
 ```
 
-#### 扩展自动生成的方法
+#### Extending auto-generated methods
 
-如有需要，可以扩展自动生成的静态方法（`register`、`registerAsync` 等），如下所示：
+The auto-generated static methods (`register`, `registerAsync`, etc.) can be extended if needed, as follows:
 
 ```typescript
 import { Module } from '@nestjs/common';
@@ -535,7 +538,7 @@ export class ConfigModule extends ConfigurableModuleClass {
 }
 ```
 
-请注意使用必须从模块定义文件中导出的 `OPTIONS_TYPE` 和 `ASYNC_OPTIONS_TYPE` 类型：
+Note the use of `OPTIONS_TYPE` and `ASYNC_OPTIONS_TYPE` types that must be exported from the module definition file:
 
 ```typescript
 export const {

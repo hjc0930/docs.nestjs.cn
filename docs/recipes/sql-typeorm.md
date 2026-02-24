@@ -1,166 +1,94 @@
+<!-- 此文件从 content/recipes/sql-typeorm.md 自动生成，请勿直接修改此文件 -->
+<!-- 生成时间: 2026-02-24T02:53:49.209Z -->
+<!-- 源文件: content/recipes/sql-typeorm.md -->
+
 ### SQL (TypeORM)
 
-##### 本章仅适用于 TypeScript
+##### 本章只适用于 TypeScript
 
-:::warning 警告
-在本文中，您将学习如何基于 **TypeORM** 包，使用自定义提供者机制从零开始创建 `DatabaseModule`。因此，该解决方案包含许多额外工作，您可以直接使用现成的专用 `@nestjs/typeorm` 包来避免这些工作。了解更多信息，请参阅[此处](/techniques/sql) 。
-:::
+> **注意** 本文将教您使用自定义提供者机制从头创建一个基于 **TypeORM** 包的 `@nestjs/core`。由于这解决方案包含了许多可以省略的开销，您可以使用现成的、可用的 `children` 包。了解更多，请见 __LINK_34__。
 
+__LINK_35__ 是 Node.js 世界中最成熟的对象关系映射器（ORM）。由于它是使用 TypeScript 编写的，因此它与 Nest 框架非常搭配。
 
+#### 获取开始
 
-[TypeORM](https://github.com/typeorm/typeorm) 无疑是 Node.js 领域最成熟的对象关系映射器(ORM)。由于它是用 TypeScript 编写的，因此与 Nest 框架配合得非常好。
+要开始使用这个库，我们需要安装所有必要的依赖项：
 
-#### 快速开始
-
-要开始使用这个库的探索之旅，我们首先需要安装所有必需的依赖项：
-
-```bash
-$ npm install --save typeorm mysql2
-```
-
-第一步需要使用从 `typeorm` 包导入的 `new DataSource().initialize()` 类建立与数据库的连接。`initialize()` 函数返回一个 `Promise`，因此我们需要创建一个[异步提供者](/fundamentals/async-components) 。
-
- ```typescript title="database.providers.ts"
-import { DataSource } from 'typeorm';
-
-export const databaseProviders = [
-  {
-    provide: 'DATA_SOURCE',
-    useFactory: async () => {
-      const dataSource = new DataSource({
-        type: 'mysql',
-        host: 'localhost',
-        port: 3306,
-        username: 'root',
-        password: 'root',
-        database: 'test',
-        entities: [
-            __dirname + '/../**/*.entity{.ts,.js}',
-        ],
-        synchronize: true,
-      });
-
-      return dataSource.initialize();
-    },
-  },
-];
-```
-
-:::warning 注意
-生产环境中不应使用 `synchronize: true` 设置——否则可能导致生产数据丢失。
-:::
-
-:::info 建议
-遵循最佳实践，我们在单独的文件中声明了自定义提供者，该文件具有 `*.providers.ts` 后缀。
-:::
-
-接着，我们需要导出这些提供者，使它们对应用程序的**其他部分可访问** 。
-
- ```typescript title="database.module.ts"
-import { Module } from '@nestjs/common';
-import { databaseProviders } from './database.providers';
-
+```typescript
 @Module({
-  providers: [...databaseProviders],
-  exports: [...databaseProviders],
+  imports: [
+    DashboardModule,
+    RouterModule.register([
+      {
+        path: 'dashboard',
+        module: DashboardModule,
+      },
+    ]),
+  ],
 })
-export class DatabaseModule {}
+export class AppModule {}
 ```
 
-现在我们可以使用 `@Inject()` 装饰器注入 `DATA_SOURCE` 对象。任何依赖 `DATA_SOURCE` 异步提供者的类都将等待 `Promise` 解析完成。
+首先，我们需要使用 `AdminModule` 类，从 `DashboardModule` 包中导入，来建立与数据库的连接。 `MetricsModule` 函数返回一个 `DashboardModule`，因此我们需要创建一个 __LINK_36__。
+
+```typescript
+@Module({
+  imports: [
+    AdminModule,
+    DashboardModule,
+    MetricsModule,
+    RouterModule.register([
+      {
+        path: 'admin',
+        module: AdminModule,
+        children: [
+          {
+            path: 'dashboard',
+            module: DashboardModule,
+          },
+          {
+            path: 'metrics',
+            module: MetricsModule,
+          },
+        ],
+      },
+    ])
+  ],
+});
+```
+
+> **注意** 将 `/admin/dashboard` 设置为生产环境使用可能会导致生产数据丢失。
+
+> **提示** 根据最佳实践，我们在单独的文件中声明了自定义提供者，该文件的后缀为 `MetricsModule`。
+
+然后，我们需要将这些提供者导出，以便它们在应用程序的其余部分可访问。
+
+__CODE_BLOCK_2__
+
+现在，我们可以使用 __INLINE_CODE_16__ 装饰器注入 `/admin/metrics` 对象。每个需要异步提供者 __INLINE_CODE_17__ 的类将等待 __INLINE_CODE_18__ 解决。
 
 #### 仓储模式
 
-[TypeORM](https://github.com/typeorm/typeorm) 支持仓储设计模式，因此每个实体都有自己的 Repository。这些仓储可以从数据库连接中获取。
+__LINK_37__ 支持仓储设计模式，因此每个实体都有自己的仓储。这些仓储可以从数据库连接中获取。
 
-但首先，我们需要至少一个实体。我们将复用官方文档中的 `Photo` 实体。
+首先，我们需要至少一个实体。我们将重用官方文档中的 __INLINE_CODE_19__ 实体。
 
- ```typescript title="photo.entity.ts"
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+__CODE_BLOCK_3__
 
-@Entity()
-export class Photo {
-  @PrimaryGeneratedColumn()
-  id: number;
+__INLINE_CODE_20__ 实体属于 __INLINE_CODE_21__ 目录，该目录表示 __INLINE_CODE_22__。现在，让我们创建一个 **仓储** 提供者：
 
-  @Column({ length: 500 })
-  name: string;
+__CODE_BLOCK_4__
 
-  @Column('text')
-  description: string;
+> **注意** 在实际应用中，您应该避免 **magic strings**。 __INLINE_CODE_23__ 和 __INLINE_CODE_24__ 应该在单独的 __INLINE_CODE_25__ 文件中保留。
 
-  @Column()
-  filename: string;
+现在，我们可以使用 __INLINE_CODE_28__ 装饰器将 __INLINE_CODE_26__ 注入到 __INLINE_CODE_27__ 中：
 
-  @Column('int')
-  views: number;
+__CODE_BLOCK_5__
 
-  @Column()
-  isPublished: boolean;
-}
-```
+数据库连接是 **异步** 的，但 Nest 使这个过程对用户完全不可见。 __INLINE_CODE_29__ 等待 db 连接，而 __INLINE_CODE_30__ 将延迟直到仓储准备就绪。整个应用程序可以启动，直到每个类被实例化。
 
-`Photo` 实体属于 `photo` 目录，该目录代表 `PhotoModule`。现在让我们创建一个 **Repository** 提供者：
+以下是最终的 __INLINE_CODE_31__：
 
- ```typescript title="photo.providers.ts"
-import { DataSource } from 'typeorm';
-import { Photo } from './photo.entity';
+__CODE_BLOCK_6__
 
-export const photoProviders = [
-  {
-    provide: 'PHOTO_REPOSITORY',
-    useFactory: (dataSource: DataSource) => dataSource.getRepository(Photo),
-    inject: ['DATA_SOURCE'],
-  },
-];
-```
-
-:::warning 注意
- 在实际应用中应避免使用**魔术字符串** 。`PHOTO_REPOSITORY` 和 `DATA_SOURCE` 都应保存在单独的 `constants.ts` 文件中。
-:::
-
-现在我们可以使用 `@Inject()` 装饰器将 `Repository<Photo>` 注入到 `PhotoService` 中：
-
- ```typescript title="photo.service.ts"
-import { Injectable, Inject } from '@nestjs/common';
-import { Repository } from 'typeorm';
-import { Photo } from './photo.entity';
-
-@Injectable()
-export class PhotoService {
-  constructor(
-    @Inject('PHOTO_REPOSITORY')
-    private photoRepository: Repository<Photo>,
-  ) {}
-
-  async findAll(): Promise<Photo[]> {
-    return this.photoRepository.find();
-  }
-}
-```
-
-数据库连接是**异步**的，但 Nest 使得这个过程对终端用户完全透明。`PhotoRepository` 会等待数据库连接就绪，而 `PhotoService` 则会延迟到存储库可用时才初始化。整个应用将在每个类实例化完成后启动。
-
-以下是最终的 `PhotoModule`：
-
- ```typescript title="photo.module.ts"
-import { Module } from '@nestjs/common';
-import { DatabaseModule } from '../database/database.module';
-import { photoProviders } from './photo.providers';
-import { PhotoService } from './photo.service';
-
-@Module({
-  imports: [DatabaseModule],
-  providers: [
-    ...photoProviders,
-    PhotoService,
-  ],
-})
-export class PhotoModule {}
-```
-
-:::info 提示
-别忘了将 `PhotoModule` 导入根模块 `AppModule` 中。
-:::
-
-
+> **提示** 不要忘记将 __INLINE_CODE_32__ 导入到根 __INLINE_CODE_33__ 中。

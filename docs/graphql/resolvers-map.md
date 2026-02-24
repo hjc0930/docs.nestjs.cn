@@ -1,16 +1,20 @@
-### 解析器
+<!-- 此文件从 content/graphql/resolvers-map.md 自动生成，请勿直接修改此文件 -->
+<!-- 生成时间: 2026-02-24T02:58:12.183Z -->
+<!-- 源文件: content/graphql/resolvers-map.md -->
 
-解析器提供将 [GraphQL](https://graphql.org/) 操作（查询、变更或订阅）转换为数据的指令。它们返回与我们在模式中指定的相同数据结构——既可以是同步返回，也可以是通过 Promise 解析返回该结构的结果。通常，您需要手动创建**解析器映射** 。而 `@nestjs/graphql` 包则利用装饰器提供的元数据自动生成解析器映射。为了演示如何使用该包功能创建 GraphQL API，我们将创建一个简单的作者 API。
+### Resolvers
 
-#### 代码优先
+Resolvers provide the instructions for turning a [GraphQL](https://graphql.org/) operation (a query, mutation, or subscription) into data. They return the same shape of data we specify in our schema -- either synchronously or as a promise that resolves to a result of that shape. Typically, you create a **resolver map** manually. The `@nestjs/graphql` package, on the other hand, generates a resolver map automatically using the metadata provided by the decorators you use to annotate classes. To demonstrate the process of using the package features to create a GraphQL API, we'll create a simple authors API.
 
-在代码优先方法中，我们不会通过手动编写 GraphQL SDL 来创建 GraphQL 模式，而是使用 TypeScript 装饰器从 TypeScript 类定义生成 SDL。`@nestjs/graphql` 包会读取通过装饰器定义的元数据，并自动为您生成模式。
+#### Code first
 
-#### 对象类型
+In the code-first approach, we don't follow the typical process of creating our GraphQL schema by writing GraphQL SDL by hand. Instead, we use TypeScript decorators to generate the SDL from TypeScript class definitions. The `@nestjs/graphql` package reads the metadata defined through the decorators and automatically generates the schema for you.
 
-GraphQL 模式中的大多数定义都是**对象类型** 。您定义的每个对象类型都应代表应用程序客户端可能需要交互的领域对象。例如，我们的示例 API 需要能够获取作者及其帖子的列表，因此我们应该定义 `Author` 类型和 `Post` 类型来支持此功能。
+#### Object types
 
-如果采用模式优先（schema first）方法，我们会用 SDL 这样定义模式：
+Most of the definitions in a GraphQL schema are **object types**. Each object type you define should represent a domain object that an application client might need to interact with. For example, our sample API needs to be able to fetch a list of authors and their posts, so we should define the `Author` type and `Post` type to support this functionality.
+
+If we were using the schema-first approach, we'd define such a schema with SDL like this:
 
 ```graphql
 type Author {
@@ -21,9 +25,9 @@ type Author {
 }
 ```
 
-而在代码优先（code first）方法中，我们使用 TypeScript 类和装饰器来定义模式并标注类的字段。上述 SDL 在代码优先中等效于：
+In this case, using the code first approach, we define schemas using TypeScript classes and using TypeScript decorators to annotate the fields of those classes. The equivalent of the above SDL in the code first approach is:
 
- ```typescript title="authors/models/author.model.ts"
+```typescript title="authors/models/author.model"
 import { Field, Int, ObjectType } from '@nestjs/graphql';
 import { Post } from './post';
 
@@ -43,17 +47,13 @@ export class Author {
 }
 ```
 
-:::info 提示
-TypeScript 的元数据反射系统存在若干限制，例如无法确定类由哪些属性组成，或识别某个属性是可选的还是必需的。由于这些限制，我们必须在模式定义类中显式使用 `@Field()` 装饰器来提供每个字段的 GraphQL 类型和可选性元数据，或者使用 [CLI 插件](/graphql/cli-plugin)来为我们生成这些元数据。
-:::
+> info **Hint** TypeScript's metadata reflection system has several limitations which make it impossible, for instance, to determine what properties a class consists of or recognize whether a given property is optional or required. Because of these limitations, we must either explicitly use the `@Field()` decorator in our schema definition classes to provide metadata about each field's GraphQL type and optionality, or use a [CLI plugin](/graphql/cli-plugin) to generate these for us.
 
-与任何类一样，`Author` 对象类型由一组字段组成，每个字段都声明了一个类型。字段类型对应 [GraphQL 类型](https://graphql.org/learn/schema/) 。字段的 GraphQL 类型可以是另一个对象类型，也可以是标量类型。GraphQL 标量类型是解析为单个值的原始类型（如 `ID`、`String`、`Boolean` 或 `Int`）。
+The `Author` object type, like any class, is made of a collection of fields, with each field declaring a type. A field's type corresponds to a [GraphQL type](https://graphql.org/learn/schema/). A field's GraphQL type can be either another object type or a scalar type. A GraphQL scalar type is a primitive (like `ID`, `String`, `Boolean`, or `Int`) that resolves to a single value.
 
-:::info 提示
-除了 GraphQL 内置的标量类型外，您还可以定义自定义标量类型（阅读[更多](/graphql/scalars) ）。
-:::
+> info **Hint** In addition to GraphQL's built-in scalar types, you can define custom scalar types (read [more](/graphql/scalars)).
 
-上述 `Author` 对象类型定义将导致 Nest **生成**我们之前展示的 SDL：
+The above `Author` object type definition will cause Nest to **generate** the SDL we showed above:
 
 ```graphql
 type Author {
@@ -64,54 +64,46 @@ type Author {
 }
 ```
 
-`@Field()` 装饰器接受一个可选的类型函数（例如 `type => Int`），以及一个可选的配置对象。
+The `@Field()` decorator accepts an optional type function (e.g., `type => Int`), and optionally an options object.
 
-当 TypeScript 类型系统与 GraphQL 类型系统可能存在歧义时，类型函数是必需的。具体而言：对于 `string` 和 `boolean` 类型**不需要** ；而对于 `number` 类型则**需要** （必须映射为 GraphQL 的 `Int` 或 `Float`）。类型函数只需返回所需的 GraphQL 类型（如本章节各示例所示）。
+The type function is required when there's the potential for ambiguity between the TypeScript type system and the GraphQL type system. Specifically: it is **not** required for `string` and `boolean` types; it **is** required for `number` (which must be mapped to either a GraphQL `Int` or `Float`). The type function should simply return the desired GraphQL type (as shown in various examples in these chapters).
 
-配置对象可包含以下任意键值对：
+The options object can have any of the following key/value pairs:
 
-- `nullable`：用于指定字段是否可为空（在 `@nestjs/graphql` 中，默认每个字段都是非空的）；`boolean`
-- `description`：用于设置字段描述；`string`
-- `deprecationReason`：用于将字段标记为已弃用；`string`
+- `nullable`: for specifying whether a field is nullable (in `@nestjs/graphql`, each field is non-nullable by default); `boolean`
+- `description`: for setting a field description; `string`
+- `deprecationReason`: for marking a field as deprecated; `string`
 
-例如：
+For example:
 
 ```typescript
 @Field({ description: `Book title`, deprecationReason: 'Not useful in v2 schema' })
 title: string;
 ```
 
-info **提示** 你也可以为整个对象类型添加描述或标记为已弃用： `@ObjectType({ description: 'Author model' })` 。
+> info **Hint** You can also add a description to, or deprecate, the whole object type: `@ObjectType({ description: 'Author model' })`.
 
-当字段为数组类型时，必须在 `Field()` 装饰器的类型函数中手动声明数组类型，如下所示：
+When the field is an array, we must manually indicate the array type in the `Field()` decorator's type function, as shown below:
 
 ```typescript
 @Field(type => [Post])
 posts: Post[];
 ```
 
-:::info 提示
-使用方括号标记(`[ ]`)可以表示数组的维度。例如，使用 `[[Int]]` 表示一个整数矩阵。
-:::
+> info **Hint** Using array bracket notation (`[ ]`), we can indicate the depth of the array. For example, using `[[Int]]` would represent an integer matrix.
 
-
-
-若要声明数组元素（而非数组本身）可为空，需将 `nullable` 属性设置为 `'items'`，如下所示：
+To declare that an array's items (not the array itself) are nullable, set the `nullable` property to `'items'` as shown below:
 
 ```typescript
 @Field(type => [Post], { nullable: 'items' })
 posts: Post[];
 ```
 
-:::info 提示
-若数组及其元素均可为空，则应将 `nullable` 设置为 `'itemsAndList'`。
-:::
+> info **Hint** If both the array and its items are nullable, set `nullable` to `'itemsAndList'` instead.
 
+Now that the `Author` object type is created, let's define the `Post` object type.
 
-
-既然已创建 `Author` 对象类型，现在我们来定义 `Post` 对象类型。
-
- ```typescript title="posts/models/post.model.ts"
+```typescript title="posts/models/post.model"
 import { Field, Int, ObjectType } from '@nestjs/graphql';
 
 @ObjectType()
@@ -127,7 +119,7 @@ export class Post {
 }
 ```
 
-`Post` 对象类型将生成以下 SDL 格式的 GraphQL 模式片段：
+The `Post` object type will result in generating the following part of the GraphQL schema in SDL:
 
 ```graphql
 type Post {
@@ -137,11 +129,11 @@ type Post {
 }
 ```
 
-#### 代码优先解析器
+#### Code first resolver
 
-至此，我们已定义了数据图中可存在的对象（类型定义），但客户端尚无法与这些对象交互。为此，我们需要创建一个解析器类。在代码优先方法中，解析器类既定义解析函数**又**生成 **Query 类型** 。通过下面的示例，这一点将变得清晰：
+At this point, we've defined the objects (type definitions) that can exist in our data graph, but clients don't yet have a way to interact with those objects. To address that, we need to create a resolver class. In the code first method, a resolver class both defines resolver functions **and** generates the **Query type**. This will be clear as we work through the example below:
 
- ```typescript title="authors/authors.resolver.ts"
+```typescript title="authors/authors.resolver"
 @Resolver(() => Author)
 export class AuthorsResolver {
   constructor(
@@ -162,33 +154,27 @@ export class AuthorsResolver {
 }
 ```
 
-:::info 提示
-所有装饰器（例如 `@Resolver`、`@ResolveField`、`@Args` 等）均从 `@nestjs/graphql` 包中导出。
-:::
+> info **Hint** All decorators (e.g., `@Resolver`, `@ResolveField`, `@Args`, etc.) are exported from the `@nestjs/graphql` package.
 
-您可以定义多个解析器类。Nest 将在运行时将它们组合起来。有关代码组织的更多信息，请参阅下面的[模块](#模块)部分。
+You can define multiple resolver classes. Nest will combine these at run time. See the [module](/graphql/resolvers#模块) section below for more on code organization.
 
-:::warning 注意
-`AuthorsService` 和 `PostsService` 类中的逻辑可以根据需要简单或复杂。本示例的主要目的是展示如何构建解析器以及它们如何与其他提供者交互。
-:::
+> warning **Note** The logic inside the `AuthorsService` and `PostsService` classes can be as simple or sophisticated as needed. The main point of this example is to show how to construct resolvers and how they can interact with other providers.
 
-在上面的示例中，我们创建了 `AuthorsResolver`，它定义了一个查询解析器函数和一个字段解析器函数。要创建解析器，我们需要创建一个以解析器函数作为方法的类，并用 `@Resolver()` 装饰器来注解该类。
+In the example above, we created the `AuthorsResolver`, which defines one query resolver function and one field resolver function. To create a resolver, we create a class with resolver functions as methods, and annotate the class with the `@Resolver()` decorator.
 
-在此示例中，我们定义了一个查询处理器，用于根据请求中发送的 `id` 获取作者对象。要指定该方法为查询处理器，请使用 `@Query()` 装饰器。
+In this example, we defined a query handler to get the author object based on the `id` sent in the request. To specify that the method is a query handler, use the `@Query()` decorator.
 
-传递给 `@Resolver()` 装饰器的参数是可选的，但当我们的图结构变得复杂时就会发挥作用。它用于提供一个父对象，供字段解析器函数在遍历对象图时使用。
+The argument passed to the `@Resolver()` decorator is optional, but comes into play when our graph becomes non-trivial. It's used to supply a parent object used by field resolver functions as they traverse down through an object graph.
 
-在本例中，由于类包含一个**字段解析器**函数（用于 `Author` 对象类型的 `posts` 属性），我们**必须**为 `@Resolver()` 装饰器提供一个值，以指明哪个类是当前类中定义的所有字段解析器的父类型（即对应的 `ObjectType` 类名）。如示例所示，在编写字段解析器函数时，需要访问父对象（即被解析字段所属的对象）。本例中，我们通过调用以作者 `id` 为参数的服务，用字段解析器填充了作者的 posts 数组。因此需要在 `@Resolver()` 装饰器中标识父对象。注意后续使用 `@Parent()` 方法参数装饰器来提取该父对象的引用。
+In our example, since the class includes a **field resolver** function (for the `posts` property of the `Author` object type), we **must** supply the `@Resolver()` decorator with a value to indicate which class is the parent type (i.e., the corresponding `ObjectType` class name) for all field resolvers defined within this class. As should be clear from the example, when writing a field resolver function, it's necessary to access the parent object (the object the field being resolved is a member of). In this example, we populate an author's posts array with a field resolver that calls a service that takes the author's `id` as an argument. Hence, the need to identify the parent object in the `@Resolver()` decorator. Note the corresponding use of the `@Parent()` method parameter decorator to then extract a reference to that parent object in the field resolver.
 
-我们可以定义多个 `@Query()` 解析器函数（既可以在这个类中，也可以在其他任何解析器类中），它们将被聚合到生成的 SDL 中的单个 **Query 类型**定义里，并包含解析器映射中的相应条目。这允许您将查询定义在靠近它们所使用的模型和服务的地方，并保持它们在模块中的良好组织。
+We can define multiple `@Query()` resolver functions (both within this class and in any other resolver class), and they will be aggregated into a single **Query type** definition in the generated SDL along with the appropriate entries in the resolver map. This allows you to define queries close to the models and services that they use, and to keep them well organized in modules.
 
-:::info 提示
-Nest CLI 提供了一个生成器（原理图），能自动生成**所有样板代码** ，帮助我们避免手动完成这些工作，使开发者体验更加简单。了解更多关于此功能的信息[请点击这里](/recipes/crud-generator) 。
-:::
+> info **Hint** Nest CLI provides a generator (schematic) that automatically generates **all the boilerplate code** to help us avoid doing all of this, and make the developer experience much simpler. Read more about this feature [here](/recipes/crud-generator).
 
-#### 查询类型名称
+#### Query type names
 
-在上述示例中，`@Query()` 装饰器会根据方法名生成 GraphQL 模式查询类型名称。例如，考虑上面示例中的以下构造：
+In the above examples, the `@Query()` decorator generates a GraphQL schema query type name based on the method name. For example, consider the following construction from the example above:
 
 ```typescript
 @Query(() => Author)
@@ -197,7 +183,7 @@ async author(@Args('id', { type: () => Int }) id: number) {
 }
 ```
 
-这会在我们的模式中为作者查询生成以下条目（查询类型使用与方法名相同的名称）：
+This generates the following entry for the author query in our schema (the query type uses the same name as the method name):
 
 ```graphql
 type Query {
@@ -205,15 +191,11 @@ type Query {
 }
 ```
 
-:::info 提示
-了解更多关于 GraphQL 查询的信息[请点击此处](https://graphql.org/learn/queries/) 。
-:::
+> info **Hint** Learn more about GraphQL queries [here](https://graphql.org/learn/queries/).
 
+Conventionally, we prefer to decouple these names; for example, we prefer to use a name like `getAuthor()` for our query handler method, but still use `author` for our query type name. The same applies to our field resolvers. We can easily do this by passing the mapping names as arguments of the `@Query()` and `@ResolveField()` decorators, as shown below:
 
-
-按照惯例，我们更倾向于解耦这些名称；例如，我们倾向于使用类似 `getAuthor()` 的名称作为查询处理方法，但仍使用 `author` 作为查询类型名称。同样适用于我们的字段解析器。我们可以通过将映射名称作为 `@Query()` 和 `@ResolveField()` 装饰器的参数传递来实现这一点，如下所示：
-
- ```typescript title="authors/authors.resolver.ts"
+```typescript title="authors/authors.resolver"
 @Resolver(() => Author)
 export class AuthorsResolver {
   constructor(
@@ -234,7 +216,7 @@ export class AuthorsResolver {
 }
 ```
 
-上述 `getAuthor` 处理方法将生成以下 SDL 格式的 GraphQL 模式片段：
+The `getAuthor` handler method above will result in generating the following part of the GraphQL schema in SDL:
 
 ```graphql
 type Query {
@@ -242,26 +224,26 @@ type Query {
 }
 ```
 
-#### 查询装饰器选项
+#### Query decorator options
 
-`@Query()` 装饰器的选项对象（我们在上面传递 `{name: 'author'}` 的地方）接受多个键/值对：
+The `@Query()` decorator's options object (where we pass `{name: 'author'}` above) accepts a number of key/value pairs:
 
-- `name`: 查询名称；一个 `string` 类型
-- `description`: 用于生成 GraphQL 模式文档的描述（例如在 GraphQL playground 中）；一个 `string` 类型
-- `deprecationReason`：设置查询元数据以将查询标记为已弃用（例如在 GraphQL playground 中）；值为 `string` 类型
-- `nullable`：查询是否可以返回空数据响应；值为 `boolean` 类型或 `'items'` 或 `'itemsAndList'`（有关 `'items'` 和 `'itemsAndList'` 的详细信息请参见上文）
+- `name`: name of the query; a `string`
+- `description`: a description that will be used to generate GraphQL schema documentation (e.g., in GraphQL playground); a `string`
+- `deprecationReason`: sets query metadata to show the query as deprecated (e.g., in GraphQL playground); a `string`
+- `nullable`: whether the query can return a null data response; `boolean` or `'items'` or `'itemsAndList'` (see above for details of `'items'` and `'itemsAndList'`)
 
-#### Args 装饰器选项
+#### Args decorator options
 
-使用 `@Args()` 装饰器从请求中提取参数以供方法处理器使用，其工作方式与 [REST 路由参数提取](/overview/controllers#路由参数)非常相似。
+Use the `@Args()` decorator to extract arguments from a request for use in the method handler. This works in a very similar fashion to [REST route parameter argument extraction](/controllers#路由参数).
 
-通常情况下，您的 `@Args()` 装饰器会很简单，不需要像上面 `getAuthor()` 方法那样使用对象参数。例如，如果标识符的类型是字符串，以下结构就足够了，它只是从传入的 GraphQL 请求中提取命名字段作为方法参数使用。
+Usually, your `@Args()` decorator will be simple and not require an object argument, as seen with the `getAuthor()` method above. For example, if the type of an identifier is string, the following construction is sufficient, and simply plucks the named field from the inbound GraphQL request for use as a method argument.
 
 ```typescript
 @Args('id') id: string
 ```
 
-在 `getAuthor()` 这个例子中，使用了 `number` 类型，这带来了一个挑战。`number` 这个 TypeScript 类型没有提供足够的信息来说明预期的 GraphQL 表示形式（例如 `Int` 与 `Float` 的区别）。因此我们必须**显式地**传递类型引用。我们通过向 `Args()` 装饰器传递第二个参数（包含参数选项）来实现，如下所示：
+In the `getAuthor()` case, the `number` type is used, which presents a challenge. The `number` TypeScript type doesn't give us enough information about the expected GraphQL representation (e.g., `Int` vs. `Float`). Thus, we have to **explicitly** pass the type reference. We do that by passing a second argument to the `Args()` decorator, containing argument options, as shown below:
 
 ```typescript
 @Query(() => Author, { name: 'author' })
@@ -270,15 +252,15 @@ async getAuthor(@Args('id', { type: () => Int }) id: number) {
 }
 ```
 
-这个选项对象允许我们指定以下可选的键值对：
+The options object allows us to specify the following optional key-value pairs:
 
-- `type`: 一个返回 GraphQL 类型的函数
-- `defaultValue`：默认值；`any`
-- `description`：描述元数据；`string`
-- `deprecationReason`：弃用字段并提供描述原因的元数据；`string`
-- `nullable`：字段是否可为空
+- `type`: a function returning the GraphQL type
+- `defaultValue`: a default value; `any`
+- `description`: description metadata; `string`
+- `deprecationReason`: to deprecate a field and provide metadata describing why; `string`
+- `nullable`: whether the field is nullable
 
-查询处理方法可以接受多个参数。假设我们需要根据作者的 `firstName` 和 `lastName` 来获取作者信息，此时可以调用两次 `@Args`：
+Query handler methods can take multiple arguments. Let's imagine that we want to fetch an author based on its `firstName` and `lastName`. In this case, we can call `@Args` twice:
 
 ```typescript
 getAuthor(
@@ -287,23 +269,19 @@ getAuthor(
 ) {}
 ```
 
-:::info 提示
-对于 GraphQL 可为空字段 `firstName`，不需要在字段类型中添加非值类型 `null` 或 `undefined`。但请注意，你需要在解析器中为这些可能的非值类型添加类型保护，因为 GraphQL 可为空字段会允许这些类型传递到解析器。
-:::
+> info **Hint** In the case of `firstName`, which is a GraphQL nullable field, it isn't necessary to add the non-value types of `null` or `undefined` to the type of this field. Just be aware, you'll need to type guard for these possible non-value types in your resolvers, because a GraphQL nullable field will allow those types to pass through to your resolver.
 
+#### Dedicated arguments class
 
-
-#### 专用参数类
-
-使用内联 `@Args()` 调用时，类似上述示例的代码会变得臃肿。你可以创建一个专用的 `GetAuthorArgs` 参数类，然后在处理方法中按如下方式访问：
+With inline `@Args()` calls, code like the example above becomes bloated. Instead, you can create a dedicated `GetAuthorArgs` arguments class and access it in the handler method as follows:
 
 ```typescript
 @Args() args: GetAuthorArgs
 ```
 
-使用 `@ArgsType()` 创建 `GetAuthorArgs` 类，如下所示：
+Create the `GetAuthorArgs` class using `@ArgsType()` as shown below:
 
- ```typescript title="authors/dto/get-author.args.ts"
+```typescript title="authors/dto/get-author.args"
 import { MinLength } from 'class-validator';
 import { Field, ArgsType } from '@nestjs/graphql';
 
@@ -318,11 +296,9 @@ class GetAuthorArgs {
 }
 ```
 
-:::info 提示
-再次强调，由于 TypeScript 元数据反射系统的限制，必须使用 `@Field` 装饰器手动指定类型和可选性，或者使用 [CLI 插件](/graphql/cli-plugin) 。另外，对于 GraphQL 可为空字段 `firstName`，不需要在字段类型中添加 `null` 或 `undefined` 等非值类型。只需注意，你需要在解析器中为这些可能的非值类型添加类型保护，因为 GraphQL 可为空字段会允许这些类型传递到解析器。
-:::
+> info **Hint** Again, due to TypeScript's metadata reflection system limitations, it's required to either use the `@Field` decorator to manually indicate type and optionality, or use a [CLI plugin](/graphql/cli-plugin). Also, in the case of `firstName`, which is a GraphQL nullable field, it isn't necessary to add the non-value types of `null` or `undefined` to the type of this field. Just be aware, you'll need to type guard for these possible non-value types in your resolvers, because a GraphQL nullable field will allow those types to pass through to your resolver. 
 
-这将生成以下 GraphQL 模式定义语言(SDL)部分：
+This will result in generating the following part of the GraphQL schema in SDL:
 
 ```graphql
 type Query {
@@ -330,15 +306,13 @@ type Query {
 }
 ```
 
-:::info 提示
-请注意，像 `GetAuthorArgs` 这样的参数类与 `ValidationPipe` 配合得很好（阅读[更多](/techniques/validation) ）。
-:::
+> info **Hint** Note that argument classes like `GetAuthorArgs` play very well with the `ValidationPipe` (read [more](/techniques/validation)).
 
-#### 类继承
+#### Class inheritance
 
-你可以使用标准的 TypeScript 类继承来创建具有通用工具类型特性（字段和字段属性、验证等）的基础类，这些类可以被扩展。例如，你可能有一组分页相关的参数，它们总是包含标准的 `offset` 和 `limit` 字段，但也包含特定于类型的其他索引字段。你可以按照如下所示设置类层次结构。
+You can use standard TypeScript class inheritance to create base classes with generic utility type features (fields and field properties, validations, etc.) that can be extended. For example, you may have a set of pagination related arguments that always include the standard `offset` and `limit` fields, but also other index fields that are type-specific. You can set up a class hierarchy as shown below.
 
-基础 `@ArgsType()` 类：
+Base `@ArgsType()` class:
 
 ```typescript
 @ArgsType()
@@ -351,7 +325,7 @@ class PaginationArgs {
 }
 ```
 
-基础 `@ArgsType()` 类的特定类型子类：
+Type specific sub-class of the base `@ArgsType()` class:
 
 ```typescript
 @ArgsType()
@@ -365,7 +339,7 @@ class GetAuthorArgs extends PaginationArgs {
 }
 ```
 
-同样的方法也适用于 `@ObjectType()` 对象。在基类上定义通用属性：
+The same approach can be taken with `@ObjectType()` objects. Define generic properties on the base class:
 
 ```typescript
 @ObjectType()
@@ -378,7 +352,7 @@ class Character {
 }
 ```
 
-在子类上添加特定类型的属性：
+Add type-specific properties on sub-classes:
 
 ```typescript
 @ObjectType()
@@ -388,7 +362,7 @@ class Warrior extends Character {
 }
 ```
 
-你也可以将继承与解析器结合使用。通过结合继承和 TypeScript 泛型，可以确保类型安全。例如，要创建一个带有通用 `findAll` 查询的基类，可以使用如下结构：
+You can use inheritance with a resolver as well. You can ensure type safety by combining inheritance and TypeScript generics. For example, to create a base class with a generic `findAll` query, use a construction like this:
 
 ```typescript
 function BaseResolver<T extends Type<unknown>>(classRef: T): any {
@@ -403,13 +377,13 @@ function BaseResolver<T extends Type<unknown>>(classRef: T): any {
 }
 ```
 
-请注意以下几点：
+Note the following:
 
-- 需要显式声明返回类型（上例中的 `any`）：否则 TypeScript 会因使用私有类定义而报错。建议：定义接口而非使用 `any`。
-- `Type` 是从 `@nestjs/common` 包中导入的
-- `isAbstract: true` 属性表示不应为此类生成 SDL（模式定义语言语句）。注意，您也可以为其他类型设置此属性以禁止 SDL 生成。
+- An explicit return type (`any` above) is required; otherwise, TypeScript complains about the usage of a private class definition. Recommended: define an interface instead of using `any`.
+- `Type` is imported from the `@nestjs/common` package
+- The `isAbstract: true` property indicates that SDL (Schema Definition Language statements) shouldn't be generated for this class. Note, you can set this property for other types as well to suppress SDL generation.
 
-以下是生成 `BaseResolver` 具体子类的方法：
+Here's how you could generate a concrete subclass of the `BaseResolver`:
 
 ```typescript
 @Resolver(() => Recipe)
@@ -420,7 +394,7 @@ export class RecipesResolver extends BaseResolver(Recipe) {
 }
 ```
 
-此构造将生成以下 SDL：
+This construct would generate the following SDL:
 
 ```graphql
 type Query {
@@ -428,9 +402,9 @@ type Query {
 }
 ```
 
-#### 泛型
+#### Generics
 
-我们在上面看到了泛型的一种用法。这个强大的 TypeScript 特性可用于创建实用的抽象。例如，这里有一个基于[此文档](https://graphql.org/learn/pagination/#pagination-and-edges)的基于游标的分页实现示例：
+We saw one use of generics above. This powerful TypeScript feature can be used to create useful abstractions. For example, here's a sample cursor-based pagination implementation based on [this documentation](https://graphql.org/learn/pagination/#pagination-and-edges):
 
 ```typescript
 import { Field, ObjectType, Int } from '@nestjs/graphql';
@@ -476,21 +450,18 @@ export function Paginated<T>(classRef: Type<T>): Type<IPaginatedType<T>> {
 }
 ```
 
-定义了上述基类后，我们现在可以轻松创建继承此行为的专用类型。例如：
+With the above base class defined, we can now easily create specialized types that inherit this behavior. For example:
 
 ```typescript
 @ObjectType()
 class PaginatedAuthor extends Paginated(Author) {}
 ```
 
-#### 模式优先
+#### Schema first
 
-如[前一章](/graphql/quick-start)所述，在模式优先方法中，我们首先手动在 SDL 中定义模式类型（阅读[更多](https://graphql.org/learn/schema/#type-language) ）。考虑以下 SDL 类型定义。
+As mentioned in the [previous](/graphql/quick-start) chapter, in the schema-first approach, we start by manually defining schema types in SDL (read [more](https://graphql.org/learn/schema/#type-language)). Consider the following SDL type definitions.
 
-:::info 注意
-为方便起见，本章节将所有 SDL 集中在一处（如下所示的单个 `.graphql` 文件）。实际开发中，您可能会发现以模块化方式组织代码更为合适。例如，可以为每个领域实体创建单独的 SDL 文件，包含类型定义、相关服务、解析器代码以及该实体的 Nest 模块定义类，并统一存放在该实体的专属目录中。Nest 会在运行时自动聚合所有独立的模式类型定义。
-:::
-
+> info **Hint** For convenience in this chapter, we've aggregated all of the SDL in one location (e.g., one `.graphql` file, as shown below). In practice, you may find it appropriate to organize your code in a modular fashion. For example, it can be helpful to create individual SDL files with type definitions representing each domain entity, along with related services, resolver code, and the Nest module definition class, in a dedicated directory for that entity. Nest will aggregate all the individual schema type definitions at run time.
 
 ```graphql
 type Author {
@@ -511,18 +482,15 @@ type Query {
 }
 ```
 
-#### Schema First 解析器
+#### Schema first resolver
 
-上述模式公开了一个查询方法 - `author(id: Int!): Author`。
+The schema above exposes a single query - `author(id: Int!): Author`.
 
-:::info 注意
-了解更多关于 GraphQL 查询的信息，请[点击此处](https://graphql.org/learn/queries/) 。
-:::
+> info **Hint** Learn more about GraphQL queries [here](https://graphql.org/learn/queries/).
 
+Let's now create an `AuthorsResolver` class that resolves author queries:
 
-现在我们来创建一个解析作者查询的 `AuthorsResolver` 类：
-
- ```typescript title="authors/authors.resolver.ts"
+```typescript title="authors/authors.resolver"
 @Resolver('Author')
 export class AuthorsResolver {
   constructor(
@@ -543,15 +511,11 @@ export class AuthorsResolver {
 }
 ```
 
-:::info 提示
-所有装饰器（如 `@Resolver`、`@ResolveField`、`@Args` 等）都是从 `@nestjs/graphql` 包中导出的。
-:::
+> info **Hint** All decorators (e.g., `@Resolver`, `@ResolveField`, `@Args`, etc.) are exported from the `@nestjs/graphql` package.
 
-:::warning 注意
- `AuthorsService` 和 `PostsService` 类中的逻辑可以根据需要简单或复杂。本示例的主要目的是展示如何构建解析器以及它们如何与其他提供者交互。
-:::
+> warning **Note** The logic inside the `AuthorsService` and `PostsService` classes can be as simple or sophisticated as needed. The main point of this example is to show how to construct resolvers and how they can interact with other providers.
 
-`@Resolver()` 装饰器是必需的。它接受一个可选的字符串参数，用于指定类名。当类包含 `@ResolveField()` 装饰器时，这个类名是必需的，用于告知 Nest 被装饰的方法与父类型相关联（在我们当前的例子中是 `Author` 类型）。或者，也可以不在类顶部设置 `@Resolver()`，而是为每个方法单独设置：
+The `@Resolver()` decorator is required. It takes an optional string argument with the name of a class. This class name is required whenever the class includes `@ResolveField()` decorators to inform Nest that the decorated method is associated with a parent type (the `Author` type in our current example). Alternatively, instead of setting `@Resolver()` at the top of the class, this can be done for each method:
 
 ```typescript
 @Resolver('Author')
@@ -562,21 +526,13 @@ async posts(@Parent() author) {
 }
 ```
 
-在此情况下（方法层级的 `@Resolver()` 装饰器），若类中包含多个 `@ResolveField()` 装饰器，则必须为所有方法添加 `@Resolver()`。这种做法不被视为最佳实践（因其会产生额外开销）。
+In this case (`@Resolver()` decorator at the method level), if you have multiple `@ResolveField()` decorators inside a class, you must add `@Resolver()` to all of them. This is not considered the best practice (as it creates extra overhead).
 
-:::info 提示
-传递给 `@Resolver()` 的任何**类名参数**不会影响查询（`@Query()` 装饰器）或变更（`@Mutation()` 装饰器）。
-:::
+> info **Hint** Any class name argument passed to `@Resolver()` **does not** affect queries (`@Query()` decorator) or mutations (`@Mutation()` decorator).
 
+> warning **Warning** Using the `@Resolver` decorator at the method level is not supported with the **code first** approach.
 
-
-:::warning 警告
-在**代码优先**方法中不支持在方法层级使用 `@Resolver` 装饰器。
-:::
-
-
-
-上述示例中，`@Query()` 和 `@ResolveField()` 装饰器会根据方法名关联到 GraphQL 模式类型。例如，考虑前文示例中的以下结构：
+In the above examples, the `@Query()` and `@ResolveField()` decorators are associated with GraphQL schema types based on the method name. For example, consider the following construction from the example above:
 
 ```typescript
 @Query()
@@ -585,7 +541,7 @@ async author(@Args('id') id: number) {
 }
 ```
 
-这将在我们的模式中为作者查询生成以下条目（查询类型与方法名称相同）：
+This generates the following entry for the author query in our schema (the query type uses the same name as the method name):
 
 ```graphql
 type Query {
@@ -593,9 +549,9 @@ type Query {
 }
 ```
 
-按照惯例，我们更倾向于解耦这些内容，使用诸如 `getAuthor()` 或 `getPosts()` 这样的名称作为解析器方法。我们可以通过将映射名称作为装饰器的参数来实现这一点，如下所示：
+Conventionally, we would prefer to decouple these, using names like `getAuthor()` or `getPosts()` for our resolver methods. We can easily do this by passing the mapping name as an argument to the decorator, as shown below:
 
- ```typescript title="authors/authors.resolver.ts"
+```typescript title="authors/authors.resolver"
 @Resolver('Author')
 export class AuthorsResolver {
   constructor(
@@ -616,23 +572,19 @@ export class AuthorsResolver {
 }
 ```
 
-:::info 提示
-Nest CLI 提供了一个生成器（schematic），能自动生成**所有样板代码**，帮助我们避免手动完成这些工作，使开发体验更加简单。点击[此处](/recipes/crud-generator)了解更多关于此功能的信息。
-:::
+> info **Hint** Nest CLI provides a generator (schematic) that automatically generates **all the boilerplate code** to help us avoid doing all of this, and make the developer experience much simpler. Read more about this feature [here](/recipes/crud-generator).
 
+#### Generating types
 
+Assuming that we use the schema first approach and have enabled the typings generation feature (with `outputAs: 'class'` as shown in the [previous](/graphql/quick-start) chapter), once you run the application, it will generate the following file (in the location you specified in the `GraphQLModule.forRoot()` method). For example, in `src/graphql.ts`:
 
-#### 生成类型
-
-假设我们采用模式优先（schema first）方法并启用了类型生成功能（如[前一章](/graphql/quick-start)所示，设置 `outputAs: 'class'`），运行应用后将在 `GraphQLModule.forRoot()` 方法指定的位置生成如下文件（例如 `src/graphql.ts`）：
-
- ```typescript title="graphql.ts"
-export (class Author {
+```typescript title="graphql"
+export class Author {
   id: number;
   firstName?: string;
   lastName?: string;
   posts?: Post[];
-})
+}
 export class Post {
   id: number;
   title: string;
@@ -643,8 +595,9 @@ export abstract class IQuery {
   abstract author(id: number): Author | Promise<Author>;
 }
 ```
+```
 
-通过生成类（而非默认的接口生成方式），您可以将声明式验证**装饰器**与模式优先方法结合使用，这是极其有用的技术（ [了解更多](/techniques/validation) ）。例如，您可以像下面这样为生成的 `CreatePostInput` 类添加 `class-validator` 装饰器，从而对 `title` 字段实施最小和最大字符串长度限制：
+By generating classes (instead of the default technique of generating interfaces), you can use declarative validation **decorators** in combination with the schema first approach, which is an extremely useful technique (read [more](/techniques/validation)). For example, you could add `class-validator` decorators to the generated `CreatePostInput` class as shown below to enforce minimum and maximum string lengths on the `title` field:
 
 ```typescript
 import { MinLength, MaxLength } from 'class-validator';
@@ -656,13 +609,9 @@ export class CreatePostInput {
 }
 ```
 
-:::info 注意
-要实现输入（及参数）的自动验证，请使用 `ValidationPipe`。有关验证的更多信息请[参阅此处](/techniques/validation) ，关于管道的具体说明请[查看这里](/overview/pipes) 。
-:::
+> warning **Notice** To enable auto-validation of your inputs (and parameters), use `ValidationPipe`. Read more about validation [here](/techniques/validation) and more specifically about pipes [here](/pipes).
 
-
-
-然而，若直接将装饰器添加到自动生成的文件中，每次文件重新生成时这些装饰器都会被**覆盖** 。正确的做法是创建一个单独的文件来扩展生成的类。
+However, if you add decorators directly to the automatically generated file, they will be **overwritten** each time the file is generated. Instead, create a separate file and simply extend the generated class.
 
 ```typescript
 import { MinLength, MaxLength } from 'class-validator';
@@ -675,47 +624,49 @@ export class CreatePostInput extends Post {
 }
 ```
 
-#### GraphQL 参数装饰器
+#### GraphQL argument decorators
 
-我们可以通过专用装饰器访问标准 GraphQL 解析器参数。下表对比了 Nest 装饰器与其对应的原生 Apollo 参数：
+We can access the standard GraphQL resolver arguments using dedicated decorators. Below is a comparison of the Nest decorators and the plain Apollo parameters they represent.
 
 <table>
   <tbody>
     <tr>
-      <td>@Root() 和 @Parent()</td>
-      <td>根 / 父级</td>
+      <td><code>@Root()</code> and <code>@Parent()</code></td>
+      <td><code>root</code>/<code>parent</code></td>
     </tr>
     <tr>
-      <td>@Context(param?: string)</td>
-      <td>上下文 / 上下文[参数]</td>
+      <td><code>@Context(param?: string)</code></td>
+      <td><code>context</code> / <code>context[param]</code></td>
     </tr>
     <tr>
-      <td>@Info(param?: string)</td>
-      <td>信息 / 信息[参数]</td>
+      <td><code>@Info(param?: string)</code></td>
+      <td><code>info</code> / <code>info[param]</code></td>
     </tr>
     <tr>
-      <td>@Args(param?: string)</td>
-      <td>参数 / 参数[参数]</td>
+      <td><code>@Args(param?: string)</code></td>
+      <td><code>args</code> / <code>args[param]</code></td>
     </tr>
   </tbody>
 </table>
 
-这些参数具有以下含义：
+These arguments have the following meanings:
 
-- `root`：一个包含从父字段解析器返回结果的对象，或者在顶级 `Query` 字段情况下，包含从服务器配置传递的 `rootValue`。
-- `context`：一个由特定查询中所有解析器共享的对象；通常用于包含每个请求的状态。
-- `info`：一个包含查询执行状态信息的对象。
-- `args`：一个包含查询中传入字段参数的对象。
+- `root`: an object that contains the result returned from the resolver on the parent field, or, in the case of a top-level `Query` field, the `rootValue` passed from the server configuration.
+- `context`: an object shared by all resolvers in a particular query; typically used to contain per-request state.
+- `info`: an object that contains information about the execution state of the query.
+- `args`: an object with the arguments passed into the field in the query.
 
-#### 模块
+<app-banner-devtools></app-banner-devtools>
 
-完成上述步骤后，我们就已声明式地指定了 `GraphQLModule` 生成解析器映射所需的全部信息。`GraphQLModule` 利用反射机制来检查通过装饰器提供的元数据，并自动将类转换为正确的解析器映射。
+#### Module
 
-您唯一需要做的就是在某个模块中将解析器类（如 `AuthorsResolver`） **提供** （即列为 `provider`），并导入该模块（`AuthorsModule`），这样 Nest 就能使用它了。
+Once we're done with the above steps, we have declaratively specified all the information needed by the `GraphQLModule` to generate a resolver map. The `GraphQLModule` uses reflection to introspect the meta data provided via the decorators, and transforms classes into the correct resolver map automatically.
 
-例如，我们可以在 `AuthorsModule` 中实现这一功能，该模块还能提供此场景下所需的其他服务。请确保在某个位置（如根模块或被根模块导入的其他模块中）导入 `AuthorsModule`。
+The only other thing you need to take care of is to **provide** (i.e., list as a `provider` in some module) the resolver class(es) (`AuthorsResolver`), and importing the module (`AuthorsModule`) somewhere, so Nest will be able to utilize it.
 
- ```typescript title="authors/authors.module.ts"
+For example, we can do this in an `AuthorsModule`, which can also provide other services needed in this context. Be sure to import `AuthorsModule` somewhere (e.g., in the root module, or some other module imported by the root module).
+
+```typescript title="authors/authors.module"
 @Module({
   imports: [PostsModule],
   providers: [AuthorsService, AuthorsResolver],
@@ -723,8 +674,4 @@ export class CreatePostInput extends Post {
 export class AuthorsModule {}
 ```
 
-:::info 提示
-按照所谓的**领域模型**（类似于在 REST API 中组织入口点的方式）来组织代码会很有帮助。采用这种方法时，请将模型（`ObjectType` 类）、解析器和服务都集中放在代表领域模型的 Nest 模块中。每个模块的所有组件都应存放在单一文件夹内。当您这样做并使用 [Nest CLI](/cli/overview) 生成每个元素时，Nest 会自动为您将这些部分连接起来（将文件定位到适当文件夹、在 `provider` 和 `imports` 数组中生成条目等）。
-:::
-
-
+> info **Hint** It is helpful to organize your code by your so-called **domain model** (similar to the way you would organize entry points in a REST API). In this approach, keep your models (`ObjectType` classes), resolvers and services together within a Nest module representing the domain model. Keep all of these components in a single folder per module. When you do this, and use the [Nest CLI](/cli/overview) to generate each element, Nest will wire all of these parts together (locating files in appropriate folders, generating entries in `provider` and `imports` arrays, etc.) automatically for you.

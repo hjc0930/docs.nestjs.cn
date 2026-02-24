@@ -1,5 +1,5 @@
 <!-- 此文件从 content/controllers.md 自动生成，请勿直接修改此文件 -->
-<!-- 生成时间: 2026-02-24T02:34:20.370Z -->
+<!-- 生成时间: 2026-02-24T02:49:46.576Z -->
 <!-- 源文件: content/controllers.md -->
 
 ### Controllers
@@ -71,7 +71,7 @@ Handlers often need access to the client’s **request** details. Nest provides 
 
 ```typescript title="cats.controller"
 import { Controller, Get, Req } from '@nestjs/common';
-import { Request } from 'express';
+import type { Request } from 'express';
 
 @Controller('cats')
 export class CatsController {

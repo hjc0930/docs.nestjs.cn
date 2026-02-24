@@ -1,26 +1,30 @@
-### 概述
+<!-- 此文件从 content/microservices/basics.md 自动生成，请勿直接修改此文件 -->
+<!-- 生成时间: 2026-02-24T02:57:32.702Z -->
+<!-- 源文件: content/microservices/basics.md -->
 
-除了传统的（有时称为单体式）应用架构外，Nest 原生支持微服务架构风格的开发。本文档其他部分讨论的大多数概念，如依赖注入、装饰器、异常过滤器、管道、守卫和拦截器，同样适用于微服务。Nest 尽可能抽象实现细节，使得相同组件可以跨 HTTP 平台、WebSocket 和微服务运行。本节将重点介绍 Nest 中微服务特有的功能。
+### Overview
 
-在 Nest 中，微服务本质上是一个使用不同于 HTTP **传输**层的应用程序。
+In addition to traditional (sometimes called monolithic) application architectures, Nest natively supports the microservice architectural style of development. Most of the concepts discussed elsewhere in this documentation, such as dependency injection, decorators, exception filters, pipes, guards and interceptors, apply equally to microservices. Wherever possible, Nest abstracts implementation details so that the same components can run across HTTP-based platforms, WebSockets, and Microservices. This section covers the aspects of Nest that are specific to microservices.
 
-![](/assets/Microservices_1.png)
+In Nest, a microservice is fundamentally an application that uses a different **transport** layer than HTTP.
 
-Nest 支持多种内置的传输层实现，称为**传输器** ，负责在不同微服务实例间传递消息。大多数传输器原生支持**请求-响应**和**基于事件**两种消息风格。Nest 将每种传输器的实现细节抽象为统一的接口，同时适用于请求-响应和基于事件的消息传递。这使得您可以轻松切换传输层——例如利用特定传输层的可靠性或性能优势——而无需修改应用程序代码。
+<figure><img class="illustrative-image" src="/assets/Microservices_1.png" /></figure>
 
-#### 安装
+Nest supports several built-in transport layer implementations, called **transporters**, which are responsible for transmitting messages between different microservice instances. Most transporters natively support both **request-response** and **event-based** message styles. Nest abstracts the implementation details of each transporter behind a canonical interface for both request-response and event-based messaging. This makes it easy to switch from one transport layer to another -- for example to leverage the specific reliability or performance features of a particular transport layer -- without impacting your application code.
 
-要开始构建微服务，首先需要安装所需包：
+#### Installation
+
+To start building microservices, first install the required package:
 
 ```bash
 $ npm i --save @nestjs/microservices
 ```
 
-#### 快速开始
+#### Getting started
 
-要实例化微服务，请使用 `NestFactory` 类的 `createMicroservice()` 方法：
+To instantiate a microservice, use the `createMicroservice()` method of the `NestFactory` class:
 
- ```typescript title="main.ts"
+```typescript title="main"
 import { NestFactory } from '@nestjs/core';
 import { Transport, MicroserviceOptions } from '@nestjs/microservices';
 import { AppModule } from './app.module';
@@ -37,82 +41,74 @@ async function bootstrap() {
 bootstrap();
 ```
 
-:::info 注意
-微服务默认使用 **TCP** 传输层。
-:::
+> info **Hint** Microservices use the **TCP** transport layer by default.
 
-
-`createMicroservice()` 方法的第二个参数是一个 `options` 对象，该对象可能包含两个成员：
+The second argument of the `createMicroservice()` method is an `options` object. This object may consist of two members:
 
 <table>
-  <tbody>
-    <tr>
-      <td><code>transport</code></td>
-      <td>指定传输器（例如 <code>Transport.NATS</code>）</td>
-    </tr>
-    <tr>
-      <td><code>options</code></td>
-      <td>一个用于配置传输器行为的传输器专属选项对象</td>
-    </tr>
-  </tbody>
+  <tr>
+    <td><code>transport</code></td>
+    <td>Specifies the transporter (for example, <code>Transport.NATS</code>)</td>
+  </tr>
+  <tr>
+    <td><code>options</code></td>
+    <td>A transporter-specific options object that determines transporter behavior</td>
+  </tr>
 </table>
-
-`options` 对象的具体内容取决于所选的传输器类型。**TCP** 传输器暴露的属性如下所述。对于其他传输器（如 Redis、MQTT 等），请参阅相关章节了解可用选项的说明。
-
+<p>
+  The <code>options</code> object is specific to the chosen transporter. The <strong>TCP</strong> transporter exposes
+  the properties described below.  For other transporters (e.g, Redis, MQTT, etc.), see the relevant chapter for a description of the available options.
+</p>
 <table>
-  <tbody>
-    <tr>
-      <td><code>host</code></td>
-      <td>连接主机名</td>
-    </tr>
-    <tr>
-      <td><code>port</code></td>
-      <td>连接端口</td>
-    </tr>
-    <tr>
-      <td><code>retryAttempts</code></td>
-      <td>消息重试次数（默认：0）</td>
-    </tr>
-    <tr>
-      <td><code>retryDelay</code></td>
-      <td>消息重试间隔延迟（毫秒）（默认：0）</td>
-    </tr>
-    <tr>
-      <td><code>serializer</code></td>
-      <td>自定义序列化器用于发送消息</td>
-    </tr>
-    <tr>
-      <td><code>deserializer</code></td>
-      <td>自定义反序列化器用于接收消息</td>
-    </tr>
-    <tr>
-      <td><code>socketClass</code></td>
-      <td>继承 TcpSocket 的自定义 Socket（默认：JsonSocket）</td>
-    </tr>
-    <tr>
-      <td><code>tlsOptions</code></td>
-      <td>配置 tls 协议的选项</td>
-    </tr>
-  </tbody>
+  <tr>
+    <td><code>host</code></td>
+    <td>Connection hostname</td>
+  </tr>
+  <tr>
+    <td><code>port</code></td>
+    <td>Connection port</td>
+  </tr>
+  <tr>
+    <td><code>retryAttempts</code></td>
+    <td>Number of times to retry message (default: <code>0</code>)</td>
+  </tr>
+  <tr>
+    <td><code>retryDelay</code></td>
+    <td>Delay between message retry attempts (ms) (default: <code>0</code>)</td>
+  </tr>
+  <tr>
+    <td><code>serializer</code></td>
+    <td>Custom <a href="https://github.com/nestjs/nest/blob/master/packages/microservices/interfaces/serializer.interface.ts" target="_blank">serializer</a> for outgoing messages</td>
+  </tr>
+  <tr>
+    <td><code>deserializer</code></td>
+    <td>Custom <a href="https://github.com/nestjs/nest/blob/master/packages/microservices/interfaces/deserializer.interface.ts" target="_blank">deserializer</a> for incoming messages</td>
+  </tr>
+  <tr>
+    <td><code>socketClass</code></td>
+    <td>A custom Socket that extends <code>TcpSocket</code> (default: <code>JsonSocket</code>)</td>
+  </tr>
+  <tr>
+    <td><code>tlsOptions</code></td>
+    <td>Options to configure the tls protocol</td>
+  </tr>
 </table>
 
-:::info 提示
-上述属性为 TCP 传输器特有。如需了解其他传输器的可用选项，请参阅相关章节。
-:::
+> info **Hint** The above properties are specific to the TCP transporter. For information on available options for other transporters, refer to the relevant chapter.
 
-#### 消息与事件模式
+#### Message and Event Patterns
 
-微服务通过**模式**来识别消息和事件。模式是一个简单值，例如字面量对象或字符串。模式会与消息的数据部分一起自动序列化并通过网络发送。通过这种方式，消息发送者和消费者可以协调哪些请求由哪些处理程序消费。
+Microservices recognize both messages and events by **patterns**. A pattern is a plain value, for example, a literal object or a string. Patterns are automatically serialized and sent over the network along with the data portion of a message. In this way, message senders and consumers can coordinate which requests are consumed by which handlers.
 
-#### 请求-响应
+#### Request-response
 
-请求-响应消息模式在需要与各种外部服务**交换**消息时非常有用。这种范式能确保服务确实收到了消息（无需手动实现确认协议）。然而，请求-响应方式并非总是最佳选择。例如，采用日志持久化的流式传输器（如 [Kafka](https://docs.confluent.io/3.0.0/streams/) 或 [NATS 流](https://github.com/nats-io/node-nats-streaming) ），其优化方向更侧重于解决另一类挑战，与事件消息范式更为契合（详见[基于事件的消息传递](../microservices/basics#基于事件) ）。
+The request-response message style is useful when you need to **exchange** messages between various external services. This paradigm ensures that the service has actually received the message (without requiring you to manually implement an acknowledgment protocol). However, the request-response approach may not always be the best fit. For example, streaming transporters, such as [Kafka](https://docs.confluent.io/3.0.0/streams/) or [NATS streaming](https://github.com/nats-io/node-nats-streaming), which use log-based persistence, are optimized for addressing a different set of challenges, more aligned with the event messaging paradigm (see [event-based messaging](./microservices/basics#event-based) for more details).
 
-为实现请求-响应消息类型，Nest 会创建两个逻辑通道：一个用于传输数据，另一个用于等待响应。对于某些底层传输（如 [NATS](https://nats.io/)），这种双通道支持是开箱即用的。对于其他传输，Nest 会通过手动创建独立通道来补偿。虽然这种方式有效，但可能带来额外开销。因此，如果不需要请求-响应消息模式，建议考虑使用基于事件的方法。
+To enable the request-response message type, Nest creates two logical channels: one for transferring data and another for waiting for incoming responses. For some underlying transports, like [NATS](https://nats.io/), this dual-channel support is provided out-of-the-box. For others, Nest compensates by manually creating separate channels. While this is effective, it can introduce some overhead. Therefore, if you don’t require a request-response message style, you may want to consider using the event-based method.
 
-要创建基于请求-响应模式的消息处理器，请使用从 `@nestjs/microservices` 包导入的 `@MessagePattern()` 装饰器。该装饰器应仅在[控制器](../overview/controllers)类中使用，因为它们是应用程序的入口点。在提供者中使用它将不会产生任何效果，因为它们会被 Nest 运行时忽略。
+To create a message handler based on the request-response paradigm, use the `@MessagePattern()` decorator, which is imported from the `@nestjs/microservices` package. This decorator should only be used within [controller](./controllers) classes, as they serve as the entry points for your application. Using it in providers will have no effect, as they will be ignored by the Nest runtime.
 
- ```typescript title="math.controller.ts"
+```typescript title="math.controller"
 import { Controller } from '@nestjs/common';
 import { MessagePattern } from '@nestjs/microservices';
 
@@ -124,12 +120,13 @@ export class MathController {
   }
 }
 ```
+```
 
-在上述代码中，`accumulate()` **消息处理器**会监听与 `{ cmd: 'sum' }` 消息模式匹配的消息。该消息处理器接收一个参数，即客户端传递的 `data`。在本例中，数据是需要累加的数字数组。
+In the above code, the `accumulate()` **message handler** listens for messages that match the `{ cmd: 'sum' }` message pattern. The message handler takes a single argument, the `data` passed from the client. In this case, the data is an array of numbers that need to be accumulated.
 
-#### 异步响应
+#### Asynchronous responses
 
-消息处理器可以同步或**异步**响应，这意味着支持 `async` 方法。
+Message handlers can respond either synchronously or **asynchronously**, meaning that `async` methods are supported.
 
 ```typescript
 @MessagePattern({ cmd: 'sum' })
@@ -138,7 +135,7 @@ async accumulate(data: number[]): Promise<number> {
 }
 ```
 
-消息处理器也可以返回一个 `Observable`，此时结果值将持续发射直到流完成。
+A message handler can also return an `Observable`, in which case the result values will be emitted until the stream completes.
 
 ```typescript
 @MessagePattern({ cmd: 'sum' })
@@ -147,15 +144,15 @@ accumulate(data: number[]): Observable<number> {
 }
 ```
 
-在上面的示例中，消息处理器将响应**三次** ，对数组中的每个项目各响应一次。
+In the example above, the message handler will respond **three times**, once for each item in the array.
 
-#### 基于事件
+#### Event-based
 
-虽然请求-响应模式非常适合服务间的消息交换，但它不太适合基于事件的消息传递——当你只想发布**事件**而不等待响应时。在这种情况下，维护两个通道用于请求-响应是不必要的。
+While the request-response method is perfect for exchanging messages between services, it is less suited for event-based messaging—when you simply want to publish **events** without waiting for a response. In such cases, the overhead of maintaining two channels for request-response is unnecessary.
 
-例如，若您需要通知其他服务系统某部分触发了特定条件，基于事件的消息风格便是理想选择。
+For example, if you want to notify another service that a specific condition has occurred in this part of the system, the event-based message style is ideal.
 
-要创建事件处理器，您可以使用从 `@nestjs/microservices` 包导入的 `@EventPattern()` 装饰器。
+To create an event handler, you can use the `@EventPattern()` decorator, which is imported from the `@nestjs/microservices` package.
 
 ```typescript
 @EventPattern('user_created')
@@ -164,17 +161,15 @@ async handleUserCreated(data: Record<string, unknown>) {
 }
 ```
 
-:::info 提示
-您可以为**同一个**事件模式注册多个事件处理器，它们都将被自动并行触发。
-:::
+> info **Hint** You can register multiple event handlers for a **single** event pattern, and all of them will be automatically triggered in parallel.
 
+The `handleUserCreated()` **event handler** listens for the `'user_created'` event. The event handler takes a single argument, the `data` passed from the client (in this case, an event payload which has been sent over the network).
 
+<app-banner-enterprise></app-banner-enterprise>
 
-`handleUserCreated()` **事件处理器**监听 `'user_created'` 事件。该处理器接收单个参数——来自客户端的`数据` （本例中是通过网络发送的事件载荷）。
+#### Additional request details
 
-#### 其他请求详情
-
-在更高级的场景中，您可能需要访问有关传入请求的额外细节。例如，当使用带有通配符订阅的 NATS 时，您可能希望获取生产者发送消息的原始主题。同样地，对于 Kafka，您可能需要访问消息头。为此，您可以利用如下所示的内置装饰器：
+In more advanced scenarios, you might need to access additional details about the incoming request. For instance, when using NATS with wildcard subscriptions, you may want to retrieve the original subject that the producer sent the message to. Similarly, with Kafka, you may need to access the message headers. To achieve this, you can leverage built-in decorators as shown below:
 
 ```typescript
 @MessagePattern('time.us.*')
@@ -184,23 +179,19 @@ getDate(@Payload() data: number[], @Ctx() context: NatsContext) {
 }
 ```
 
-:::info 提示
-`@Payload()`、`@Ctx()` 和 `NatsContext` 是从 `@nestjs/microservices` 导入的。
-:::
+> info **Hint** `@Payload()`, `@Ctx()` and `NatsContext` are imported from `@nestjs/microservices`.
 
-:::info 提示
-您还可以向 `@Payload()` 装饰器传入一个属性键，以从传入的负载对象中提取特定属性，例如 `@Payload('id')`。
-:::
+> info **Hint** You can also pass in a property key to the `@Payload()` decorator to extract a specific property from the incoming payload object, for example, `@Payload('id')`.
 
-#### 客户端（生产者类）
+#### Client (producer class)
 
-一个客户端 Nest 应用可以通过 `ClientProxy` 类与 Nest 微服务交换消息或发布事件。该类提供了多种方法，例如 `send()`（用于请求-响应式消息传递）和 `emit()`（用于事件驱动型消息传递），从而实现与远程微服务的通信。您可以通过以下方式获取该类的实例：
+A client Nest application can exchange messages or publish events to a Nest microservice using the `ClientProxy` class. This class provides several methods, such as `send()` (for request-response messaging) and `emit()` (for event-driven messaging), enabling communication with a remote microservice. You can obtain an instance of this class in the following ways:
 
-一种方法是导入 `ClientsModule`，该模块暴露了静态方法 `register()`。此方法接收一个表示微服务传输器的对象数组。每个对象必须包含 `name` 属性，以及可选的 `transport` 属性（默认为 `Transport.TCP`），还可以包含可选的 `options` 属性。
+One approach is to import the `ClientsModule`, which exposes the static `register()` method. This method takes an array of objects representing microservice transporters. Each object must include a `name` property, and optionally a `transport` property (defaulting to `Transport.TCP`), as well as an optional `options` property.
 
-`name` 属性作为 **注入令牌** ，可用于在需要的地方注入 `ClientProxy` 实例。该 `name` 属性的值可以是任意字符串或 JavaScript 符号，具体说明见 [此处](../fundamentals/dependency-injection#非基于类的提供者令牌) 。
+The `name` property acts as an **injection token**, which you can use to inject an instance of `ClientProxy` wherever needed. The value of this `name` property can be any arbitrary string or JavaScript symbol, as described [here](./fundamentals/custom-providers#非基于类的提供者令牌).
 
-`options` 属性是一个对象，包含我们之前在 `createMicroservice()` 方法中看到的相同属性。
+The `options` property is an object that includes the same properties we saw in the `createMicroservice()` method earlier.
 
 ```typescript
 @Module({
@@ -212,7 +203,7 @@ getDate(@Payload() data: number[], @Ctx() context: NatsContext) {
 })
 ```
 
-或者，如果您需要在设置过程中提供配置或执行其他异步操作，可以使用 `registerAsync()` 方法。
+Alternatively, you can use the `registerAsync()` method if you need to provide configuration or perform any other asynchronous processes during the setup.
 
 ```typescript
 @Module({
@@ -234,7 +225,7 @@ getDate(@Payload() data: number[], @Ctx() context: NatsContext) {
 })
 ```
 
-模块导入后，您可以使用 `@Inject()` 装饰器注入一个配置了 `'MATH_SERVICE'` 传输器指定选项的 `ClientProxy` 实例。
+Once the module has been imported, you can inject an instance of the `ClientProxy` configured with the specified options for the `'MATH_SERVICE'` transporter using the `@Inject()` decorator.
 
 ```typescript
 constructor(
@@ -242,11 +233,9 @@ constructor(
 ) {}
 ```
 
-:::info 提示
-`ClientsModule` 和 `ClientProxy` 类是从 `@nestjs/microservices` 包中导入的。
-:::
+> info **Hint** The `ClientsModule` and `ClientProxy` classes are imported from the `@nestjs/microservices` package.
 
-有时，您可能需要从其他服务（如 `ConfigService`）获取传输器配置，而不是在客户端应用中硬编码。为此，您可以使用 `ClientProxyFactory` 类注册[自定义提供者](/fundamentals/dependency-injection) 。该类提供了静态方法 `create()`，该方法接收传输器选项对象并返回一个定制化的 `ClientProxy` 实例。
+At times, you may need to fetch the transporter configuration from another service (such as a `ConfigService`), rather than hard-coding it in your client application. To achieve this, you can register a [custom provider](/fundamentals/custom-providers) using the `ClientProxyFactory` class. This class provides a static `create()` method that accepts a transporter options object and returns a customized `ClientProxy` instance.
 
 ```typescript
 @Module({
@@ -264,24 +253,20 @@ constructor(
 })
 ```
 
-:::info 提示
-`ClientProxyFactory` 是从 `@nestjs/microservices` 包导入的。
-:::
+> info **Hint** The `ClientProxyFactory` is imported from the `@nestjs/microservices` package.
 
-另一种选择是使用 `@Client()` 属性装饰器。
+Another option is to use the `@Client()` property decorator.
 
 ```typescript
 @Client({ transport: Transport.TCP })
 client: ClientProxy;
 ```
 
-:::info 提示
-`@Client()` 装饰器是从 `@nestjs/microservices` 包导入的。
-:::
+> info **Hint** The `@Client()` decorator is imported from the `@nestjs/microservices` package.
 
-使用 `@Client()` 装饰器并非首选技术方案，因为这会增加测试难度且难以共享客户端实例。
+Using the `@Client()` decorator is not the preferred technique, as it is harder to test and harder to share a client instance.
 
-`ClientProxy` 具有**延迟初始化**特性，它不会立即建立连接。实际连接会在首次微服务调用前建立，并在后续调用中复用。若希望延迟应用启动流程直至连接建立完成，可以在 `OnApplicationBootstrap` 生命周期钩子中，通过 `ClientProxy` 对象的 `connect()` 方法手动初始化连接。
+The `ClientProxy` is **lazy**. It doesn't initiate a connection immediately. Instead, it will be established before the first microservice call, and then reused across each subsequent call. However, if you want to delay the application bootstrapping process until a connection is established, you can manually initiate a connection using the `ClientProxy` object's `connect()` method inside the `OnApplicationBootstrap` lifecycle hook.
 
 ```typescript
 async onApplicationBootstrap() {
@@ -289,11 +274,11 @@ async onApplicationBootstrap() {
 }
 ```
 
-若连接创建失败，`connect()` 方法会拒绝并返回对应的错误对象。
+If the connection cannot be created, the `connect()` method will reject with the corresponding error object.
 
-#### 发送消息
+#### Sending messages
 
-`ClientProxy` 公开了一个 `send()` 方法。该方法用于调用微服务，并返回一个包含其响应的 `Observable`。因此，我们可以轻松订阅所发出的值。
+The `ClientProxy` exposes a `send()` method. This method is intended to call the microservice and returns an `Observable` with its response. Thus, we can subscribe to the emitted values easily.
 
 ```typescript
 accumulate(): Observable<number> {
@@ -303,11 +288,11 @@ accumulate(): Observable<number> {
 }
 ```
 
-`send()` 方法接收两个参数：`pattern` 和 `payload`。`pattern` 应与 `@MessagePattern()` 装饰器中定义的模式匹配。`payload` 则是我们想要传输给远程微服务的消息。该方法返回一个**冷 `Observable`**，这意味着必须显式订阅它才会发送消息。
+The `send()` method takes two arguments, `pattern` and `payload`. The `pattern` should match one defined in a `@MessagePattern()` decorator. The `payload` is a message that we want to transmit to the remote microservice. This method returns a **cold `Observable`**, which means that you have to explicitly subscribe to it before the message will be sent.
 
-#### 发布事件
+#### Publishing events
 
-要发送事件，请使用 `ClientProxy` 对象的 `emit()` 方法。该方法将事件发布到消息代理。
+To send an event, use the `ClientProxy` object's `emit()` method. This method publishes an event to the message broker.
 
 ```typescript
 async publish() {
@@ -315,15 +300,17 @@ async publish() {
 }
 ```
 
-`emit()` 方法接收两个参数：`pattern` 和 `payload`。其中 `pattern` 需匹配 `@EventPattern()` 装饰器中定义的模式，而 `payload` 则表示要传输给远程微服务的事件数据。该方法返回一个**热 `Observable`**（与 `send()` 返回的冷 `Observable` 不同），这意味着无论你是否显式订阅该 observable，代理都会立即尝试传递事件。
+The `emit()` method takes two arguments: `pattern` and `payload`. The `pattern` should match one defined in an `@EventPattern()` decorator, while the `payload` represents the event data that you want to transmit to the remote microservice. This method returns a **hot `Observable`** (in contrast to the cold `Observable` returned by `send()`), meaning that regardless of whether you explicitly subscribe to the observable, the proxy will immediately attempt to deliver the event.
 
-#### 请求作用域
+<app-banner-devtools></app-banner-devtools>
 
-对于来自不同编程语言背景的开发者来说，可能会惊讶地发现：在 Nest 中，大多数内容都是在传入请求间共享的。这包括数据库连接池、具有全局状态的单例服务等。需要注意的是，Node.js 并不遵循请求/响应多线程无状态模型（即每个请求由独立线程处理）。因此，在我们的应用中使用单例实例是**安全**的。
+#### Request-scoping
 
-然而，在某些边缘情况下，可能需要基于请求的生命周期来管理处理器。这包括诸如 GraphQL 应用中的按请求缓存、请求追踪或多租户等场景。您可[在此](/fundamentals/provider-scopes)了解更多关于控制作用域的方法。
+For those coming from different programming language backgrounds, it may be surprising to learn that in Nest, most things are shared across incoming requests. This includes a connection pool to the database, singleton services with global state, and more. Keep in mind that Node.js does not follow the request/response multi-threaded stateless model, where each request is processed by a separate thread. As a result, using singleton instances is **safe** for our applications.
 
-请求作用域的处理器和提供者可以通过结合使用 `@Inject()` 装饰器与 `CONTEXT` 令牌来注入 `RequestContext`：
+However, there are edge cases where a request-based lifetime for the handler might be desirable. This could include scenarios like per-request caching in GraphQL applications, request tracking, or multi-tenancy. You can learn more about how to control scopes [here](/fundamentals/injection-scopes).
+
+Request-scoped handlers and providers can inject `RequestContext` using the `@Inject()` decorator in combination with the `CONTEXT` token:
 
 ```typescript
 import { Injectable, Scope, Inject } from '@nestjs/common';
@@ -335,7 +322,7 @@ export class CatsService {
 }
 ```
 
-这将提供对 `RequestContext` 对象的访问权限，该对象包含两个属性：
+This provides access to the `RequestContext` object, which has two properties:
 
 ```typescript
 export interface RequestContext<T = any> {
@@ -344,11 +331,11 @@ export interface RequestContext<T = any> {
 }
 ```
 
-`data` 属性是消息生产者发送的消息载荷，而 `pattern` 属性则是用于识别适当处理器来处理传入消息的模式。
+The `data` property is the message payload sent by the message producer. The `pattern` property is the pattern used to identify an appropriate handler to handle the incoming message.
 
-#### 实例状态更新
+#### Instance status updates
 
-要获取连接及底层驱动实例状态的实时更新，您可以订阅 `status` 流。该流提供与所选驱动程序相关的状态更新。例如，如果您使用的是 TCP 传输器（默认选项），`status` 流会发出 `connected` 和 `disconnected` 事件。
+To get real-time updates on the connection and the state of the underlying driver instance, you can subscribe to the `status` stream. This stream provides status updates specific to the chosen driver. For instance, if you’re using the TCP transporter (the default), the `status` stream emits `connected` and `disconnected` events.
 
 ```typescript
 this.client.status.subscribe((status: TcpStatus) => {
@@ -356,13 +343,9 @@ this.client.status.subscribe((status: TcpStatus) => {
 });
 ```
 
-:::info 提示
-`TcpStatus` 类型是从 `@nestjs/microservices` 包导入的。
-:::
+> info **Hint** The `TcpStatus` type is imported from the `@nestjs/microservices` package.
 
-
-
-同样地，您可以订阅服务器的 `status` 流来接收有关服务器状态的通知。
+Similarly, you can subscribe to the server's `status` stream to receive notifications about the server's status.
 
 ```typescript
 const server = app.connectMicroservice<MicroserviceOptions>(...);
@@ -371,9 +354,9 @@ server.status.subscribe((status: TcpStatus) => {
 });
 ```
 
-#### 监听内部事件
+#### Listening to internal events
 
-在某些情况下，您可能需要监听微服务发出的内部事件。例如，您可以监听 `error` 事件，以便在发生错误时触发其他操作。为此，请使用如下所示的 `on()` 方法：
+In some cases, you might want to listen to internal events emitted by the microservice. For example, you could listen for the `error` event to trigger additional operations when an error occurs. To do this, use the `on()` method, as shown below:
 
 ```typescript
 this.client.on('error', (err) => {
@@ -381,7 +364,7 @@ this.client.on('error', (err) => {
 });
 ```
 
-同样地，您可以监听服务器的内部事件：
+Similarly, you can listen to the server's internal events:
 
 ```typescript
 server.on<TcpEvents>('error', (err) => {
@@ -389,35 +372,31 @@ server.on<TcpEvents>('error', (err) => {
 });
 ```
 
-:::info 提示
-`TcpEvents` 类型是从 `@nestjs/microservices` 包中导入的。
-:::
+> info **Hint** The `TcpEvents` type is imported from the `@nestjs/microservices` package.
 
+#### Underlying driver access
 
+For more advanced use cases, you may need to access the underlying driver instance. This can be useful for scenarios like manually closing the connection or using driver-specific methods. However, keep in mind that for most cases, you **shouldn't need** to access the driver directly.
 
-#### 底层驱动访问
-
-对于更高级的用例，您可能需要访问底层驱动实例。这在手动关闭连接或使用驱动特定方法等场景中非常有用。但请注意，在大多数情况下，您**不需要**直接访问驱动。
-
-为此，您可以使用 `unwrap()` 方法，该方法会返回底层驱动实例。泛型类型参数应指定您预期的驱动实例类型。
+To do so, you can use the `unwrap()` method, which returns the underlying driver instance. The generic type parameter should specify the type of driver instance you expect.
 
 ```typescript
 const netServer = this.client.unwrap<Server>();
 ```
 
-这里的 `Server` 是从 `net` 模块导入的类型。
+Here, `Server` is a type imported from the `net` module.
 
-同样地，您可以访问服务器的底层驱动实例：
+Similarly, you can access the server's underlying driver instance:
 
 ```typescript
 const netServer = server.unwrap<Server>();
 ```
 
-#### 处理超时
+#### Handling timeouts
 
-在分布式系统中，微服务有时可能会宕机或不可用。为了防止无限期等待，您可以使用超时机制。当与其他服务通信时，超时是一种非常有用的模式。要为微服务调用设置超时，可以使用 [RxJS](https://rxjs.dev) 的 `timeout` 操作符。如果微服务未在指定时间内响应，则会抛出异常，您可以捕获并适当处理该异常。
+In distributed systems, microservices might sometimes be down or unavailable. To prevent indefinitely long waiting, you can use timeouts. A timeout is a highly useful pattern when communicating with other services. To apply timeouts to your microservice calls, you can use the [RxJS](https://rxjs.dev) `timeout` operator. If the microservice does not respond within the specified time, an exception is thrown, which you can catch and handle appropriately.
 
-要实现此功能，您需要使用 [`rxjs`](https://github.com/ReactiveX/rxjs) 包。只需在管道中使用 `timeout` 操作符即可：
+To implement this, you'll need to use the [`rxjs`](https://github.com/ReactiveX/rxjs) package. Simply use the `timeout` operator within the pipe:
 
 ```typescript
 this.client
@@ -425,17 +404,15 @@ this.client
   .pipe(timeout(5000));
 ```
 
-:::info 提示
-`timeout` 操作符是从 `rxjs/operators` 包中导入的。
-:::
+> info **Hint** The `timeout` operator is imported from the `rxjs/operators` package.
 
-如果微服务在 5 秒内未响应，将抛出错误。
+After 5 seconds, if the microservice isn't responding, it will throw an error.
 
-#### TLS 支持
+#### TLS support
 
-在私有网络外部通信时，加密流量以确保安全至关重要。在 NestJS 中，可以通过使用 Node 内置的 [TLS](https://nodejs.org/api/tls.html) 模块实现基于 TCP 的 TLS 加密。Nest 在其 TCP 传输层内置了 TLS 支持，使我们能够加密微服务之间或客户端之间的通信。
+When communicating outside of a private network, it’s important to encrypt traffic to ensure security. In NestJS, this can be achieved with TLS over TCP using Node's built-in [TLS](https://nodejs.org/api/tls.html) module. Nest provides built-in support for TLS in its TCP transport, allowing us to encrypt communication between microservices or clients.
 
-要为 TCP 服务器启用 TLS，您需要 PEM 格式的私钥和证书。通过设置 `tlsOptions` 并指定密钥和证书文件，将这些配置添加到服务器选项中，如下所示：
+To enable TLS for a TCP server, you'll need both a private key and a certificate in PEM format. These are added to the server's options by setting the `tlsOptions` and specifying the key and cert files, as shown below:
 
 ```typescript
 import * as fs from 'fs';
@@ -457,7 +434,7 @@ async function bootstrap() {
           cert,
         },
       },
-    }
+    },
   );
 
   await app.listen();
@@ -465,7 +442,7 @@ async function bootstrap() {
 bootstrap();
 ```
 
-为了让客户端通过 TLS 进行安全通信，我们同样需要定义 `tlsOptions` 对象，但这次需要包含 CA 证书。该证书是签署服务器证书的权威机构证书，确保客户端信任服务器证书并建立安全连接。
+For a client to communicate securely over TLS, we also define the `tlsOptions` object but this time with the CA certificate. This is the certificate of the authority that signed the server's certificate. This ensures that the client trusts the server's certificate and can establish a secure connection.
 
 ```typescript
 import { Module } from '@nestjs/common';
@@ -489,15 +466,15 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
 export class AppModule {}
 ```
 
-如果您的配置涉及多个受信任的权威机构，也可以传递一个 CA 证书数组。
+You can also pass an array of CAs if your setup involves multiple trusted authorities.
 
-完成所有设置后，您可以像往常一样使用 `@Inject()` 装饰器注入 `ClientProxy`，以便在服务中使用客户端。这确保了 NestJS 微服务之间的加密通信，由 Node 的 `TLS` 模块处理加密细节。
+Once everything is set up, you can inject the `ClientProxy` as usual using the `@Inject()` decorator to use the client in your services. This ensures encrypted communication across your NestJS microservices, with Node's `TLS` module handling the encryption details.
 
-如需更多信息，请参阅 Node 的 [TLS 文档](https://nodejs.org/api/tls.html) 。
+For more information, refer to Node’s [TLS documentation](https://nodejs.org/api/tls.html).
 
-#### 动态配置
+#### Dynamic configuration
 
-当微服务需要使用 `ConfigService`（来自 `@nestjs/config` 包）进行配置，但注入上下文仅在微服务实例创建后才可用时，`AsyncMicroserviceOptions` 提供了解决方案。这种方法支持动态配置，确保与 `ConfigService` 的无缝集成。
+When a microservice needs to be configured using the `ConfigService` (from the `@nestjs/config` package), but the injection context is only available after the microservice instance is created, `AsyncMicroserviceOptions` offers a solution. This approach allows for dynamic configuration, ensuring smooth integration with the `ConfigService`.
 
 ```typescript
 import { ConfigService } from '@nestjs/config';
@@ -516,7 +493,7 @@ async function bootstrap() {
         },
       }),
       inject: [ConfigService],
-    }
+    },
   );
 
   await app.listen();

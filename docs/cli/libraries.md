@@ -1,20 +1,24 @@
-### 库
+<!-- 此文件从 content/cli/libraries.md 自动生成，请勿直接修改此文件 -->
+<!-- 生成时间: 2026-02-24T03:03:54.181Z -->
+<!-- 源文件: content/cli/libraries.md -->
 
-许多应用程序需要解决相同的通用问题，或在多种不同场景中复用模块化组件。Nest 提供了几种解决方式，每种方式在不同层面上处理问题，以满足不同的架构和组织目标。
+### Libraries
 
-Nest [模块](/overview/modules)能为组件共享提供执行上下文，适用于单一应用内部。这些模块还可通过 [npm](https://npmjs.com) 打包，创建可复用的库并安装到不同项目中。这是分发可配置、可复用库的有效方式，适用于松散关联或无关联的不同组织（例如通过分发/安装第三方库）。
+许多应用程序需要解决同样的基本问题，或者重用模块化组件在多个不同的上下文中。Nest 有一些方法来解决这个问题，但是每种方法都在不同的层次上解决问题，以满足不同的架构和组织目标。
 
-在组织严密的群体（如公司/项目内部）中共享代码时，采用更轻量级的组件共享方式会很有帮助。为此出现了 monorepo 这种结构，而在 monorepo 中， **库**提供了一种简单轻便的代码共享方式。在 Nest monorepo 中，使用库可以轻松组装共享组件的应用程序。实际上，这鼓励了将单体应用和开发流程分解，专注于构建和组合模块化组件。
+Nest 提供者是有用的，因为它们可以在单个应用程序中提供执行上下文，从而使共享组件变得更加容易。模块也可以与提供者一起包装，以创建可以在不同项目中安装的可重用的库。这可以是一个有效的方法来分布可配置、可重用的库，这些库可以被不同的、松散连接或独立的组织使用（例如，通过散布/安装第三方库）。
 
-#### Nest 库
+在共享代码的紧密组织中组（例如，公司/项目边界内），轻量级方式分享组件可能是有用的。Monorepos 就是这样一种构造，它使得在其中分享代码变得更加轻松。在 Nest monorepo 中，使用库使得容易组装共享组件的应用程序。实际上，这鼓励了 monolithic 应用程序的分解和开发过程的重心转移到构建和组合模块化组件上。
 
-Nest 库是一种不同于应用程序的 Nest 项目，它无法独立运行。库必须被导入到容器应用程序中才能执行其代码。本节描述的内置库支持仅适用于 **monorepo**（标准模式项目可以通过 npm 包实现类似功能）。
+#### Nest libraries
 
-例如，一个组织可以开发一个 `AuthModule` 模块，通过实施管理所有内部应用的公司策略来处理认证。与其为每个应用单独构建该模块，或通过 npm 物理打包代码并要求每个项目安装它，monorepo 可以将此模块定义为一个库。这样组织时，库模块的所有使用者都能看到 `AuthModule` 提交时的最新版本。这对协调组件开发与组装、简化端到端测试具有显著优势。
+Nest 库是一个 Nest 项目，它不同于应用程序，因为它不能单独运行。库必须被导入到包含它的应用程序中，以便其代码可以执行。描述在本节中提到的提供者支持的 built-in 支持仅适用于 monorepos（标准模式项目可以使用 npm 包来实现类似的功能）。
+
+例如，一家组织可能开发一个 `AuthModule`，该模块用于管理身份验证，并且遵循公司政策来管理所有内部应用程序。相反，不需要为每个应用程序单独构建该模块，或者将代码与 npm 一起包装，然后要求每个项目安装它。Monorepo 可以将该模块定义为库。当组织这样做时，每个消费该模块的库都可以看到最新的 `AuthModule` 版本，因为它是提交的。这样可以大大提高组件开发和组装的协调性，并简化 end-to-end 测试。
 
 #### 创建库
 
-任何适合复用的功能都可以考虑作为库来管理。决定哪些部分应该成为库、哪些应该保留在应用中，这是一个架构设计决策。创建库不仅仅是简单地将代码从现有应用复制到新库中。当被打包为库时，库代码必须与应用解耦。这可能需要**更多**前期时间，并强制做出一些在紧密耦合代码中可能不会遇到的设计决策。但当该库能够用于跨多个应用实现更快速的应用组装时，这些额外努力将得到回报。
+任何可重用的功能都是创建库的候选项。确定什么应该是库，什么应该是应用程序，是一个架构设计决策。创建库涉及更多的工作，需要将库代码从应用程序中分离。这可能需要一些额外的时间，并且可能需要一些设计决策。但是，这些额外的工作可以在库可以被用来快速组装多个应用程序时得到回报。
 
 要开始创建库，请运行以下命令：
 
@@ -22,15 +26,16 @@ Nest 库是一种不同于应用程序的 Nest 项目，它无法独立运行。
 $ nest g library my-library
 ```
 
-运行该命令时，`library` 原理图会提示您输入库的前缀（又称别名）：
+当你运行命令时，`library`  schematic 会提示你为库指定一个前缀（也称为别名）：
 
 ```bash
-您希望为该库使用什么前缀（默认：@app）？
+What prefix would you like to use for the library (default: @app)?
 ```
 
-这会在您的工作空间中创建一个名为 `my-library` 的新项目。库类型项目与应用类型项目一样，使用原理图生成到指定文件夹中。库在 monorepo 根目录的 `libs` 文件夹下管理。Nest 在首次创建库时会创建 `libs` 文件夹。
+这将创建一个名为 `my-library` 的新项目。
+Library 类型的项目，像应用程序类型的项目一样，是使用 schematic 生成的。库是 monorepo 根目录下的 `libs` 文件夹中管理的。Nest 在第一次创建库时创建了 `libs` 文件夹。
 
-为库生成的文件与为应用生成的文件略有不同。执行上述命令后，`libs` 文件夹的内容如下：
+生成的库文件夹的内容不同于生成的应用程序文件夹。下面是 `libs` 文件夹的内容，执行命令后：
 
 <div class="file-tree">
   <div class="item">libs</div>
@@ -46,73 +51,4 @@ $ nest g library my-library
       <div class="item">tsconfig.lib.json</div>
     </div>
   </div>
-</div>
-
-`nest-cli.json` 文件将在 `"projects"` 键下新增一个库的条目：
-
-```javascript
-...
-{
-    "my-library": {
-      "type": "library",
-      "root": "libs/my-library",
-      "entryFile": "index",
-      "sourceRoot": "libs/my-library/src",
-      "compilerOptions": {
-        "tsConfigPath": "libs/my-library/tsconfig.lib.json"
-      }
-}
-...
-```
-
-库与应用程序在 `nest-cli.json` 元数据中有两处不同：
-
-*   `"type"` 属性设置为 `"library"` 而非 `"application"`
-*   `"entryFile"` 属性设置为 `"index"` 而非 `"main"`
-
-这些差异决定了构建过程如何正确处理库。例如，库通过 `index.js` 文件导出其函数。
-
-与应用类型项目类似，每个库都有自己扩展自根目录（整个 monorepo 范围内）`tsconfig.json` 文件的 `tsconfig.lib.json` 文件。如有需要，您可以修改此文件以提供库特定的编译器选项。
-
-您可以使用 CLI 命令构建该库：
-
-```bash
-$ nest build my-library
-```
-
-#### 使用库
-
-有了自动生成的配置文件后，使用库就变得简单直接。我们该如何将 `MyLibraryService` 从 `my-library` 库导入到 `my-project` 应用中呢？
-
-首先要注意，使用库模块与使用其他 Nest 模块相同。monorepo 的作用是以透明化的方式管理路径，使得导入库和生成构建现在变得直观。要使用 `MyLibraryService`，我们需要导入其声明模块。我们可以修改 `my-project/src/app.module.ts` 如下所示来导入 `MyLibraryModule`。
-
-```typescript
-import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { MyLibraryModule } from '@app/my-library';
-
-@Module({
-  imports: [MyLibraryModule],
-  controllers: [AppController],
-  providers: [AppService],
-})
-export class AppModule {}
-```
-
-注意上面我们在 ES 模块的 `import` 语句中使用了 `@app` 路径别名，这是我们之前执行 `nest g library` 命令时提供的 `prefix`。在底层，Nest 通过 tsconfig 路径映射来处理这一点。当添加库时，Nest 会像这样更新全局（monorepo）`tsconfig.json` 文件中的 `"paths"` 键：
-
-```javascript
-"paths": {
-    "@app/my-library": [
-        "libs/my-library/src"
-    ],
-    "@app/my-library/*": [
-        "libs/my-library/src/*"
-    ]
-}
-```
-
-简而言之，monorepo 与库功能的结合使得将库模块集成到应用程序中变得简单直观。
-
-同样的机制支持构建和部署由库组成的应用程序。一旦导入 `MyLibraryModule` 后，运行 `nest build` 会自动处理所有模块解析，并将应用程序与库依赖项打包以供部署。monorepo 的默认编译器是 **webpack**，因此生成的发布文件会将所有转译后的 JavaScript 文件打包成单一文件。您也可以按照[此处](../cli/workspaces#全局编译器选项)说明切换至 `tsc` 编译器。
+__HTML_TAG_

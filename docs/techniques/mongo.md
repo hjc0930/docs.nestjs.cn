@@ -1,16 +1,20 @@
+<!-- 此文件从 content/techniques/mongo.md 自动生成，请勿直接修改此文件 -->
+<!-- 生成时间: 2026-02-24T02:51:08.102Z -->
+<!-- 源文件: content/techniques/mongo.md -->
+
 ### Mongo
 
-Nest 提供了两种与 [MongoDB](https://www.mongodb.com/) 数据库集成的方法。您可以使用内置的 [TypeORM](https://github.com/typeorm/typeorm) 模块（其描述见[此处](/techniques/sql) ），该模块包含 MongoDB 连接器；或者使用最流行的 MongoDB 对象建模工具 [Mongoose](https://mongoosejs.com)。本章我们将介绍后者，使用专用的 `@nestjs/mongoose` 包。
+Nest supports two methods for integrating with the [MongoDB](https://www.mongodb.com/) database. You can either use the built-in [TypeORM](https://github.com/typeorm/typeorm) module described [here](/techniques/database), which has a connector for MongoDB, or use [Mongoose](https://mongoosejs.com), the most popular MongoDB object modeling tool. In this chapter we'll describe the latter, using the dedicated `@nestjs/mongoose` package.
 
-首先安装 [所需依赖项](https://github.com/Automattic/mongoose) ：
+Start by installing the [required dependencies](https://github.com/Automattic/mongoose):
 
 ```bash
 $ npm i @nestjs/mongoose mongoose
 ```
 
-安装完成后，我们可以将 `MongooseModule` 导入根模块 `AppModule`。
+Once the installation process is complete, we can import the `MongooseModule` into the root `AppModule`.
 
- ```typescript title="app.module.ts"
+```typescript title="app.module"
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 
@@ -20,17 +24,17 @@ import { MongooseModule } from '@nestjs/mongoose';
 export class AppModule {}
 ```
 
-`forRoot()` 方法接收与 Mongoose 包中 `mongoose.connect()` 相同的配置对象，具体描述见[此处](https://mongoosejs.com/docs/connections.html) 。
+The `forRoot()` method accepts the same configuration object as `mongoose.connect()` from the Mongoose package, as described [here](https://mongoosejs.com/docs/connections.html).
 
-#### 模型注入
+#### Model injection
 
-在 Mongoose 中，所有内容都源自 [Schema](http://mongoosejs.com/docs/guide.html)。每个模式映射到一个 MongoDB 集合，并定义该集合中文档的结构。模式用于定义 [Models](https://mongoosejs.com/docs/models.html)。模型负责从底层 MongoDB 数据库创建和读取文档。
+With Mongoose, everything is derived from a [Schema](http://mongoosejs.com/docs/guide.html). Each schema maps to a MongoDB collection and defines the shape of the documents within that collection. Schemas are used to define [Models](https://mongoosejs.com/docs/models.html). Models are responsible for creating and reading documents from the underlying MongoDB database.
 
-模式可以通过 NestJS 装饰器创建，也可以直接使用 Mongoose 手动创建。使用装饰器创建模式能显著减少样板代码并提高整体代码可读性。
+Schemas can be created with NestJS decorators, or with Mongoose itself manually. Using decorators to create schemas greatly reduces boilerplate and improves overall code readability.
 
-我们来定义 `CatSchema`：
+Let's define the `CatSchema`:
 
- ```typescript title="schemas/cat.schema.ts"
+```typescript title="schemas/cat.schema"
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
 
@@ -50,28 +54,27 @@ export class Cat {
 
 export const CatSchema = SchemaFactory.createForClass(Cat);
 ```
+```
 
-:::info 提示
-请注意，你也可以使用 `DefinitionsFactory` 类（来自 `nestjs/mongoose`）生成原始模式定义。这允许你手动修改基于所提供元数据生成的模式定义。对于某些难以完全用装饰器表示的边缘情况，这非常有用。
-:::
+> info **Hint** Note you can also generate a raw schema definition using the `DefinitionsFactory` class (from the `nestjs/mongoose`). This allows you to manually modify the schema definition generated based on the metadata you provided. This is useful for certain edge-cases where it may be hard to represent everything with decorators.
 
-`@Schema()` 装饰器将一个类标记为模式定义。它将我们的 `Cat` 类映射到同名的 MongoDB 集合，但末尾会添加一个"s"——因此最终的 Mongo 集合名称将是 `cats`。该装饰器接受一个可选参数，即模式选项对象。可以将其视为通常作为 `mongoose.Schema` 类构造函数的第二个参数传递的对象（例如 `new mongoose.Schema(_, options)` ）。要了解有关可用模式选项的更多信息，请参阅[本章](https://mongoosejs.com/docs/guide.html#选项) 。
+The `@Schema()` decorator marks a class as a schema definition. It maps our `Cat` class to a MongoDB collection of the same name, but with an additional “s” at the end - so the final mongo collection name will be `cats`. This decorator accepts a single optional argument which is a schema options object. Think of it as the object you would normally pass as a second argument of the `mongoose.Schema` class' constructor (e.g., `new mongoose.Schema(_, options)`)). To learn more about available schema options, see [this](https://mongoosejs.com/docs/guide.html#选项) chapter.
 
-`@Prop()` 装饰器用于在文档中定义属性。例如在上述模式定义中，我们定义了三个属性：`name`、`age` 和 `breed`。得益于 TypeScript 的元数据（和反射）能力，这些属性的[模式类型](https://mongoosejs.com/docs/schematypes.html)会被自动推断。但在更复杂的场景中（例如数组或嵌套对象结构），当类型无法被隐式反射时，就必须显式指明类型，如下所示：
+The `@Prop()` decorator defines a property in the document. For example, in the schema definition above, we defined three properties: `name`, `age`, and `breed`. The [schema types](https://mongoosejs.com/docs/schematypes.html) for these properties are automatically inferred thanks to TypeScript metadata (and reflection) capabilities. However, in more complex scenarios in which types cannot be implicitly reflected (for example, arrays or nested object structures), types must be indicated explicitly, as follows:
 
 ```typescript
 @Prop([String])
 tags: string[];
 ```
 
-或者，`@Prop()` 装饰器也可以接受一个选项对象参数（ [了解更多](https://mongoosejs.com/docs/schematypes.html#schematype-options)可用选项）。通过这种方式，您可以指定属性是否为必需项、设置默认值或将其标记为不可变。例如：
+Alternatively, the `@Prop()` decorator accepts an options object argument ([read more](https://mongoosejs.com/docs/schematypes.html#schematype-options) about the available options). With this, you can indicate whether a property is required or not, specify a default value, or mark it as immutable. For example:
 
 ```typescript
 @Prop({ required: true })
 name: string;
 ```
 
-如果您需要指定与另一个模型的关联关系以便后续填充，同样可以使用 `@Prop()` 装饰器。例如，若 `Cat` 有一个存储在名为 `owners` 的不同集合中的 `Owner`，则该属性应包含类型和引用。例如：
+In case you want to specify relation to another model, later for populating, you can use `@Prop()` decorator as well. For example, if `Cat` has `Owner` which is stored in a different collection called `owners`, the property should have type and ref. For example:
 
 ```typescript
 import * as mongoose from 'mongoose';
@@ -82,14 +85,14 @@ import { Owner } from '../owners/schemas/owner.schema';
 owner: Owner;
 ```
 
-若存在多个所有者，您的属性配置应如下所示：
+In case there are multiple owners, your property configuration should look as follows:
 
 ```typescript
 @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Owner' }] })
 owners: Owner[];
 ```
 
-如果您不打算总是填充对另一个集合的引用，考虑使用 `mongoose.Types.ObjectId` 作为类型替代：
+If you don’t intend to always populate a reference to another collection, consider using `mongoose.Types.ObjectId` as the type instead:
 
 ```typescript
 @Prop({ type: { type: mongoose.Schema.Types.ObjectId, ref: 'Owner' } })
@@ -97,7 +100,7 @@ owners: Owner[];
 owner: mongoose.Types.ObjectId;
 ```
 
-之后，当需要选择性填充时，您可以使用指定了正确类型的存储库函数：
+Then, when you need to selectively populate it later, you can use a repository function that specifies the correct type:
 
 ```typescript
 import { Owner } from './schemas/owner.schema';
@@ -108,11 +111,9 @@ async findAllPopulated() {
 }
 ```
 
-:::info 提示
-若无外联文档可供填充，类型可能是 `Owner | null`，具体取决于您的 [Mongoose 配置](https://mongoosejs.com/docs/populate.html#doc-not-found) 。或者，它可能会抛出错误，此时类型将为 `Owner`。
-:::
+> info **Hint** If there is no foreign document to populate, the type could be `Owner | null`, depending on your [Mongoose configuration](https://mongoosejs.com/docs/populate.html#doc-not-found). Alternatively, it might throw an error, in which case the type will be `Owner`.
 
-最后，也可以将**原始**模式定义传递给装饰器。这在某些场景下非常有用，例如当某个属性表示一个未定义为类的嵌套对象时。为此，请使用 `@nestjs/mongoose` 包中的 `raw()` 函数，如下所示：
+Finally, the **raw** schema definition can also be passed to the decorator. This is useful when, for example, a property represents a nested object which is not defined as a class. For this, use the `raw()` function from the `@nestjs/mongoose` package, as follows:
 
 ```typescript
 @Prop(raw({
@@ -122,7 +123,7 @@ async findAllPopulated() {
 details: Record<string, any>;
 ```
 
-或者，如果您更倾向于**不使用装饰器** ，也可以手动定义模式。例如：
+Alternatively, if you prefer **not using decorators**, you can define a schema manually. For example:
 
 ```typescript
 export const CatSchema = new mongoose.Schema({
@@ -132,11 +133,11 @@ export const CatSchema = new mongoose.Schema({
 });
 ```
 
-`cat.schema` 文件位于 `cats` 目录下的一个文件夹中，我们同时在此定义了 `CatsModule`。虽然您可以将模式文件存储在任何位置，但我们建议将其存放在相关**领域**对象附近的适当模块目录中。
+The `cat.schema` file resides in a folder in the `cats` directory, where we also define the `CatsModule`. While you can store schema files wherever you prefer, we recommend storing them near their related **domain** objects, in the appropriate module directory.
 
-让我们看看 `CatsModule`：
+Let's look at the `CatsModule`:
 
- ```typescript title="cats.module.ts"
+```typescript title="cats.module"
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { CatsController } from './cats.controller';
@@ -151,11 +152,11 @@ import { Cat, CatSchema } from './schemas/cat.schema';
 export class CatsModule {}
 ```
 
-`MongooseModule` 提供了 `forFeature()` 方法来配置模块，包括定义哪些模型应在当前作用域中注册。如果还想在其他模块中使用这些模型，请将 MongooseModule 添加到 `CatsModule` 的 `exports` 部分，并在其他模块中导入 `CatsModule`。
+The `MongooseModule` provides the `forFeature()` method to configure the module, including defining which models should be registered in the current scope. If you also want to use the models in another module, add MongooseModule to the `exports` section of `CatsModule` and import `CatsModule` in the other module.
 
-注册完模式后，就可以使用 `@InjectModel()` 装饰器将 `Cat` 模型注入到 `CatsService` 中：
+Once you've registered the schema, you can inject a `Cat` model into the `CatsService` using the `@InjectModel()` decorator:
 
- ```typescript title="cats.service.ts"
+```typescript title="cats.service"
 import { Model } from 'mongoose';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
@@ -176,10 +177,11 @@ export class CatsService {
   }
 }
 ```
+```
 
-#### 连接
+#### Connection
 
-有时可能需要访问原生的 [Mongoose Connection](https://mongoosejs.com/docs/api.html#Connection) 对象。例如，可能想在连接对象上调用原生 API。可以通过如下方式使用 `@InjectConnection()` 装饰器注入 Mongoose 连接：
+At times you may need to access the native [Mongoose Connection](https://mongoosejs.com/docs/api.html#Connection) object. For example, you may want to make native API calls on the connection object. You can inject the Mongoose Connection by using the `@InjectConnection()` decorator as follows:
 
 ```typescript
 import { Injectable } from '@nestjs/common';
@@ -192,11 +194,11 @@ export class CatsService {
 }
 ```
 
-#### 会话
+#### Sessions
 
-建议使用 `@InjectConnection` 注入数据库连接来启动 Mongoose 会话，而非直接调用 `mongoose.startSession()`。这种方式能更好地与 NestJS 依赖注入系统集成，确保连接管理的正确性。
+To start a session with Mongoose, it's recommended to inject the database connection using `@InjectConnection` rather than calling `mongoose.startSession()` directly. This approach allows better integration with the NestJS dependency injection system, ensuring proper connection management.
 
-以下是启动会话的示例：
+Here's an example of how to start a session:
 
 ```typescript
 import { InjectConnection } from '@nestjs/mongoose';
@@ -214,13 +216,13 @@ export class CatsService {
 }
 ```
 
-本示例中，`@InjectConnection()` 用于将 Mongoose 连接注入服务。注入连接后，即可通过 `connection.startSession()` 启动新会话。该会话可用于管理数据库事务，确保跨多个查询的原子操作。启动会话后，请根据业务逻辑提交或中止事务。
+In this example, `@InjectConnection()` is used to inject the Mongoose connection into the service. Once the connection is injected, you can use `connection.startSession()` to begin a new session. This session can be used to manage database transactions, ensuring atomic operations across multiple queries. After starting the session, remember to commit or abort the transaction based on your logic.
 
-#### 多数据库
+#### Multiple databases
 
-某些项目需要连接多个数据库。使用本模块同样可以实现这一需求。要使用多个连接，首先需要创建这些连接。在这种情况下， **必须**为连接命名。
+Some projects require multiple database connections. This can also be achieved with this module. To work with multiple connections, first create the connections. In this case, connection naming becomes **mandatory**.
 
- ```typescript title="app.module.ts"
+```typescript title="app.module"
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 
@@ -237,11 +239,9 @@ import { MongooseModule } from '@nestjs/mongoose';
 export class AppModule {}
 ```
 
-:::warning 注意
-请勿创建多个未命名或同名的连接，否则它们会被覆盖。
-:::
+> warning **Notice** Please note that you shouldn't have multiple connections without a name, or with the same name, otherwise they will get overridden.
 
-在此配置下，您需要告知 `MongooseModule.forFeature()` 函数应使用哪个连接。
+With this setup, you have to tell the `MongooseModule.forFeature()` function which connection should be used.
 
 ```typescript
 @Module({
@@ -252,7 +252,7 @@ export class AppModule {}
 export class CatsModule {}
 ```
 
-你也可以为指定连接注入 `Connection`：
+You can also inject the `Connection` for a given connection:
 
 ```typescript
 import { Injectable } from '@nestjs/common';
@@ -265,7 +265,7 @@ export class CatsService {
 }
 ```
 
-要将指定的 `Connection` 注入到自定义提供者（例如工厂提供者），可使用 `getConnectionToken()` 函数并以连接名称作为参数传入。
+To inject a given `Connection` to a custom provider (for example, factory provider), use the `getConnectionToken()` function passing the name of the connection as an argument.
 
 ```typescript
 {
@@ -277,18 +277,18 @@ export class CatsService {
 }
 ```
 
-如果仅需从命名数据库注入模型，可将连接名称作为 `@InjectModel()` 装饰器的第二个参数使用。
+If you are just looking to inject the model from a named database, you can use the connection name as a second parameter to the `@InjectModel()` decorator.
 
- ```typescript title="cats.service.ts"
+```typescript title="cats.service"
 @Injectable()
 export class CatsService {
   constructor(@InjectModel(Cat.name, 'cats') private catModel: Model<Cat>) {}
 }
 ```
 
-#### 钩子（中间件）
+#### Hooks (middleware)
 
-中间件（也称为前置和后置钩子）是在异步函数执行期间传递控制权的函数。中间件在模式层级指定，适用于编写插件（ [来源](https://mongoosejs.com/docs/middleware.html) ）。在 Mongoose 中编译模型后调用 `pre()` 或 `post()` 无效。要在模型注册**之前**注册钩子，需使用 `MongooseModule` 的 `forFeatureAsync()` 方法配合工厂提供者（即 `useFactory`）。通过该技术可访问模式对象，然后使用 `pre()` 或 `post()` 方法在该模式上注册钩子。示例如下：
+Middleware (also called pre and post hooks) are functions which are passed control during execution of asynchronous functions. Middleware is specified on the schema level and is useful for writing plugins ([source](https://mongoosejs.com/docs/middleware.html)). Calling `pre()` or `post()` after compiling a model does not work in Mongoose. To register a hook **before** model registration, use the `forFeatureAsync()` method of the `MongooseModule` along with a factory provider (i.e., `useFactory`). With this technique, you can access a schema object, then use the `pre()` or `post()` method to register a hook on that schema. See example below:
 
 ```typescript
 @Module({
@@ -310,7 +310,7 @@ export class CatsService {
 export class AppModule {}
 ```
 
-与其他[工厂提供者](../fundamentals/dependency-injection#工厂提供者-usefactory)类似，我们的工厂函数可以是 `async` 异步的，并能通过 `inject` 注入依赖项。
+Like other [factory providers](./fundamentals/custom-providers#factory-providers-usefactory), our factory function can be `async` and can inject dependencies through `inject`.
 
 ```typescript
 @Module({
@@ -336,9 +336,9 @@ export class AppModule {}
 export class AppModule {}
 ```
 
-#### 插件
+#### Plugins
 
-要为指定模式注册[插件](https://mongoosejs.com/docs/plugins.html) ，请使用 `forFeatureAsync()` 方法。
+To register a [plugin](https://mongoosejs.com/docs/plugins.html) for a given schema, use the `forFeatureAsync()` method.
 
 ```typescript
 @Module({
@@ -358,9 +358,9 @@ export class AppModule {}
 export class AppModule {}
 ```
 
-要一次性为所有模式注册插件，请调用 `Connection` 对象的 `.plugin()` 方法。您应在创建模型前访问连接，为此可使用 `connectionFactory`：
+To register a plugin for all schemas at once, call the `.plugin()` method of the `Connection` object. You should access the connection before models are created; to do this, use the `connectionFactory`:
 
- ```typescript title="app.module.ts"
+```typescript title="app.module"
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 
@@ -377,13 +377,13 @@ import { MongooseModule } from '@nestjs/mongoose';
 export class AppModule {}
 ```
 
-#### 鉴别器
+#### Discriminators
 
-[鉴别器](https://mongoosejs.com/docs/discriminators.html)是一种模式继承机制。它允许您在同一个 MongoDB 集合上建立具有重叠模式的多个模型。
+[Discriminators](https://mongoosejs.com/docs/discriminators.html) are a schema inheritance mechanism. They enable you to have multiple models with overlapping schemas on top of the same underlying MongoDB collection.
 
-假设您需要在单个集合中追踪不同类型的事件。每个事件都将包含时间戳。
+Suppose you wanted to track different types of events in a single collection. Every event will have a timestamp.
 
- ```typescript title="event.schema.ts"
+```typescript title="event.schema"
 @Schema({ discriminatorKey: 'kind' })
 export class Event {
   @Prop({
@@ -399,16 +399,16 @@ export class Event {
 
 export const EventSchema = SchemaFactory.createForClass(Event);
 ```
+```
 
-:::info 提示
-Mongoose 通过"鉴别键"来区分不同的鉴别器模型，默认情况下该键为 `__t`。Mongoose 会在您的模式中添加一个名为 `__t` 的字符串路径，用于跟踪该文档属于哪个鉴别器的实例。您也可以使用 `discriminatorKey` 选项来定义鉴别路径。
-:::
+> info **Hint** The way mongoose tells the difference between the different discriminator models is by the "discriminator key", which is `__t` by default. Mongoose adds a String path called `__t` to your schemas that it uses to track which discriminator this document is an instance of.
+> You may also use the `discriminatorKey` option to define the path for discrimination.
 
-`SignedUpEvent` 和 `ClickedLinkEvent` 实例将与通用事件存储在同一集合中。
+`SignedUpEvent` and `ClickedLinkEvent` instances will be stored in the same collection as generic events.
 
-现在，我们来定义 `ClickedLinkEvent` 类，如下所示：
+Now, let's define the `ClickedLinkEvent` class, as follows:
 
- ```typescript title="click-link-event.schema.ts"
+```typescript title="click-link-event.schema"
 @Schema()
 export class ClickedLinkEvent {
   kind: string;
@@ -421,9 +421,9 @@ export class ClickedLinkEvent {
 export const ClickedLinkEventSchema = SchemaFactory.createForClass(ClickedLinkEvent);
 ```
 
-以及 `SignUpEvent` 类：
+And `SignUpEvent` class:
 
- ```typescript title="sign-up-event.schema.ts"
+```typescript title="sign-up-event.schema"
 @Schema()
 export class SignUpEvent {
   kind: string;
@@ -435,10 +435,11 @@ export class SignUpEvent {
 
 export const SignUpEventSchema = SchemaFactory.createForClass(SignUpEvent);
 ```
+```
 
-配置完成后，使用 `discriminators` 选项为指定模式注册鉴别器。该选项同时适用于 `MongooseModule.forFeature` 和 `MongooseModule.forFeatureAsync` ：
+With this in place, use the `discriminators` option to register a discriminator for a given schema. It works on both `MongooseModule.forFeature` and `MongooseModule.forFeatureAsync`:
 
- ```typescript title="event.module.ts"
+```typescript title="event.module"
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 
@@ -459,11 +460,11 @@ import { MongooseModule } from '@nestjs/mongoose';
 export class EventsModule {}
 ```
 
-#### 测试
+#### Testing
 
-在进行应用程序单元测试时，我们通常希望避免任何数据库连接，从而使测试套件更易于设置且执行更快。但我们的类可能依赖于从连接实例获取的模型。如何解析这些类？解决方案是创建模拟模型。
+When unit testing an application, we usually want to avoid any database connection, making our test suites simpler to set up and faster to execute. But our classes might depend on models that are pulled from the connection instance. How do we resolve these classes? The solution is to create mock models.
 
-为简化此过程，`@nestjs/mongoose` 包提供了 `getModelToken()` 函数，该函数会基于模型名称返回预制的[注入令牌](../fundamentals/dependency-injection#di-基础) 。使用此令牌，您可以通过标准[自定义提供者](../fundamentals/dependency-injection)技术（包括 `useClass`、`useValue` 和 `useFactory`）轻松提供模拟实现。例如：
+To make this easier, the `@nestjs/mongoose` package exposes a `getModelToken()` function that returns a prepared [injection token](./fundamentals/custom-providers#di-fundamentals) based on a token name. Using this token, you can easily provide a mock implementation using any of the standard [custom provider](/fundamentals/custom-providers) techniques, including `useClass`, `useValue`, and `useFactory`. For example:
 
 ```typescript
 @Module({
@@ -478,13 +479,15 @@ export class EventsModule {}
 export class CatsModule {}
 ```
 
-本示例中，当任何消费者使用 `@InjectModel()` 装饰器注入 `Model<Cat>` 时，将始终提供硬编码的 `catModel`（对象实例）。
+In this example, a hardcoded `catModel` (object instance) will be provided whenever any consumer injects a `Model<Cat>` using an `@InjectModel()` decorator.
 
-#### 异步配置
+<app-banner-courses></app-banner-courses>
 
-当需要异步传递模块选项而非静态传递时，请使用 `forRootAsync()` 方法。与大多数动态模块一样，Nest 提供了多种处理异步配置的技术。
+#### Async configuration
 
-其中一种技术是使用工厂函数：
+When you need to pass module options asynchronously instead of statically, use the `forRootAsync()` method. As with most dynamic modules, Nest provides several techniques to deal with async configuration.
+
+One technique is to use a factory function:
 
 ```typescript
 MongooseModule.forRootAsync({
@@ -494,7 +497,7 @@ MongooseModule.forRootAsync({
 });
 ```
 
-与其他[工厂提供者](../fundamentals/dependency-injection#工厂提供者-usefactory)类似，我们的工厂函数可以是 `async` 异步的，并能通过 `inject` 注入依赖项。
+Like other [factory providers](./fundamentals/custom-providers#factory-providers-usefactory), our factory function can be `async` and can inject dependencies through `inject`.
 
 ```typescript
 MongooseModule.forRootAsync({
@@ -506,7 +509,7 @@ MongooseModule.forRootAsync({
 });
 ```
 
-或者，您也可以使用类而非工厂来配置 `MongooseModule`，如下所示：
+Alternatively, you can configure the `MongooseModule` using a class instead of a factory, as shown below:
 
 ```typescript
 MongooseModule.forRootAsync({
@@ -514,7 +517,7 @@ MongooseModule.forRootAsync({
 });
 ```
 
-上述结构在 `MongooseModule` 内部实例化 `MongooseConfigService`，用它来创建所需的配置对象。请注意，此例中的 `MongooseConfigService` 必须实现 `MongooseOptionsFactory` 接口，如下所示。`MongooseModule` 会在提供的类实例上调用 `createMongooseOptions()` 方法。
+The construction above instantiates `MongooseConfigService` inside `MongooseModule`, using it to create the required options object. Note that in this example, the `MongooseConfigService` has to implement the `MongooseOptionsFactory` interface, as shown below. The `MongooseModule` will call the `createMongooseOptions()` method on the instantiated object of the supplied class.
 
 ```typescript
 @Injectable()
@@ -527,7 +530,7 @@ export class MongooseConfigService implements MongooseOptionsFactory {
 }
 ```
 
-若想复用现有的配置提供者而非在 `MongooseModule` 内创建私有副本，请使用 `useExisting` 语法。
+If you want to reuse an existing options provider instead of creating a private copy inside the `MongooseModule`, use the `useExisting` syntax.
 
 ```typescript
 MongooseModule.forRootAsync({
@@ -536,9 +539,9 @@ MongooseModule.forRootAsync({
 });
 ```
 
-#### 连接事件
+#### Connection events
 
-您可以通过使用 `onConnectionCreate` 配置选项来监听 Mongoose 的[连接事件](https://mongoosejs.com/docs/connections.html#connection-events) 。这使您能够在建立连接时实现自定义逻辑。例如，您可以注册以下事件监听器：`connected`、`open`、`disconnected`、`reconnected` 和 `disconnecting` 事件，如下所示：
+You can listen to Mongoose [connection events](https://mongoosejs.com/docs/connections.html#connection-events) by using the `onConnectionCreate` configuration option. This allows you to implement custom logic whenever a connection is established. For instance, you can register event listeners for the `connected`, `open`, `disconnected`, `reconnected`, and `disconnecting` events, as demonstrated below:
 
 ```typescript
 MongooseModule.forRoot('mongodb://localhost/test', {
@@ -554,15 +557,15 @@ MongooseModule.forRoot('mongodb://localhost/test', {
 }),
 ```
 
-在此代码片段中，我们正在建立与 MongoDB 数据库的连接，地址为 `mongodb://localhost/test`。`onConnectionCreate` 选项允许您设置特定的事件监听器来监控连接状态：
+In this code snippet, we are establishing a connection to a MongoDB database at `mongodb://localhost/test`. The `onConnectionCreate` option enables you to set up specific event listeners for monitoring the connection's status:
 
-- `connected`：当连接成功建立时触发。
-- `open`：当连接完全打开并准备好进行操作时触发。
-- `disconnected`：当连接丢失时调用。
-- `reconnected`：在断开连接后重新建立连接时调用。
-- `disconnecting`：当连接正在关闭过程中时发生。
+- `connected`: Triggered when the connection is successfully established.
+- `open`: Fires when the connection is fully opened and ready for operations.
+- `disconnected`: Called when the connection is lost.
+- `reconnected`: Invoked when the connection is re-established after being disconnected.
+- `disconnecting`: Occurs when the connection is in the process of closing.
 
-您还可以将 `onConnectionCreate` 属性集成到使用 `MongooseModule.forRootAsync()` 创建的异步配置中：
+You can also incorporate the `onConnectionCreate` property into async configurations created with `MongooseModule.forRootAsync()`:
 
 ```typescript
 MongooseModule.forRootAsync({
@@ -576,13 +579,13 @@ MongooseModule.forRootAsync({
 }),
 ```
 
-这提供了一种灵活的方式来管理连接事件，使您能够有效处理连接状态的变化。
+This provides a flexible way to manage connection events, enabling you to handle changes in connection status effectively.
 
-#### 子文档
+#### Subdocuments
 
-要在父文档中嵌套子文档，您可以按如下方式定义模式：
+To nest subdocuments within a parent document, you can define your schemas as follows:
 
- ```typescript title="name.schema.ts"
+```typescript title="name.schema"
 @Schema()
 export class Name {
   @Prop()
@@ -595,9 +598,9 @@ export class Name {
 export const NameSchema = SchemaFactory.createForClass(Name);
 ```
 
-然后在父模式中引用子文档：
+And then reference the subdocument in the parent schema:
 
- ```typescript title="person.schema.ts"
+```typescript title="person.schema"
 @Schema()
 export class Person {
   @Prop(NameSchema)
@@ -612,10 +615,11 @@ export type PersonDocumentOverride = {
 
 export type PersonDocument = HydratedDocument<Person, PersonDocumentOverride>;
 ```
+```
 
-如果需要包含多个子文档，可以使用子文档数组。重要的是要相应地覆盖属性的类型：
+If you want to include multiple subdocuments, you can use an array of subdocuments. It's important to override the type of the property accordingly:
 
- ```typescript title="name.schema.ts"
+```typescript title="name.schema"
 @Schema()
 export class Person {
   @Prop([NameSchema])
@@ -631,9 +635,9 @@ export type PersonDocumentOverride = {
 export type PersonDocument = HydratedDocument<Person, PersonDocumentOverride>;
 ```
 
-#### 虚拟字段
+#### Virtuals
 
-在 Mongoose 中， **虚拟字段**是存在于文档上但不会持久化到 MongoDB 中的属性。它不存储在数据库中，而是在每次访问时动态计算。虚拟字段通常用于派生或计算值，例如组合字段（如通过拼接 `firstName` 和 `lastName` 创建 `fullName` 属性），或创建依赖于文档中现有数据的属性。
+In Mongoose, a **virtual** is a property that exists on a document but is not persisted to MongoDB. It is not stored in the database but is computed dynamically whenever it's accessed. Virtuals are typically used for derived or computed values, like combining fields (e.g., creating a `fullName` property by concatenating `firstName` and `lastName`), or for creating properties that rely on existing data in the document.
 
 ```ts
 class Person {
@@ -652,12 +656,10 @@ class Person {
 }
 ```
 
-:::info 提示
-`@Virtual()` 装饰器是从 `@nestjs/mongoose` 包中导入的。
-:::
+> info **Hint** The `@Virtual()` decorator is imported from the `@nestjs/mongoose` package.
 
-在此示例中，`fullName` 虚拟属性由 `firstName` 和 `lastName` 派生而来。虽然访问时表现得像普通属性，但它永远不会被保存到 MongoDB 文档中。
+In this example, the `fullName` virtual is derived from `firstName` and `lastName`. Even though it behaves like a normal property when accessed, it’s never saved to the MongoDB document.:
 
-#### 示例
+#### Example
 
-一个可用的示例[在此处](https://github.com/nestjs/nest/tree/master/sample/06-mongoose)查看。
+A working example is available [here](https://github.com/nestjs/nest/tree/master/sample/06-mongoose).

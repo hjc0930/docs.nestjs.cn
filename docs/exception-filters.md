@@ -1,5 +1,5 @@
 <!-- 此文件从 content/exception-filters.md 自动生成，请勿直接修改此文件 -->
-<!-- 生成时间: 2026-02-24T02:34:13.548Z -->
+<!-- 生成时间: 2026-02-24T02:49:46.281Z -->
 <!-- 源文件: content/exception-filters.md -->
 
 ### Exception filters

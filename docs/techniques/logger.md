@@ -1,22 +1,26 @@
-### 日志记录器
+<!-- 此文件从 content/techniques/logger.md 自动生成，请勿直接修改此文件 -->
+<!-- 生成时间: 2026-02-24T02:51:08.249Z -->
+<!-- 源文件: content/techniques/logger.md -->
 
-Nest 内置了一个基于文本的日志记录器，该记录器在应用程序引导期间以及其他多种情况下（如显示捕获的异常，即系统日志记录）使用。这一功能通过 `@nestjs/common` 包中的 `Logger` 类提供。您可以完全控制日志系统的行为，包括以下任意一项：
+### Logger
 
-- 完全禁用日志记录
-- 指定日志的详细级别（例如，显示错误、警告、调试信息等）
-- 配置日志消息的格式化方式（原始格式、JSON 格式、彩色格式等）
-- 覆盖默认日志记录器的时间戳格式（例如使用 ISO8601 标准作为日期格式）
-- 完全覆盖默认日志记录器
-- 通过扩展来自定义默认日志记录器
-- 利用依赖注入来简化应用程序的构建和测试
+Nest comes with a built-in text-based logger which is used during application bootstrapping and several other circumstances such as displaying caught exceptions (i.e., system logging). This functionality is provided via the `Logger` class in the `@nestjs/common` package. You can fully control the behavior of the logging system, including any of the following:
 
-您还可以使用内置日志记录器，或创建自定义实现，来记录应用程序级别的事件和消息。
+- disable logging entirely
+- specify the log level of detail (e.g., display errors, warnings, debug information, etc.)
+- configure formatting of log messages (raw, json, colorized, etc.)
+- override timestamp in the default logger (e.g., use ISO8601 standard as date format)
+- completely override the default logger
+- customize the default logger by extending it
+- make use of dependency injection to simplify composing and testing your application
 
-如果您的应用需要与外部日志系统集成、自动基于文件的日志记录或将日志转发到集中式日志服务，可以使用 Node.js 日志库实现完全自定义的日志解决方案。一个流行的选择是 [Pino](https://github.com/pinojs/pino)，它以高性能和灵活性著称。
+You can also make use of the built-in logger, or create your own custom implementation, to log your own application-level events and messages.
 
-#### 基础定制
+If your application requires integration with external logging systems, automatic file-based logging, or forwarding logs to a centralized logging service, you can implement a fully custom logging solution using a Node.js logging library. One popular choice is [Pino](https://github.com/pinojs/pino), known for its high performance and flexibility.
 
-要禁用日志记录，请在作为第二个参数传递给 `NestFactory.create()` 方法的（可选）Nest 应用程序选项对象中，将 `logger` 属性设置为 `false`。
+#### Basic customization
+
+To disable logging, set the `logger` property to `false` in the (optional) Nest application options object passed as the second argument to the `NestFactory.create()` method.
 
 ```typescript
 const app = await NestFactory.create(AppModule, {
@@ -25,7 +29,7 @@ const app = await NestFactory.create(AppModule, {
 await app.listen(process.env.PORT ?? 3000);
 ```
 
-要启用特定日志级别，请将 `logger` 属性设置为一个字符串数组，指定要显示的日志级别，如下所示：
+To enable specific logging levels, set the `logger` property to an array of strings specifying the log levels to display, as follows:
 
 ```typescript
 const app = await NestFactory.create(AppModule, {
@@ -34,9 +38,9 @@ const app = await NestFactory.create(AppModule, {
 await app.listen(process.env.PORT ?? 3000);
 ```
 
-数组中的值可以是 `'log'`、`'fatal'`、`'error'`、`'warn'`、`'debug'` 和 `'verbose'` 的任意组合。
+Values in the array can be any combination of `'log'`, `'fatal'`, `'error'`, `'warn'`, `'debug'`, and `'verbose'`.
 
-要禁用彩色输出，请将 `colors` 属性设置为 `false` 的 `ConsoleLogger` 对象作为 `logger` 属性的值传递。
+To disable colorized output, pass the `ConsoleLogger` object with the `colors` property set to `false` as the value of the `logger` property.
 
 ```typescript
 const app = await NestFactory.create(AppModule, {
@@ -46,7 +50,7 @@ const app = await NestFactory.create(AppModule, {
 });
 ```
 
-要为每条日志消息配置前缀，请传递带有 `ConsoleLogger` 对象并设置 `prefix` 属性：
+To configure a prefix for each log message, pass the `ConsoleLogger` object with the `prefix` attribute set:
 
 ```typescript
 const app = await NestFactory.create(AppModule, {
@@ -56,27 +60,27 @@ const app = await NestFactory.create(AppModule, {
 });
 ```
 
-以下是表格中列出的所有可用选项：
+Here are all the available options listed in the table below:
 
-| 选项            | 描述                                                                                                                                                                                                                                                   | 默认                                           |
-| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------- |
-| logLevels       | 启用的日志级别。                                                                                                                                                                                                                                       | \['log', 'error', 'warn', 'debug', 'verbose'\] |
-| timestamp       | 如果启用，将打印当前日志消息与前一条日志消息之间的时间戳（时间差）。注意：当 json 启用时此选项无效。                                                                                                                                                   | false                                          |
-| prefix          | 每条日志消息的前缀。注意：启用 json 时此选项无效。                                                                                                                                                                                                     | Nest                                           |
-| json            | 如果启用，将以 JSON 格式打印日志消息。                                                                                                                                                                                                                 | false                                          |
-| colors          | 如果启用，将以彩色打印日志消息。默认情况下，若未启用 json 则为 true，否则为 false。                                                                                                                                                                    | true                                           |
-| context         | 日志记录器的上下文。                                                                                                                                                                                                                                   | undefined                                      |
-| compact         | 若启用，即使对象包含多个属性，日志消息也将以单行形式打印。若设置为数字，只要所有属性符合 breakLength 限制，最多 n 个内部元素会被合并为单行。短数组元素也会被分组显示。                                                                                 | true                                           |
-| maxArrayLength  | 指定格式化时包含的 Array、TypedArray、Map、Set、WeakMap 和 WeakSet 元素的最大数量。设为 null 或 Infinity 可显示所有元素。设为 0 或负数则不显示任何元素。当启用 json、禁用颜色且 compact 设为 true 时此设置将被忽略，因为此时会生成可解析的 JSON 输出。 | 100                                            |
-| maxStringLength | 指定格式化时包含的最大字符数。设为 null 或 Infinity 可显示全部内容。设为 0 或负数则不显示任何字符。当启用 json、禁用颜色且 compact 设为 true 时此设置将被忽略，因为此时会生成可解析的 JSON 输出。                                                      | 10000                                          |
-| sorted          | 若启用，将在格式化对象时对键进行排序。也可指定自定义排序函数。当启用 json、禁用颜色且 compact 设为 true 时此设置将被忽略，因为此时会生成可解析的 JSON 输出。                                                                                           | false                                          |
-| depth           | 指定格式化对象时的递归次数。该参数适用于检查大型对象。若要递归至最大调用堆栈大小，可传入 Infinity 或 null。当启用 json、禁用颜色且 compact 设为 true 时此参数将被忽略，因为此时会生成可解析的 JSON 输出。                                              | 5                                              |
-| showHidden      | 若设为 true，对象的不可枚举符号和属性将包含在格式化结果中。WeakMap 和 WeakSet 条目以及用户自定义的原型属性也会被包含                                                                                                                                   | false                                          |
-| breakLength     | 输入值被分割为多行的长度阈值。设为 Infinity 可将输入格式化为单行（需同时设置"compact"为 true）。当"compact"为 true 时默认值为 Infinity，否则默认为 80。当启用 json、禁用颜色且 compact 设为 true 时此参数将被忽略，因为此时会生成可解析的 JSON 输出。  | Infinity                                       |
+| Option            | Description                                                                                                                                                                                                                                                                                                                                          | Default                                        |
+| ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------- |
+| `logLevels`       | Enabled log levels.                                                                                                                                                                                                                                                                                                                                  | `['log', 'fatal', 'error', 'warn', 'debug', 'verbose']` |
+| `timestamp`       | If enabled, will print timestamp (time difference) between current and previous log message. Note: This option is not used when `json` is enabled.                                                                                                                                                                                                   | `false`                                        |
+| `prefix`          | A prefix to be used for each log message. Note: This option is not used when `json` is enabled.                                                                                                                                                                                                                                                      | `Nest`                                         |
+| `json`            | If enabled, will print the log message in JSON format.                                                                                                                                                                                                                                                                                               | `false`                                        |
+| `colors`          | If enabled, will print the log message in color. Default true if json is disabled, false otherwise.                                                                                                                                                                                                                                                  | `true`                                         |
+| `context`         | The context of the logger.                                                                                                                                                                                                                                                                                                                           | `undefined`                                    |
+| `compact`         | If enabled, will print the log message in a single line, even if it is an object with multiple properties. If set to a number, the most n inner elements are united on a single line as long as all properties fit into breakLength. Short array elements are also grouped together.                                                                 | `true`                                         |
+| `maxArrayLength`  | Specifies the maximum number of Array, TypedArray, Map, Set, WeakMap, and WeakSet elements to include when formatting. Set to null or Infinity to show all elements. Set to 0 or negative to show no elements. Ignored when `json` is enabled, colors are disabled, and `compact` is set to true as it produces a parseable JSON output.             | `100`                                          |
+| `maxStringLength` | Specifies the maximum number of characters to include when formatting. Set to null or Infinity to show all elements. Set to 0 or negative to show no characters. Ignored when `json` is enabled, colors are disabled, and `compact` is set to true as it produces a parseable JSON output.                                                           | `10000`                                        |
+| `sorted`          | If enabled, will sort keys while formatting objects. Can also be a custom sorting function. Ignored when `json` is enabled, colors are disabled, and `compact` is set to true as it produces a parseable JSON output.                                                                                                                                | `false`                                        |
+| `depth`           | Specifies the number of times to recurse while formatting object. This is useful for inspecting large objects. To recurse up to the maximum call stack size pass Infinity or null. Ignored when `json` is enabled, colors are disabled, and `compact` is set to true as it produces a parseable JSON output.                                         | `5`                                            |
+| `showHidden`      | If true, object's non-enumerable symbols and properties are included in the formatted result. WeakMap and WeakSet entries are also included as well as user defined prototype properties                                                                                                                                                             | `false`                                        |
+| `breakLength`     | The length at which input values are split across multiple lines. Set to Infinity to format the input as a single line (in combination with "compact" set to true). Default Infinity when "compact" is true, 80 otherwise. Ignored when `json` is enabled, colors are disabled, and `compact` is set to true as it produces a parseable JSON output. | `Infinity`                                     |
 
-#### JSON 日志记录
+#### JSON logging
 
-JSON 日志记录对于现代应用的可观测性以及与日志管理系统的集成至关重要。要在 NestJS 应用中启用 JSON 日志记录，需将 `ConsoleLogger` 对象的 `json` 属性设置为 `true`，然后在创建应用实例时将这一日志配置作为 `logger` 属性的值传入。
+JSON logging is essential for modern application observability and integration with log management systems. To enable JSON logging in your NestJS application, configure the `ConsoleLogger` object with its `json` property set to `true`. Then, provide this logger configuration as the value for the `logger` property when creating the application instance.
 
 ```typescript
 const app = await NestFactory.create(AppModule, {
@@ -86,20 +90,16 @@ const app = await NestFactory.create(AppModule, {
 });
 ```
 
-此配置会以结构化 JSON 格式输出日志，便于与外部系统（如日志聚合器和云平台）集成。例如 **AWS ECS**（弹性容器服务）等平台原生支持 JSON 日志，可实现以下高级功能：
+This configuration outputs logs in a structured JSON format, making it easier to integrate with external systems such as log aggregators and cloud platforms. For example, platforms like **AWS ECS** (Elastic Container Service) natively support JSON logs, enabling advanced features like:
 
-- **日志过滤** ：根据日志级别、时间戳或自定义元数据等字段快速筛选日志。
-- **搜索分析** ：使用查询工具分析和追踪应用行为趋势。
+- **Log Filtering**: Easily narrow down logs based on fields like log level, timestamp, or custom metadata.
+- **Search and Analysis**: Use query tools to analyze and track trends in your application's behavior.
 
-此外，如果您使用 [NestJS Mau](https://mau.nestjs.com)，JSON 日志记录可以简化查看日志的过程，使其以结构化的格式良好组织，这对于调试和性能监控特别有用。
+Additionally, if you're using [NestJS Mau](https://mau.nestjs.com), JSON logging simplifies the process of viewing logs in a well-organized, structured format, which is especially useful for debugging and performance monitoring.
 
-:::info 注意
-当 `json` 设置为 `true` 时，`ConsoleLogger` 会自动通过将 `colors` 属性设为 `false` 来禁用文本着色。这确保输出保持为有效的 JSON 格式，不包含格式化痕迹。不过，出于开发目的，您可以通过显式将 `colors` 设为 `true` 来覆盖此行为。这会添加带颜色的 JSON 日志，使本地调试时的日志条目更易读。
-:::
+> info **Note** When `json` is set to `true`, the `ConsoleLogger` automatically disables text colorization by setting the `colors` property to `false`. This ensures that the output remains valid JSON, free of formatting artifacts. However, for development purposes, you can override this behavior by explicitly setting `colors` to `true`. This adds colorized JSON logs, which can make log entries more readable during local debugging.
 
-
-
-启用 JSON 日志记录后，日志输出将如下所示（单行形式）：
+When JSON logging is enabled, the log output will look like this (in a single line):
 
 ```json
 {
@@ -111,13 +111,13 @@ const app = await NestFactory.create(AppModule, {
 }
 ```
 
-您可以在本次 [Pull Request](https://github.com/nestjs/nest/pull/14121) 中查看不同变体。
+You can see different variants in this [Pull Request](https://github.com/nestjs/nest/pull/14121).
 
-#### 使用日志记录器进行应用程序日志记录
+#### Using the logger for application logging
 
-我们可以结合上述多种技术，在 Nest 系统日志记录和我们自己的应用程序事件/消息日志记录中提供一致的行为和格式。
+We can combine several of the techniques above to provide consistent behavior and formatting across both Nest system logging and our own application event/message logging.
 
-一个良好的实践是在每个服务中实例化来自 `@nestjs/common` 的 `Logger` 类。我们可以像这样在 `Logger` 构造函数中提供我们的服务名称作为 `context` 参数：
+A good practice is to instantiate `Logger` class from `@nestjs/common` in each of our services. We can supply our service name as the `context` argument in the `Logger` constructor, like so:
 
 ```typescript
 import { Logger, Injectable } from '@nestjs/common';
@@ -132,21 +132,21 @@ class MyService {
 }
 ```
 
-在默认的日志记录器实现中，`context` 会显示在方括号内，如下例中的 `NestFactory`：
+In the default logger implementation, `context` is printed in the square brackets, like `NestFactory` in the example below:
 
 ```bash
 [Nest] 19096   - 12/08/2019, 7:12:59 AM   [NestFactory] Starting Nest application...
 ```
 
-如果我们通过 `app.useLogger()` 提供自定义日志记录器，它实际上会被 Nest 内部使用。这意味着我们的代码保持与实现无关，同时可以通过调用 `app.useLogger()` 轻松将默认日志记录器替换为自定义版本。
+If we supply a custom logger via `app.useLogger()`, it will actually be used by Nest internally. That means that our code remains implementation agnostic, while we can easily substitute the default logger for our custom one by calling `app.useLogger()`.
 
-这样一来，如果我们按照前一节的步骤调用 `app.useLogger(app.get(MyLogger))` ，那么从 `MyService` 中调用 `this.logger.log()` 将会实际调用 `MyLogger` 实例中的 `log` 方法。
+That way if we follow the steps from the previous section and call `app.useLogger(app.get(MyLogger))`, the following calls to `this.logger.log()` from `MyService` would result in calls to method `log` from `MyLogger` instance.
 
-这应该能满足大多数场景需求。但如果你需要更多自定义功能（比如添加和调用自定义方法），请继续阅读下一节。
+This should be suitable for most cases. But if you need more customization (like adding and calling custom methods), move to the next section.
 
-#### 带时间戳的日志
+#### Logs with timestamps
 
-要为每条日志消息启用时间戳记录，可在创建日志记录器实例时使用可选的 `timestamp: true` 设置。
+To enable timestamp logging for every logged message, you can use the optional `timestamp: true` setting when creating the logger instance.
 
 ```typescript
 import { Logger, Injectable } from '@nestjs/common';
@@ -161,17 +161,17 @@ class MyService {
 }
 ```
 
-这将产生以下格式的输出：
+This will produce output in the following format:
 
 ```bash
 [Nest] 19096   - 04/19/2024, 7:12:59 AM   [MyService] Doing something with timestamp here +5ms
 ```
 
-注意行尾的 `+5ms`。对于每条日志语句，都会计算与上一条消息的时间差并显示在行尾。
+Note the `+5ms` at the end of the line. For each log statement, the time difference from the previous message is calculated and displayed at the end of the line.
 
-#### 自定义实现
+#### Custom implementation
 
-您可以通过将 `logger` 属性值设置为符合 `LoggerService` 接口的对象，来提供 Nest 用于系统日志记录的自定义日志记录器实现。例如，可以指示 Nest 使用内置的全局 JavaScript`console` 对象（它实现了 `LoggerService` 接口），如下所示：
+You can provide a custom logger implementation to be used by Nest for system logging by setting the value of the `logger` property to an object that fulfills the `LoggerService` interface. For example, you can tell Nest to use the built-in global JavaScript `console` object (which implements the `LoggerService` interface), as follows:
 
 ```typescript
 const app = await NestFactory.create(AppModule, {
@@ -180,7 +180,7 @@ const app = await NestFactory.create(AppModule, {
 await app.listen(process.env.PORT ?? 3000);
 ```
 
-实现自定义日志记录器非常简单。只需按照如下方式实现 `LoggerService` 接口的每个方法即可。
+Implementing your own custom logger is straightforward. Simply implement each of the methods of the `LoggerService` interface as shown below.
 
 ```typescript
 import { LoggerService, Injectable } from '@nestjs/common';
@@ -219,7 +219,7 @@ export class MyLogger implements LoggerService {
 }
 ```
 
-然后你可以通过 Nest 应用配置对象的 `logger` 属性来提供 `MyLogger` 的实例。
+You can then supply an instance of `MyLogger` via the `logger` property of the Nest application options object.
 
 ```typescript
 const app = await NestFactory.create(AppModule, {
@@ -228,11 +228,11 @@ const app = await NestFactory.create(AppModule, {
 await app.listen(process.env.PORT ?? 3000);
 ```
 
-虽然这种技术很简单，但它没有为 `MyLogger` 类使用依赖注入。这可能会带来一些挑战，特别是在测试方面，并限制 `MyLogger` 的可重用性。要获得更好的解决方案，请参阅下面的[依赖注入](#依赖注入)部分。
+This technique, while simple, doesn't utilize dependency injection for the `MyLogger` class. This can pose some challenges, particularly for testing, and limit the reusability of `MyLogger`. For a better solution, see the <a href="techniques/logger#依赖注入">Dependency Injection</a> section below.
 
-#### 扩展内置日志记录器
+#### Extend built-in logger
 
-与其从头开始编写日志记录器，您可以通过扩展内置的 `ConsoleLogger` 类并重写默认实现的部分行为来满足需求。
+Rather than writing a logger from scratch, you may be able to meet your needs by extending the built-in `ConsoleLogger` class and overriding selected behavior of the default implementation.
 
 ```typescript
 import { ConsoleLogger } from '@nestjs/common';
@@ -245,16 +245,18 @@ export class MyLogger extends ConsoleLogger {
 }
 ```
 
-您可以在功能模块中使用这种扩展的日志记录器，具体方法如下文[使用日志记录器进行应用程序日志记录](#使用日志记录器进行应用程序日志记录)部分所述。
+You can use such an extended logger in your feature modules as described in the <a href="techniques/logger#将记录器用于应用程序日志记录">Using the logger for application logging</a> section below.
 
-您可以通过以下两种方式让 Nest 使用您扩展的日志记录器进行系统日志记录：1) 将其实例通过应用程序选项对象的 `logger` 属性传递（如上方[自定义实现](#自定义实现)部分所示）；2) 使用下文[依赖注入](#依赖注入)部分展示的技术。如果这样做，请注意如示例代码所示调用 `super`，将特定的日志方法调用委托给父类（内置类），以确保 Nest 能够依赖其预期的内置功能。
+You can tell Nest to use your extended logger for system logging by passing an instance of it via the `logger` property of the application options object (as shown in the <a href="techniques/logger#custom-logger-implementation">Custom implementation</a> section above), or by using the technique shown in the <a href="techniques/logger#依赖注入">Dependency Injection</a> section below. If you do so, you should take care to call `super`, as shown in the sample code above, to delegate the specific log method call to the parent (built-in) class so that Nest can rely on the built-in features it expects.
 
-#### 依赖注入
+<app-banner-courses></app-banner-courses>
 
-要实现更高级的日志功能，您需要利用依赖注入。例如，您可能希望将 `ConfigService` 注入到日志记录器中以进行自定义配置，然后再将这个自定义日志记录器注入到其他控制器和/或提供程序中。要使自定义日志记录器支持依赖注入，需要创建一个实现 `LoggerService` 的类，并将该类作为提供程序注册到某个模块中。例如，您可以
+#### Dependency injection
 
-1.  定义一个 `MyLogger` 类，该类可以扩展内置的 `ConsoleLogger`，也可以完全重写它（如前面章节所示）。请确保实现 `LoggerService` 接口。
-2.  创建如下所示的 `LoggerModule`，并从该模块提供 `MyLogger` 服务。
+For more advanced logging functionality, you'll want to take advantage of dependency injection. For example, you may want to inject a `ConfigService` into your logger to customize it, and in turn inject your custom logger into other controllers and/or providers. To enable dependency injection for your custom logger, create a class that implements `LoggerService` and register that class as a provider in some module. For example, you can
+
+1. Define a `MyLogger` class that either extends the built-in `ConsoleLogger` or completely overrides it, as shown in previous sections. Be sure to implement the `LoggerService` interface.
+2. Create a `LoggerModule` as shown below, and provide `MyLogger` from that module.
 
 ```typescript
 import { Module } from '@nestjs/common';
@@ -267,11 +269,11 @@ import { MyLogger } from './my-logger.service';
 export class LoggerModule {}
 ```
 
-通过这种结构，您现在可以提供自定义日志记录器供其他模块使用。由于您的 `MyLogger` 类是模块的一部分，它可以使用依赖注入（例如注入 `ConfigService`）。还需要一种技术来让 Nest 将此自定义日志记录器用于系统日志记录（例如引导和错误处理）。
+With this construct, you are now providing your custom logger for use by any other module. Because your `MyLogger` class is part of a module, it can use dependency injection (for example, to inject a `ConfigService`). There's one more technique needed to provide this custom logger for use by Nest for system logging (e.g., for bootstrapping and error handling).
 
-由于应用程序实例化（`NestFactory.create()`）发生在任何模块上下文之外，它不会参与初始化的常规依赖注入阶段。因此我们必须确保至少有一个应用模块导入 `LoggerModule`，以触发 Nest 实例化 `MyLogger` 类的单例实例。
+Because application instantiation (`NestFactory.create()`) happens outside the context of any module, it doesn't participate in the normal Dependency Injection phase of initialization. So we must ensure that at least one application module imports the `LoggerModule` to trigger Nest to instantiate a singleton instance of our `MyLogger` class.
 
-随后我们可以通过以下构造指示 Nest 使用相同的 `MyLogger` 单例实例：
+We can then instruct Nest to use the same singleton instance of `MyLogger` with the following construction:
 
 ```typescript
 const app = await NestFactory.create(AppModule, {
@@ -281,18 +283,15 @@ app.useLogger(app.get(MyLogger));
 await app.listen(process.env.PORT ?? 3000);
 ```
 
-:::info 注意
-在上面的示例中，我们将 `bufferLogs` 设置为 `true` 以确保所有日志都会被缓冲，直到附加了自定义日志记录器（本例中的 `MyLogger`）且应用程序初始化过程完成或失败。如果初始化过程失败，Nest 将回退到原始的 `ConsoleLogger` 来打印所有报告的错误消息。此外，您可以将 `autoFlushLogs` 设置为 `false`（默认为 `true`）以手动刷新日志（使用 `Logger.flush()` 方法）。
-:::
+> info **Note** In the example above, we set the `bufferLogs` to `true` to make sure all logs will be buffered until a custom logger is attached (`MyLogger` in this case) and the application initialisation process either completes or fails. If the initialisation process fails, Nest will fallback to the original `ConsoleLogger` to print out any reported error messages. Also, you can set the `autoFlushLogs` to `false` (default `true`) to manually flush logs (using the `Logger.flush()` method).
 
+Here we use the `get()` method on the `NestApplication` instance to retrieve the singleton instance of the `MyLogger` object. This technique is essentially a way to "inject" an instance of a logger for use by Nest. The `app.get()` call retrieves the singleton instance of `MyLogger`, and depends on that instance being first injected in another module, as described above.
 
-这里我们在 `NestApplication` 实例上使用 `get()` 方法来获取 `MyLogger` 对象的单例实例。这种技术本质上是一种为 Nest "注入"日志记录器实例以供使用的方式。`app.get()` 调用会获取 `MyLogger` 的单例实例，并依赖于该实例首先在另一个模块中被注入，如上所述。
+You can also inject this `MyLogger` provider in your feature classes, thus ensuring consistent logging behavior across both Nest system logging and application logging. See <a href="techniques/logger#将记录器用于应用程序日志记录">Using the logger for application logging</a> and <a href="techniques/logger#注入自定义日志记录器">Injecting a custom logger</a> below for more information.
 
-您也可以在功能类中注入这个 `MyLogger` 提供者，从而确保 Nest 系统日志和应用日志记录行为的一致性。更多信息请参阅下方的[使用日志记录器进行应用程序日志记录](#使用日志记录器进行应用程序日志记录)和[注入自定义日志记录器](#注入自定义日志记录器) 。
+#### Injecting a custom logger
 
-#### 注入自定义日志记录器
-
-首先，使用如下代码扩展内置日志记录器。我们提供 `scope` 选项作为 `ConsoleLogger` 类的配置元数据，指定一个[瞬时](/fundamentals/provider-scopes)作用域，以确保在每个功能模块中都有唯一的 `MyLogger` 实例。在本示例中，我们没有扩展单个 `ConsoleLogger` 方法（如 `log()`、`warn()` 等），但您可以选择这样做。
+To start, extend the built-in logger with code like the following. We supply the `scope` option as configuration metadata for the `ConsoleLogger` class, specifying a [transient](/fundamentals/injection-scopes) scope, to ensure that we'll have a unique instance of the `MyLogger` in each feature module. In this example, we do not extend the individual `ConsoleLogger` methods (like `log()`, `warn()`, etc.), though you may choose to do so.
 
 ```typescript
 import { Injectable, Scope, ConsoleLogger } from '@nestjs/common';
@@ -305,7 +304,7 @@ export class MyLogger extends ConsoleLogger {
 }
 ```
 
-接下来，使用如下构造创建一个 `LoggerModule`：
+Next, create a `LoggerModule` with a construction like this:
 
 ```typescript
 import { Module } from '@nestjs/common';
@@ -318,7 +317,7 @@ import { MyLogger } from './my-logger.service';
 export class LoggerModule {}
 ```
 
-接下来，将 `LoggerModule` 导入您的功能模块中。由于我们扩展了默认的 `Logger`，因此可以方便地使用 `setContext` 方法。这样就能开始使用支持上下文的自定义日志记录器，如下所示：
+Next, import the `LoggerModule` into your feature module. Since we extended default `Logger` we have the convenience of using `setContext` method. So we can start using the context-aware custom logger, like this:
 
 ```typescript
 import { Injectable } from '@nestjs/common';
@@ -344,7 +343,7 @@ export class CatsService {
 }
 ```
 
-最后，在您的 `main.ts` 文件中配置 Nest 使用自定义日志记录器实例，如下所示。当然在这个示例中，我们实际上并未自定义日志记录器行为（比如通过扩展 `Logger` 的 `log()`、`warn()` 等方法），所以这一步并非必需。但**如果**您为这些方法添加了自定义逻辑并希望 Nest 使用相同的实现，那么这一步就是必需的。
+Finally, instruct Nest to use an instance of the custom logger in your `main.ts` file as shown below. Of course in this example, we haven't actually customized the logger behavior (by extending the `Logger` methods like `log()`, `warn()`, etc.), so this step isn't actually needed. But it **would** be needed if you added custom logic to those methods and wanted Nest to use the same implementation.
 
 ```typescript
 const app = await NestFactory.create(AppModule, {
@@ -354,10 +353,8 @@ app.useLogger(new MyLogger());
 await app.listen(process.env.PORT ?? 3000);
 ```
 
-:::info 提示
-除了将 `bufferLogs` 设为 `true` 之外，您还可以通过 `logger: false` 指令临时禁用日志记录器。请注意，如果您向 `NestFactory.create` 传递 `logger: false` 参数，在调用 `useLogger` 之前将不会记录任何日志，因此可能会错过一些重要的初始化错误。如果您不介意部分初始消息会使用默认日志记录器进行记录，可以直接省略 `logger: false` 选项。
-:::
+> info **Hint** Alternatively, instead of setting `bufferLogs` to `true`, you could temporarily disable the logger with `logger: false` instruction. Be mindful that if you supply `logger: false` to `NestFactory.create`, nothing will be logged until you call `useLogger`, so you may miss some important initialization errors. If you don't mind that some of your initial messages will be logged with the default logger, you can just omit the `logger: false` option.
 
-#### 使用外部日志记录器
+#### Use external logger
 
-生产环境应用通常有特定的日志记录需求，包括高级过滤、格式化和集中式日志记录。Nest 内置的日志记录器用于监控 Nest 系统行为，在开发阶段也可用于功能模块的基础格式化文本日志记录，但生产环境应用通常会利用专门的日志记录模块如 [Winston](https://github.com/winstonjs/winston)。与任何标准 Node.js 应用一样，您可以在 Nest 中充分利用此类模块。
+Production applications often have specific logging requirements, including advanced filtering, formatting and centralized logging. Nest's built-in logger is used for monitoring Nest system behavior, and can also be useful for basic formatted text logging in your feature modules while in development, but production applications often take advantage of dedicated logging modules like [Winston](https://github.com/winstonjs/winston). As with any standard Node.js application, you can take full advantage of such modules in Nest.

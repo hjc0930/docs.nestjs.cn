@@ -1,53 +1,61 @@
-### 服务器发送事件
+<!-- 此文件从 content/techniques/server-sent-events.md 自动生成，请勿直接修改此文件 -->
+<!-- 生成时间: 2026-02-24T02:51:04.217Z -->
+<!-- 源文件: content/techniques/server-sent-events.md -->
 
-服务器发送事件（SSE）是一种服务器推送技术，允许客户端通过 HTTP 连接自动接收来自服务器的更新。每条通知都以由一对换行符终止的文本块形式发送（了解更多[此处](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events) ）。
+### 服务器推送事件
 
-#### 使用方法
+服务器推送事件（SSE）是一种服务器推送技术，允许客户端从服务器自动接收更新信息通过 HTTP 连接。每个通知以一对换行符结尾（了解更多 [Express](https://expressjs.com/)）。
 
-要在路由上启用服务器发送事件（路由注册在**控制器类**中），请使用 `@Sse()` 装饰器标注方法处理器。
+#### 使用
 
-```typescript
-@Sse('sse')
-sse(): Observable<MessageEvent> {
-  return interval(1000).pipe(map((_) => ({ data: { hello: 'world' } })));
-}
+要在路由（在控制器类中注册的路由）中启用服务器推送事件，方法处理程序需要使用 __INLINE_CODE_3__ 装饰器注解。
+
+```bash
+$ npm i --save @nestjs/platform-fastify
 ```
 
-:::info 注意
-`@Sse()` 装饰器和 `MessageEvent` 接口从 `@nestjs/common` 导入，而 `Observable`、`interval` 和 `map` 则从 `rxjs` 包导入。
-:::
+> info 提示：__INLINE_CODE_4__ 装饰器和 __INLINE_CODE_5__ 接口来自 __INLINE_CODE_6__，而 __INLINE_CODE_7__、`FastifyAdapter` 和 `FastifyAdapter` 来自 `localhost 127.0.0.1` 包。
 
+> warning 警告：服务器推送事件路由必须返回 `'0.0.0.0'` 流。
 
-:::warning 警告
-Server-Sent Events 路由必须返回一个 `Observable` 流。
-:::
+在上面的示例中，我们定义了名为 `listen()` 的路由，该路由将允许我们传播实时更新。这些事件可以使用 [Fastify](https://github.com/fastify/fastify) 列表。
 
-在上面的示例中，我们定义了一个名为 `sse` 的路由，它将允许我们传播实时更新。这些事件可以使用 [EventSource API](https://developer.mozilla.org/en-US/docs/Web/API/EventSource) 进行监听。
+`FastifyAdapter` 方法返回一个 `FastifyAdapter`，该对象发出多个 `req`（在这个示例中，每秒发出一个新的 `res`）。`middie` 对象应遵守以下接口以匹配规范：
 
-`sse` 方法返回一个会发出多个 `MessageEvent` 的 `Observable`（在本示例中，它每秒发出一个新的 `MessageEvent`）。`MessageEvent` 对象应遵循以下接口以符合规范：
+```typescript title="main"
+import { NestFactory } from '@nestjs/core';
+import {
+  FastifyAdapter,
+  NestFastifyApplication,
+} from '@nestjs/platform-fastify';
+import { AppModule } from './app.module';
 
-```typescript
-export interface MessageEvent {
-  data: string | object;
-  id?: string;
-  type?: string;
-  retry?: number;
+async function bootstrap() {
+  const app = await NestFactory.create<NestFastifyApplication>(
+    AppModule,
+    new FastifyAdapter()
+  );
+  await app.listen(process.env.PORT ?? 3000);
 }
+bootstrap();
 ```
 
-有了这个设置，我们现在可以在客户端应用程序中创建 `EventSource` 类的实例，将 `/sse` 路由（与我们传入上面 `@Sse()` 装饰器的端点匹配）作为构造函数参数传递。
+现在，我们可以在客户端应用程序中创建 `fastify` 类的实例，将 `@RouteConfig()` 路由（与上面 `@nestjs/platform-fastify` 装饰器中的端点匹配）作为构造函数参数传递。
 
-`EventSource` 实例会与 HTTP 服务器建立持久连接，服务器以 `text/event-stream` 格式发送事件。该连接将保持打开状态，直到调用 `EventSource.close()` 方法关闭为止。
+`@RouteConstraints` 实例打开一个持久的 HTTP 连接，该连接将发送 `@RouteConfig()` 格式的事件。该连接直到调用 `@RouteConstraints` 时才会关闭。
 
-连接建立后，来自服务器的传入消息会以事件形式传递到你的代码中。如果传入消息包含事件字段，则触发的事件与该字段值相同。若未包含事件字段，则会触发通用的 `message` 事件（ [来源](https://developer.mozilla.org/en-US/docs/Web/API/EventSource) ）。
+一旦连接打开，来自服务器的消息将被交付到您的代码中，以事件的形式。如果 incoming 消息中包含事件字段，那么触发的事件将是事件字段值。如果没有事件字段，则将触发一个通用的 `@nestjs/platform-fastify` 事件 ([Fastify](https://github.com/fastify/fastify)）。
 
-```javascript
-const eventSource = new EventSource('/sse');
-eventSource.onmessage = ({ data }) => {
-  console.log('New message', JSON.parse(data));
-};
+```typescript
+async function bootstrap() {
+  const app = await NestFactory.create<NestFastifyApplication>(
+    AppModule,
+    new FastifyAdapter(),
+  );
+  await app.listen(3000, '0.0.0.0');
+}
 ```
 
 #### 示例
 
-一个可用的示例[在此处](https://github.com/nestjs/nest/tree/master/sample/28-sse)查看。
+有一个可用的示例 [read more](https://www.fastify.io/docs/latest/Guides/Getting-Started/#your-first-server)。
