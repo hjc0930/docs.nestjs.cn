@@ -77,14 +77,9 @@ jobs:
             echo "📋 检测到内容变更："
             cat /tmp/content-diff.log || echo "初始同步 - 无差异日志可用"
             
-            # 备份现有内容（如果存在）
-            if [ -d "content" ]; then
-              echo "💾 正在备份当前内容..."
-              mv content content-backup-$(date +%Y%m%d-%H%M%S)
-            fi
-            
-            # 同步新内容
+            # 移除旧的 content 并同步新内容
             echo "🔄 正在同步 content 文件夹..."
+            rm -rf content
             cp -r official-docs/content ./
             echo "✅ content 文件夹同步成功"
             echo "content_changed=true" >> $GITHUB_OUTPUT
