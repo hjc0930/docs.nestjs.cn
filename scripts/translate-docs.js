@@ -4,7 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const { glob } = require('glob');
 const crypto = require('crypto');
-const pLimit = require('p-limit');
+const pLimit = require('p-limit').default || require('p-limit');
 
 // 确保 fetch 可用 (Node.js 18+ 内置，旧版本需要 polyfill)
 let fetch;
