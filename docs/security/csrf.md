@@ -11,7 +11,7 @@ $ npm i csrf-csrf
 ```
 
 :::warning 警告
-如 [csrf-csrf 文档](https://github.com/Psifi-Solutions/csrf-csrf?tab=readme-ov-file#getting-started)中所述，此中间件需要预先初始化会话中间件或 `cookie-parser`。请参阅文档以获取更多详细信息。
+如 [csrf-csrf 文档](https://github.com/Psifi-Solutions/csrf-csrf?tab=readme-ov-file#入门)中所述，此中间件需要预先初始化会话中间件或 `cookie-parser`。请参阅文档以获取更多详细信息。
 :::
 
 
@@ -49,7 +49,7 @@ await app.register(fastifyCsrf);
 ```
 
 :::warning 警告
-如 `@fastify/csrf-protection` 文档[这里](https://github.com/fastify/csrf-protection#usage)所解释的，此插件需要首先初始化存储插件。请参阅该文档以获取进一步的说明。
+如 `@fastify/csrf-protection` 文档[这里](https://github.com/fastify/csrf-protection#用法)所解释的，此插件需要首先初始化存储插件。请参阅该文档以获取进一步的说明。
 :::
 
 

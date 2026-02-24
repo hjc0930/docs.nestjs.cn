@@ -202,7 +202,7 @@ export class AuthModule {}
 
 
 
-我们使用 `register()` 配置 `JwtModule`，传入一个配置对象。查看[这里](https://github.com/nestjs/jwt/blob/master/README.md)了解更多关于 Nest `JwtModule` 的信息，[这里](https://github.com/auth0/node-jsonwebtoken#usage)了解更多关于可用配置选项的信息。
+我们使用 `register()` 配置 `JwtModule`，传入一个配置对象。查看[这里](https://github.com/nestjs/jwt/blob/master/README.md)了解更多关于 Nest `JwtModule` 的信息，[这里](https://github.com/auth0/node-jsonwebtoken#用法)了解更多关于可用配置选项的信息。
 
 #### 实现认证端点
 
