@@ -120,7 +120,6 @@ async findAll() {
   throw new ForbiddenException();
 }
 ```
-```
 
 #### Built-in HTTP exceptions
 
@@ -220,7 +219,6 @@ async create(@Body() createCatDto: CreateCatDto) {
   throw new ForbiddenException();
 }
 ```
-```
 
 > info **Hint** The `@UseFilters()` decorator is imported from the `@nestjs/common` package.
 
@@ -243,7 +241,6 @@ For example, to set up a filter as controller-scoped, you would do the following
 @Controller()
 @UseFilters(new HttpExceptionFilter())
 export class CatsController {}
-```
 ```
 
 This construction sets up the `HttpExceptionFilter` for every route handler defined inside the `CatsController`.
@@ -276,7 +273,6 @@ import { APP_FILTER } from '@nestjs/core';
   ],
 })
 export class AppModule {}
-```
 ```
 
 > info **Hint** When using this approach to perform dependency injection for the filter, note that regardless of the module where this construction is employed, the filter is, in fact, global. Where should this be done? Choose the module where the filter (`HttpExceptionFilter` in the example above) is defined. Also, `useClass` is not the only way of dealing with custom provider registration. Learn more [here](/fundamentals/custom-providers).

@@ -889,7 +889,6 @@ export default function (job: Job, cb: DoneCallback) {
   cb(null, 'It works');
 }
 ```
-```
 
 #### Async configuration
 

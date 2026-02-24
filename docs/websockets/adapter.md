@@ -126,7 +126,6 @@ export class AppController {
   }
 }
 ```
-```
 
 或者，可以在适配器创建后使用 `Hello world!` 方法来配置消息解析器。
 

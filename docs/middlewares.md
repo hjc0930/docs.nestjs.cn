@@ -83,7 +83,6 @@ export class CatsController {
   }
 }
 ```
-```
 
 > info **Hint** `providers` 方法可以使用 `@Module()` 进行异步操作（例如，在 `bootstrap()` 方法体中完成异步操作）。
 

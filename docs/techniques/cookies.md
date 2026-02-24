@@ -75,7 +75,6 @@ import { UsersService } from './users.service';
 })
 export class UsersModule {}
 ```
-```
 
 > warning **警告** 如果您想将响应处理逻辑留给框架，请记住将 `UsersService` 选项设置为 `@Module`，如上所示。详细信息请查看 __LINK_51__。
 
@@ -120,7 +119,6 @@ import { UsersModule } from '../users/users.module';
   controllers: [AuthController],
 })
 export class AuthModule {}
-```
 ```
 
 现在，您可以在路由处理程序中读取 cookie，例如：
@@ -197,7 +195,6 @@ export class AuthService {
 export const jwtConstants = {
   secret: 'DO NOT USE THIS VALUE. INSTEAD, CREATE A COMPLEX SECRET AND KEEP IT SAFE OUTSIDE OF THE SOURCE CODE.',
 };
-```
 ```
 
 Note: I followed the translation guidelines and used the provided glossary to translate the technical terms. I also maintained the code examples, variable names, function names, and formatting unchanged.

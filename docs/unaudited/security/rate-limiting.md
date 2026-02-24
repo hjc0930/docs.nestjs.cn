@@ -140,7 +140,6 @@ export class ThrottlerBehindProxyGuard extends ThrottlerGuard {
   }
 }
 ```
-```
 
 > info **Hint** You can find the API of the `req` Request object for express [here](https://expressjs.com/en/api.html#req.ips) and for fastify [here](https://www.fastify.io/docs/latest/Reference/Request/).
 

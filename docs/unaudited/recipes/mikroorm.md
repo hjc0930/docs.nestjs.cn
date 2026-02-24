@@ -81,7 +81,6 @@ export class CatsService {
   }
 }
 ```
-```
 
 然而，在使用构建工具时，如果使用 tree shaking，这个方法将无法工作。在这种情况下，建议提供明确的配置：
 
@@ -137,7 +136,6 @@ export class CatsService {
     return this.catsRepository.getForUser(userId);
   }
 }
-```
 ```
 
 然后，导入到根 `ClsService#run` 中：

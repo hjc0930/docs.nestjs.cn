@@ -595,7 +595,6 @@ export abstract class IQuery {
   abstract author(id: number): Author | Promise<Author>;
 }
 ```
-```
 
 By generating classes (instead of the default technique of generating interfaces), you can use declarative validation **decorators** in combination with the schema first approach, which is an extremely useful technique (read [more](/techniques/validation)). For example, you could add `class-validator` decorators to the generated `CreatePostInput` class as shown below to enforce minimum and maximum string lengths on the `title` field:
 
