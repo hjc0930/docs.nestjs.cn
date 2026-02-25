@@ -1,5 +1,5 @@
 <!-- 此文件从 content/techniques/queues.md 自动生成，请勿直接修改此文件 -->
-<!-- 生成时间: 2026-02-24T02:50:53.719Z -->
+<!-- 生成时间: 2026-02-25T04:12:09.229Z -->
 <!-- 源文件: content/techniques/queues.md -->
 
 ### Queues
@@ -888,6 +888,7 @@ export default function (job: Job, cb: DoneCallback) {
   console.log(`[${process.pid}] ${JSON.stringify(job.data)}`);
   cb(null, 'It works');
 }
+```
 ```
 
 #### Async configuration

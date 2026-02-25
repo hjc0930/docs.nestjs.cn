@@ -1,5 +1,5 @@
 <!-- 此文件从 content/faq/serverless.md 自动生成，请勿直接修改此文件 -->
-<!-- 生成时间: 2026-02-24T03:01:12.418Z -->
+<!-- 生成时间: 2026-02-25T04:12:09.600Z -->
 <!-- 源文件: content/faq/serverless.md -->
 
 ### Serverless

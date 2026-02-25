@@ -1,5 +1,5 @@
 <!-- 此文件从 content/techniques/validation.md 自动生成，请勿直接修改此文件 -->
-<!-- 生成时间: 2026-02-24T02:50:25.024Z -->
+<!-- 生成时间: 2026-02-25T04:12:09.148Z -->
 <!-- 源文件: content/techniques/validation.md -->
 
 ### Validation

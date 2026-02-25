@@ -1,5 +1,5 @@
 <!-- 此文件从 content/fundamentals/provider-scopes.md 自动生成，请勿直接修改此文件 -->
-<!-- 生成时间: 2026-02-24T02:59:52.784Z -->
+<!-- 生成时间: 2026-02-25T04:12:09.583Z -->
 <!-- 源文件: content/fundamentals/provider-scopes.md -->
 
 ### Injection scopes

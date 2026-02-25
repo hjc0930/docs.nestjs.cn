@@ -1,5 +1,5 @@
 <!-- 此文件从 content/fundamentals/discovery-service.md 自动生成，请勿直接修改此文件 -->
-<!-- 生成时间: 2026-02-24T03:01:10.164Z -->
+<!-- 生成时间: 2026-02-25T04:12:09.598Z -->
 <!-- 源文件: content/fundamentals/discovery-service.md -->
 
 ### 发现服务
@@ -42,6 +42,7 @@ export class CommonService {
   imports: [forwardRef(() => CatsModule)],
 })
 export class CommonModule {}
+```
 ```
 
 每个提供者对象包含了其实例、令牌和元数据信息。类似地，如果您需要检索应用程序中注册的所有控制器，可以使用：

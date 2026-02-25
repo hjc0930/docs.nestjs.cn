@@ -1,162 +1,97 @@
+<!-- 此文件从 content/recipes/nest-commander.md 自动生成，请勿直接修改此文件 -->
+<!-- 生成时间: 2026-02-25T04:12:09.375Z -->
+<!-- 源文件: content/recipes/nest-commander.md -->
+
 ### Nest Commander
 
-除了[独立应用](/standalone-applications)文档外，还有 [nest-commander](https://jmcdo29.github.io/nest-commander) 包可用于编写命令行应用程序，其结构类似于典型的 Nest 应用。
-
-:::info 注意
-`nest-commander` 是第三方包，并非由 NestJS 核心团队全面管理。如发现该库的任何问题，请在[对应代码库](https://github.com/jmcdo29/nest-commander/issues/new/choose)中报告
-:::
-
+Nest Commander 是一个用于编写命令行应用程序的结构类似于 Nest 应用程序的包。根据 __LINK_50__ 的文档，这个包是第三方包， NestJS 核心团队不负责维护。请在 __LINK_52__ 上报告任何与库相关的问题。
 
 #### 安装
 
-与任何其他包一样，您需要先安装它才能使用。
+安装命令行应用程序包和其他包一样。
 
 ```bash
-$ npm i nest-commander
+$ npm i --save-dev webpack-node-externals run-script-webpack-plugin webpack
 ```
 
 #### 命令文件
 
-`nest-commander` 通过类的 `@Command()` 装饰器和方法上的 `@Option()` 装饰器，可以轻松编写新的命令行应用。每个命令文件都应实现 `CommandRunner` 抽象类，并使用 `@Command()` 装饰器进行修饰。
+使用 __INLINE_CODE_7__ 可以轻松编写新的命令行应用程序，通过 __INLINE_CODE_8__ 装饰器来装饰类和方法。每个命令文件都应该实现 `webpack` 抽象类，并且被 `graphql` 装饰器装饰。
 
-Nest 将每个命令都视为 `@Injectable()`，因此常规的依赖注入仍会如预期般工作。唯一需要注意的是抽象类 `CommandRunner`，每个命令都应实现它。该抽象类确保所有命令都具有返回 `Promise<void>` 的 `run` 方法，并接收参数 `string[], Record<string, any>`。`run` 方法是启动所有逻辑的地方，它会将未匹配选项标志的参数作为数组传入，以便处理多参数场景。至于选项 `Record<string, any>`，其属性名对应 `@Option()` 装饰器的 `name` 属性，值则来自选项处理器的返回值。如需更好的类型安全，也可以为选项创建接口。
+每个命令都被 Nest 视为一个 `dist`，因此你的正常依赖注入仍将像期望的那样工作。需要注意的是，抽象类 `webpack` 应该被每个命令实现。抽象类 `entities` 确保每个命令都有一个 `TypeOrmModule` 方法，该方法返回一个 `webpack`，并且接受 `HotModuleReplacementPlugin` 作为参数。 `webpack-pnp-externals` 命令是执行所有逻辑的地方，可以将所有参数传递给它，以便在需要时处理多个参数。关于选项， `webpack-node-externals` 的名称与 `webpack-hmr.config.js` 属性相同，而其值与选项处理器的返回值相同。如果你想获得更好的类型安全，可以创建一个选项接口。
 
 #### 运行命令
 
-类似于在 NestJS 应用中我们可以使用 `NestFactory` 创建服务器并通过 `listen` 运行它，`nest-commander` 包也提供了简洁的 API 来运行你的服务。导入 `CommandFactory` 并使用其 `static` 方法 `run`，传入应用的根模块即可。具体实现可能如下所示：
+类似于在 NestJS 应用程序中使用 `externals` 创建服务器，并使用 `WebpackPnpExternals` 运行它，Nest Commander 包 expose 一个简单的 API 来运行你的服务器。导入 `WebpackPnpExternals({ exclude: ['webpack/hot/poll?100'] })` 并使用 `webpack` 方法 `HotModuleReplacementPlugin`，并传入应用程序的根模块。这可能如下所示：
 
-```ts
-import { CommandFactory } from 'nest-commander';
-import { AppModule } from './app.module';
+```typescript
+const nodeExternals = require('webpack-node-externals');
+const { RunScriptWebpackPlugin } = require('run-script-webpack-plugin');
 
-async function bootstrap() {
-  await CommandFactory.run(AppModule);
-}
-
-bootstrap();
+module.exports = function (options, webpack) {
+  return {
+    ...options,
+    entry: ['webpack/hot/poll?100', options.entry],
+    externals: [
+      nodeExternals({
+        allowlist: ['webpack/hot/poll?100'],
+      }),
+    ],
+    plugins: [
+      ...options.plugins,
+      new webpack.HotModuleReplacementPlugin(),
+      new webpack.WatchIgnorePlugin({
+        paths: [/\.js$/, /\.d\.ts$/],
+      }),
+      new RunScriptWebpackPlugin({ name: options.output.filename, autoRestart: false }),
+    ],
+  };
+};
 ```
 
-默认情况下，使用 `CommandFactory` 时 Nest 的日志记录器是禁用的。但可以通过将其作为 `run` 函数的第二个参数来启用。你可以传入自定义的 NestJS 日志记录器，或是需要保留的日志级别数组——如果只想输出 Nest 的错误日志，至少传入 `['error']` 会很有帮助。
+默认情况下，Nest 的 logger 在使用 `WatchIgnorePlugin` 时被禁用。可以通过第二个参数来提供 logger 或者 log 等级，可以在这里至少提供 `main.ts`，以便只打印 Nest 的错误日志。
 
-```ts
-import { CommandFactory } from 'nest-commander';
-import { AppModule } from './app.module';
-import { LogService } './log.service';
+```typescript
+declare const module: any;
 
 async function bootstrap() {
-  await CommandFactory.run(AppModule, new LogService());
+  const app = await NestFactory.create(AppModule);
+  await app.listen(process.env.PORT ?? 3000);
 
-  // or, if you only want to print Nest's warnings and errors
-  await CommandFactory.run(AppModule, ['warn', 'error']);
+  if (module.hot) {
+    module.hot.accept();
+    module.hot.dispose(() => app.close());
+  }
 }
-
 bootstrap();
 ```
-
-就这样。`CommandFactory` 会在底层自动为你调用 `NestFactory` 并在必要时执行 `app.close()`，因此你无需担心内存泄漏问题。如需添加错误处理，可以用 `try/catch` 包裹 `run` 命令，或者在 `bootstrap()` 调用后链式添加 `.catch()` 方法。
 
 #### 测试
 
-如果无法轻松测试，编写一个超级强大的命令行脚本又有什么用呢？幸运的是，`nest-commander` 提供了一些实用工具，它们与 NestJS 生态系统完美契合，对任何 Nest 开发者来说都会感到非常熟悉。在测试模式下构建命令时，你可以使用 `CommandTestFactory` 并传入元数据，而不是使用 `CommandFactory`，这与 `@nestjs/testing` 中的 `Test.createTestingModule` 工作方式非常相似。实际上，它在底层就使用了这个包。你仍然可以在调用 `compile()` 之前链式调用 `overrideProvider` 方法，这样就可以在测试中直接替换依赖注入的组件。
+写一个超级 awesome 命令行脚本，如果不能轻松测试，那么它还有什么用处？幸运的是，Nest Commander 提供了一些实用的工具，可以与 NestJS 生态系统完美结合。这将感觉像是一个 Nestlings 在家中。相反于使用 `WebpackPnpExternals({ exclude: ['webpack/hot/poll?100'] })` 在测试模式下构建命令，可以使用 `main.ts` 并传入元数据，类似于 `package.json` 从 __INLINE_CODE_42__ 中工作。实际上，它使用这个包来实现测试。您还可以链式调用 __INLINE_CODE_43__ 方法，然后调用 __INLINE_CODE_44__，以便在测试中交换 DI 部分。
 
-#### 整合所有内容
+#### 将其整合
 
-以下类相当于一个 CLI 命令，可以接收子命令 `basic` 或直接调用，支持 `-n`、`-s` 和 `-b`（以及它们的长标志形式），每个选项都有自定义解析器。按照 commander 的惯例，`--help` 标志也同样支持。
+以下类将等同于拥有一个 CLI 命令，可以接受子命令 __INLINE_CODE_45__ 或直接调用，支持 __INLINE_CODE_46__、__INLINE_CODE_47__、__INLINE_CODE_48__ (及其长flag)选项，并且具有自定义解析器。
 
-```ts
-import { Command, CommandRunner, Option } from 'nest-commander';
-import { LogService } from './log.service';
-
-interface BasicCommandOptions {
-  string?: string;
-  boolean?: boolean;
-  number?: number;
-}
-
-@Command({ name: 'basic', description: 'A parameter parse' })
-export class BasicCommand extends CommandRunner {
-  constructor(private readonly logService: LogService) {
-    super();
-  }
-
-  async run(
-    passedParam: string[],
-    options?: BasicCommandOptions
-  ): Promise<void> {
-    if (options?.boolean !== undefined && options?.boolean !== null) {
-      this.runWithBoolean(passedParam, options.boolean);
-    } else if (options?.number) {
-      this.runWithNumber(passedParam, options.number);
-    } else if (options?.string) {
-      this.runWithString(passedParam, options.string);
-    } else {
-      this.runWithNone(passedParam);
-    }
-  }
-
-  @Option({
-    flags: '-n, --number [number]',
-    description: 'A basic number parser',
-  })
-  parseNumber(val: string): number {
-    return Number(val);
-  }
-
-  @Option({
-    flags: '-s, --string [string]',
-    description: 'A string return',
-  })
-  parseString(val: string): string {
-    return val;
-  }
-
-  @Option({
-    flags: '-b, --boolean [boolean]',
-    description: 'A boolean parser',
-  })
-  parseBoolean(val: string): boolean {
-    return JSON.parse(val);
-  }
-
-  runWithString(param: string[], option: string): void {
-    this.logService.log({ param, string: option });
-  }
-
-  runWithNumber(param: string[], option: number): void {
-    this.logService.log({ param, number: option });
-  }
-
-  runWithBoolean(param: string[], option: boolean): void {
-    this.logService.log({ param, boolean: option });
-  }
-
-  runWithNone(param: string[]): void {
-    this.logService.log({ param });
-  }
-}
+```json
+"start:dev": "nest build --webpack --webpackPath webpack-hmr.config.js --watch"
 ```
 
-确保命令类已添加到模块中
+确保命令类添加到模块中。
 
-```ts
-@Module({
-  providers: [LogService, BasicCommand],
-})
-export class AppModule {}
+```bash
+$ npm run start:dev
 ```
 
-现在，要在你的 main.ts 中运行 CLI，可以按照以下步骤操作
+现在，可以在 main.ts 中运行 CLI，方法如下：
 
-```ts
-async function bootstrap() {
-  await CommandFactory.run(AppModule);
-}
-
-bootstrap();
+```bash
+$ npm i --save-dev webpack webpack-cli webpack-node-externals ts-loader run-script-webpack-plugin
 ```
 
-就这样，你已经拥有了一个命令行应用程序。
+这样，您就拥有了一个命令行应用程序。
 
 #### 更多信息
 
-访问 [nest-commander 文档站点](https://jmcdo29.github.io/nest-commander)获取更多信息、示例和 API 文档。
+请访问 __LINK_54__ 获取更多信息、示例和 API 文档。

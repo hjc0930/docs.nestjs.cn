@@ -1,5 +1,5 @@
 <!-- 此文件从 content/cli/libraries.md 自动生成，请勿直接修改此文件 -->
-<!-- 生成时间: 2026-02-24T03:03:54.181Z -->
+<!-- 生成时间: 2026-02-25T04:12:09.613Z -->
 <!-- 源文件: content/cli/libraries.md -->
 
 ### Libraries

@@ -1,5 +1,5 @@
 <!-- 此文件从 content/microservices/interceptors.md 自动生成，请勿直接修改此文件 -->
-<!-- 生成时间: 2026-02-24T02:57:12.054Z -->
+<!-- 生成时间: 2026-02-25T04:12:09.433Z -->
 <!-- 源文件: content/microservices/interceptors.md -->
 
 ### 拦截器
@@ -13,4 +13,5 @@
 accumulate(data: number[]): number {
   return (data || []).reduce((a, b) => a + b);
 }
+```
 ```

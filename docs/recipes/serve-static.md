@@ -1,5 +1,5 @@
 <!-- 此文件从 content/recipes/serve-static.md 自动生成，请勿直接修改此文件 -->
-<!-- 生成时间: 2026-02-24T02:53:34.247Z -->
+<!-- 生成时间: 2026-02-25T04:12:09.345Z -->
 <!-- 源文件: content/recipes/serve-static.md -->
 
 ### Serve Static

@@ -1,5 +1,5 @@
 <!-- 此文件从 content/websockets/interceptors.md 自动生成，请勿直接修改此文件 -->
-<!-- 生成时间: 2026-02-24T02:49:53.083Z -->
+<!-- 生成时间: 2026-02-25T04:12:08.951Z -->
 <!-- 源文件: content/websockets/interceptors.md -->
 
 ### 拦截器
@@ -9,4 +9,5 @@
 ```
 ```bash
 $ npm i --save @nestjs/websockets @nestjs/platform-socket.io
+```
 ```

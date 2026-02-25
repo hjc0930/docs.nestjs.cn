@@ -1,5 +1,5 @@
 <!-- 此文件从 content/fundamentals/execution-context.md 自动生成，请勿直接修改此文件 -->
-<!-- 生成时间: 2026-02-24T03:00:25.207Z -->
+<!-- 生成时间: 2026-02-25T04:12:09.584Z -->
 <!-- 源文件: content/fundamentals/execution-context.md -->
 
 ### 执行上下文
