@@ -61,7 +61,6 @@ async function bootstrap() {
 
 bootstrap();
 ```
-```
 
 #### 自定义
 
