@@ -1,5 +1,5 @@
 <!-- 此文件从 content/microservices/kafka.md 自动生成，请勿直接修改此文件 -->
-<!-- 生成时间: 2026-02-25T04:12:09.491Z -->
+<!-- 生成时间: 2026-02-26T04:08:50.589Z -->
 <!-- 源文件: content/microservices/kafka.md -->
 
 ### Kafka
@@ -195,6 +195,7 @@ async onModuleInit() {
   await this.client.connect();
 }
 ```
+```
 
 #### Incoming
 
@@ -246,6 +247,7 @@ export class HeroesController {
     }
   }
 }
+```
 ```
 
 Additionally, messages passed in this format can also contain custom headers set in the `headers` hash property. Header hash property values must be either of type `string` or type `Buffer`.
@@ -357,6 +359,7 @@ const app = await NestFactory.createMicroservice<MicroserviceOptions>(AppModule,
   }
 });
 ```
+```
 
 And for the client:
 
@@ -384,6 +387,7 @@ Since the Kafka microservice message pattern utilizes two topics for the request
 onModuleInit() {
   this.client.subscribeToResponseOf('hero.get'); // hero.get.reply
 }
+```
 ```
 
 > info **Hint** Kafka reply topic naming conventions can be customized by extending `ClientKafkaProxy` in your own custom provider and overriding the `getResponsePatternName` method.
@@ -535,6 +539,7 @@ const app = await NestFactory.createMicroservice<MicroserviceOptions>(AppModule,
     }
   }
 });
+```
 ```
 
 #### Instance status updates

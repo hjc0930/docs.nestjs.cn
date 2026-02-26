@@ -1,5 +1,5 @@
 <!-- 此文件从 content/graphql/resolvers-map.md 自动生成，请勿直接修改此文件 -->
-<!-- 生成时间: 2026-02-25T04:12:09.598Z -->
+<!-- 生成时间: 2026-02-26T04:08:50.671Z -->
 <!-- 源文件: content/graphql/resolvers-map.md -->
 
 ### Resolvers
@@ -594,6 +594,7 @@ export class Post {
 export abstract class IQuery {
   abstract author(id: number): Author | Promise<Author>;
 }
+```
 ```
 
 By generating classes (instead of the default technique of generating interfaces), you can use declarative validation **decorators** in combination with the schema first approach, which is an extremely useful technique (read [more](/techniques/validation)). For example, you could add `class-validator` decorators to the generated `CreatePostInput` class as shown below to enforce minimum and maximum string lengths on the `title` field:

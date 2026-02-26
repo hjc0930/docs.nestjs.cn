@@ -1,5 +1,5 @@
 <!-- 此文件从 content/recipes/passport.md 自动生成，请勿直接修改此文件 -->
-<!-- 生成时间: 2026-02-25T04:12:09.418Z -->
+<!-- 生成时间: 2026-02-26T04:08:50.584Z -->
 <!-- 源文件: content/recipes/passport.md -->
 
 ### Passport (authentication)
@@ -95,6 +95,7 @@ import { UsersService } from './users.service';
 })
 export class UsersModule {}
 ```
+```
 
 Our `AuthService` has the job of retrieving a user and verifying the password. We create a `validateUser()` method for this purpose. In the code below, we use a convenient ES6 spread operator to strip the password property from the user object before returning it. We'll be calling into the `validateUser()` method from our Passport local strategy in a moment.
 
@@ -131,6 +132,7 @@ import { UsersModule } from '../users/users.module';
   providers: [AuthService],
 })
 export class AuthModule {}
+```
 ```
 
 #### Implementing Passport local
@@ -183,6 +185,7 @@ import { LocalStrategy } from './local.strategy';
   providers: [AuthService, LocalStrategy],
 })
 export class AuthModule {}
+```
 ```
 
 #### Built-in Passport Guards
@@ -332,6 +335,7 @@ export const jwtConstants = {
   secret: 'DO NOT USE THIS VALUE. INSTEAD, CREATE A COMPLEX SECRET AND KEEP IT SAFE OUTSIDE OF THE SOURCE CODE.',
 };
 ```
+```
 
 We'll use this to share our key between the JWT signing and verifying steps.
 
@@ -382,6 +386,7 @@ export class AppController {
     return this.authService.login(req.user);
   }
 }
+```
 ```
 
 Let's go ahead and test our routes using cURL again. You can test with any of the `user` objects hard-coded in the `UsersService`.
@@ -459,6 +464,7 @@ import { jwtConstants } from './constants';
 })
 export class AuthModule {}
 ```
+```
 
 By importing the same secret used when we signed the JWT, we ensure that the **verify** phase performed by Passport, and the **sign** phase performed in our AuthService, use a common secret.
 
@@ -500,6 +506,7 @@ export class AppController {
     return req.user;
   }
 }
+```
 ```
 
 Once again, we're applying the `AuthGuard` that the `@nestjs/passport` module has automatically provisioned for us when we configured the passport-jwt module. This Guard is referenced by its default name, `jwt`. When our `GET /profile` route is hit, the Guard will automatically invoke our passport-jwt custom configured strategy, validate the JWT, and assign the `user` property to the `Request` object.

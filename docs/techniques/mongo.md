@@ -1,5 +1,5 @@
 <!-- 此文件从 content/techniques/mongo.md 自动生成，请勿直接修改此文件 -->
-<!-- 生成时间: 2026-02-25T04:12:09.298Z -->
+<!-- 生成时间: 2026-02-26T04:08:50.489Z -->
 <!-- 源文件: content/techniques/mongo.md -->
 
 ### Mongo
@@ -53,6 +53,7 @@ export class Cat {
 }
 
 export const CatSchema = SchemaFactory.createForClass(Cat);
+```
 ```
 
 > info **Hint** Note you can also generate a raw schema definition using the `DefinitionsFactory` class (from the `nestjs/mongoose`). This allows you to manually modify the schema definition generated based on the metadata you provided. This is useful for certain edge-cases where it may be hard to represent everything with decorators.
@@ -175,6 +176,7 @@ export class CatsService {
     return this.catModel.find().exec();
   }
 }
+```
 ```
 
 #### Connection
@@ -397,6 +399,7 @@ export class Event {
 
 export const EventSchema = SchemaFactory.createForClass(Event);
 ```
+```
 
 > info **Hint** The way mongoose tells the difference between the different discriminator models is by the "discriminator key", which is `__t` by default. Mongoose adds a String path called `__t` to your schemas that it uses to track which discriminator this document is an instance of.
 > You may also use the `discriminatorKey` option to define the path for discrimination.
@@ -431,6 +434,7 @@ export class SignUpEvent {
 }
 
 export const SignUpEventSchema = SchemaFactory.createForClass(SignUpEvent);
+```
 ```
 
 With this in place, use the `discriminators` option to register a discriminator for a given schema. It works on both `MongooseModule.forFeature` and `MongooseModule.forFeatureAsync`:
@@ -610,6 +614,7 @@ export type PersonDocumentOverride = {
 };
 
 export type PersonDocument = HydratedDocument<Person, PersonDocumentOverride>;
+```
 ```
 
 If you want to include multiple subdocuments, you can use an array of subdocuments. It's important to override the type of the property accordingly:

@@ -1,5 +1,5 @@
 <!-- 此文件从 content/recipes/cqrs.md 自动生成，请勿直接修改此文件 -->
-<!-- 生成时间: 2026-02-25T04:12:09.481Z -->
+<!-- 生成时间: 2026-02-26T04:08:50.601Z -->
 <!-- 源文件: content/recipes/cqrs.md -->
 
 ### CQRS
@@ -81,6 +81,7 @@ export class KillDragonCommand extends Command<{
     super();
   }
 }
+```
 ```
 
 As you can see, the `KillDragonCommand` class extends the `Command` class. The `Command` class is a simple utility class exported from the `@nestjs/cqrs` package that lets you define the command's return type. In this case, the return type is an object with an `actionId` property. Now, whenever the `KillDragonCommand` command is dispatched, the `CommandBus#execute()` method return-type will be inferred as `Promise<{ actionId: string }>`. This is useful when you want to return some data from the command handler.
@@ -190,6 +191,7 @@ export class Hero extends AggregateRoot {
     this.apply(new HeroKilledDragonEvent(this.id, enemyId));
   }
 }
+```
 ```
 
 The `apply()` method is used to dispatch events. It accepts an event object as an argument. However, since our model is not aware of the `EventBus`, we need to associate it with the model. We can do that by using the `EventPublisher` class.
