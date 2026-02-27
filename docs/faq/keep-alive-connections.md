@@ -19,7 +19,6 @@
 const app = await NestFactory.create(AppModule);
 const httpAdapter = app.getHttpAdapter();
 ```
-```
 
 Note:
 

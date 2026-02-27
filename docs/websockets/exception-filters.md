@@ -41,7 +41,6 @@ app.enableVersioning({
 });
 await app.listen(process.env.PORT ?? 3000);
 ```
-```
 
 #### 继承
 

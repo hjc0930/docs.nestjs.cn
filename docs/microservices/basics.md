@@ -120,7 +120,6 @@ export class MathController {
   }
 }
 ```
-```
 
 In the above code, the `accumulate()` **message handler** listens for messages that match the `{ cmd: 'sum' }` message pattern. The message handler takes a single argument, the `data` passed from the client. In this case, the data is an array of numbers that need to be accumulated.
 
