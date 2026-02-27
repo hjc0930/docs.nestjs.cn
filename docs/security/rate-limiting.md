@@ -1,5 +1,5 @@
 <!-- 此文件从 content/security/rate-limiting.md 自动生成，请勿直接修改此文件 -->
-<!-- 生成时间: 2026-02-26T04:08:50.218Z -->
+<!-- 生成时间: 2026-02-27T04:05:24.385Z -->
 <!-- 源文件: content/security/rate-limiting.md -->
 
 ### Rate Limiting
@@ -139,6 +139,7 @@ export class ThrottlerBehindProxyGuard extends ThrottlerGuard {
     return req.ips.length ? req.ips[0] : req.ip; // individualize IP extraction to meet your own needs
   }
 }
+```
 ```
 
 > info **Hint** You can find the API of the `req` Request object for express [here](https://expressjs.com/en/api.html#req.ips) and for fastify [here](https://www.fastify.io/docs/latest/Reference/Request/).

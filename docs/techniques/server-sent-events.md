@@ -1,5 +1,5 @@
 <!-- 此文件从 content/techniques/server-sent-events.md 自动生成，请勿直接修改此文件 -->
-<!-- 生成时间: 2026-02-26T04:08:50.361Z -->
+<!-- 生成时间: 2026-02-27T04:05:24.872Z -->
 <!-- 源文件: content/techniques/server-sent-events.md -->
 
 ### 服务器推送事件

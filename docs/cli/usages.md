@@ -1,5 +1,5 @@
 <!-- 此文件从 content/cli/usages.md 自动生成，请勿直接修改此文件 -->
-<!-- 生成时间: 2026-02-26T04:08:50.715Z -->
+<!-- 生成时间: 2026-02-27T04:05:25.330Z -->
 <!-- 源文件: content/cli/usages.md -->
 
 ### CLI command reference

@@ -1,5 +1,5 @@
 <!-- 此文件从 content/recipes/sentry.md 自动生成，请勿直接修改此文件 -->
-<!-- 生成时间: 2026-02-26T04:08:50.465Z -->
+<!-- 生成时间: 2026-02-27T04:05:25.081Z -->
 <!-- 源文件: content/recipes/sentry.md -->
 
 ### Sentry
@@ -61,6 +61,7 @@ export class AppService {
   }
 }
 ```
+```
 
 然后，在您的主要模块中添加 __INLINE_CODE_12__ 作为根模块：
 
@@ -101,6 +102,7 @@ export class AppCommands {
     return interaction.reply({ content: 'Pong!' });
   }
 }
+```
 ```
 
 默认情况下，只有未处理的异常（除非被其他错误过滤器捕获）才会被报告到 Sentry。 `AppService`（包括 __LINK_23__）也不会被捕获，因为它们大多数是控制流体。
@@ -148,6 +150,7 @@ export class AppCommands {
     });
   }
 }
+```
 ```
 
 #### 测试集成

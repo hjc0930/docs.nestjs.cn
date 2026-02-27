@@ -1,5 +1,5 @@
 <!-- 此文件从 content/techniques/configuration.md 自动生成，请勿直接修改此文件 -->
-<!-- 生成时间: 2026-02-26T04:08:50.512Z -->
+<!-- 生成时间: 2026-02-27T04:05:25.104Z -->
 <!-- 源文件: content/techniques/configuration.md -->
 
 ### Configuration
@@ -184,6 +184,7 @@ export default () => {
 
   return config;
 };
+```
 ```
 
 Now, if the port is outside the specified range, the application will throw an error during startup.
@@ -443,6 +444,7 @@ import * as Joi from 'joi';
 })
 export class AppModule {}
 ```
+```
 
 The `@nestjs/config` package uses default settings of:
 
@@ -512,6 +514,7 @@ import { validate } from './env.validation';
 })
 export class AppModule {}
 ```
+```
 
 #### Custom getter functions
 
@@ -539,6 +542,7 @@ export class AppService {
     }
   }
 }
+```
 ```
 
 #### Environment variables loaded hook

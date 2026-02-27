@@ -1,5 +1,5 @@
 <!-- 此文件从 content/microservices/grpc.md 自动生成，请勿直接修改此文件 -->
-<!-- 生成时间: 2026-02-26T04:08:50.609Z -->
+<!-- 生成时间: 2026-02-27T04:05:25.267Z -->
 <!-- 源文件: content/microservices/grpc.md -->
 
 ### gRPC
@@ -159,6 +159,7 @@ export class HeroesController {
     return items.find(({ id }) => id === data.id);
   }
 }
+```
 ```
 
 You can also omit the first `@GrpcMethod()` argument. In this case, Nest automatically associates the handler with the service definition from the proto definitions file based on the **class** name where the handler is defined. For example, in the following code, class `HeroesService` associates its handler methods with the `HeroesService` service definition in the `hero.proto` file based on the matching of the name `'HeroesService'`.
@@ -515,6 +516,7 @@ export class HeroesService {
     return items.find(({ id }) => id === data.id);
   }
 }
+```
 ```
 
 Likewise, to read the metadata in handlers annotated with the `@GrpcStreamMethod()` handler ([subject strategy](microservices/grpc#主题策略)), use the second argument (metadata), which is of type `Metadata` (imported from the `grpc` package).

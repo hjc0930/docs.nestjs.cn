@@ -1,5 +1,5 @@
 <!-- 此文件从 content/websockets/adapter.md 自动生成，请勿直接修改此文件 -->
-<!-- 生成时间: 2026-02-26T04:08:50.218Z -->
+<!-- 生成时间: 2026-02-27T04:05:24.384Z -->
 <!-- 源文件: content/websockets/adapter.md -->
 
 ### WebSocket 适配器
@@ -125,6 +125,7 @@ export class AppController {
     );
   }
 }
+```
 ```
 
 或者，可以在适配器创建后使用 `Hello world!` 方法来配置消息解析器。

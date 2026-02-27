@@ -1,5 +1,5 @@
 <!-- 此文件从 content/middlewares.md 自动生成，请勿直接修改此文件 -->
-<!-- 生成时间: 2026-02-26T04:08:50.207Z -->
+<!-- 生成时间: 2026-02-27T04:05:24.370Z -->
 <!-- 源文件: content/middlewares.md -->
 
 ### Middleware
@@ -82,6 +82,7 @@ export class CatsController {
     return this.catsService.findAll();
   }
 }
+```
 ```
 
 > info **Hint** `providers` 方法可以使用 `@Module()` 进行异步操作（例如，在 `bootstrap()` 方法体中完成异步操作）。
