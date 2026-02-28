@@ -17,7 +17,7 @@
   
   <blockquote>
     <p>
-      📅 <strong>最近翻译时间:</strong> <!-- LAST_SYNC_TIME --> 2026年02月24日 12:10 <!-- /LAST_SYNC_TIME -->
+      📅 <strong>最近翻译时间:</strong> <!-- LAST_SYNC_TIME --> 2026年02月28日 11:47 <!-- /LAST_SYNC_TIME -->
       <br>
       <em>文档每日自动同步并翻译，确保与官方保持同步，同步时间：</em>
       <br>
@@ -151,18 +151,18 @@ Nest 旨在提供一个开箱即用的应用程序体系结构，允许轻松创
         </a>
     </td>
     <td align="center">
-        <a href="https://github.com/NotEvenANeko">
-            <img src="https://avatars.githubusercontent.com/u/49067249?v=4" width="100;" alt="NotEvenANeko"/>
+        <a href="https://github.com/ethanyou725">
+            <img src="https://avatars.githubusercontent.com/u/18167983?v=4" width="100;" alt="ethanyou725"/>
             <br />
-            <sub><b>NotEvenANeko</b></sub>
+            <sub><b>ethanyou725</b></sub>
         </a>
     </td></tr>
 <tr>
     <td align="center">
-        <a href="https://github.com/sunsssshine">
-            <img src="https://avatars.githubusercontent.com/u/22254736?v=4" width="100;" alt="sunsssshine"/>
+        <a href="https://github.com/elonglau">
+            <img src="https://avatars.githubusercontent.com/u/3918032?v=4" width="100;" alt="elonglau"/>
             <br />
-            <sub><b>sunsssshine</b></sub>
+            <sub><b>elonglau</b></sub>
         </a>
     </td>
     <td align="center">
@@ -173,24 +173,24 @@ Nest 旨在提供一个开箱即用的应用程序体系结构，允许轻松创
         </a>
     </td>
     <td align="center">
-        <a href="https://github.com/ethanyou725">
-            <img src="https://avatars.githubusercontent.com/u/18167983?v=4" width="100;" alt="ethanyou725"/>
+        <a href="https://github.com/sunsssshine">
+            <img src="https://avatars.githubusercontent.com/u/22254736?v=4" width="100;" alt="sunsssshine"/>
             <br />
-            <sub><b>ethanyou725</b></sub>
+            <sub><b>sunsssshine</b></sub>
         </a>
     </td>
     <td align="center">
-        <a href="https://github.com/elonglau">
-            <img src="https://avatars.githubusercontent.com/u/3918032?v=4" width="100;" alt="elonglau"/>
+        <a href="https://github.com/NotEvenANeko">
+            <img src="https://avatars.githubusercontent.com/u/49067249?v=4" width="100;" alt="NotEvenANeko"/>
             <br />
-            <sub><b>elonglau</b></sub>
+            <sub><b>NotEvenANeko</b></sub>
         </a>
     </td>
     <td align="center">
-        <a href="https://github.com/ganshiqingyuan">
-            <img src="https://avatars.githubusercontent.com/u/33950951?v=4" width="100;" alt="ganshiqingyuan"/>
+        <a href="https://github.com/younggglcy">
+            <img src="https://avatars.githubusercontent.com/u/73387709?v=4" width="100;" alt="younggglcy"/>
             <br />
-            <sub><b>ganshiqingyuan</b></sub>
+            <sub><b>younggglcy</b></sub>
         </a>
     </td>
     <td align="center">
@@ -202,38 +202,38 @@ Nest 旨在提供一个开箱即用的应用程序体系结构，允许轻松创
     </td></tr>
 <tr>
     <td align="center">
-        <a href="https://github.com/younggglcy">
-            <img src="https://avatars.githubusercontent.com/u/73387709?v=4" width="100;" alt="younggglcy"/>
+        <a href="https://github.com/ganshiqingyuan">
+            <img src="https://avatars.githubusercontent.com/u/33950951?v=4" width="100;" alt="ganshiqingyuan"/>
             <br />
-            <sub><b>younggglcy</b></sub>
+            <sub><b>ganshiqingyuan</b></sub>
         </a>
     </td>
     <td align="center">
-        <a href="https://github.com/WShiBin">
-            <img src="https://avatars.githubusercontent.com/u/18117928?v=4" width="100;" alt="WShiBin"/>
+        <a href="https://github.com/finalwhy">
+            <img src="https://avatars.githubusercontent.com/u/24859256?v=4" width="100;" alt="finalwhy"/>
             <br />
-            <sub><b>WShiBin</b></sub>
+            <sub><b>finalwhy</b></sub>
         </a>
     </td>
     <td align="center">
-        <a href="https://github.com/fyzhu">
-            <img src="https://avatars.githubusercontent.com/u/5175751?v=4" width="100;" alt="fyzhu"/>
+        <a href="https://github.com/zxC0der">
+            <img src="https://avatars.githubusercontent.com/u/73784351?v=4" width="100;" alt="zxC0der"/>
             <br />
-            <sub><b>fyzhu</b></sub>
+            <sub><b>zxC0der</b></sub>
         </a>
     </td>
     <td align="center">
-        <a href="https://github.com/znonymous29">
-            <img src="https://avatars.githubusercontent.com/u/19743142?v=4" width="100;" alt="znonymous29"/>
+        <a href="https://github.com/yuu2lee4">
+            <img src="https://avatars.githubusercontent.com/u/8046366?v=4" width="100;" alt="yuu2lee4"/>
             <br />
-            <sub><b>znonymous29</b></sub>
+            <sub><b>yuu2lee4</b></sub>
         </a>
     </td>
     <td align="center">
-        <a href="https://github.com/Jimmysh">
-            <img src="https://avatars.githubusercontent.com/u/230652?v=4" width="100;" alt="Jimmysh"/>
+        <a href="https://github.com/iyangsheng">
+            <img src="https://avatars.githubusercontent.com/u/39045336?v=4" width="100;" alt="iyangsheng"/>
             <br />
-            <sub><b>Jimmysh</b></sub>
+            <sub><b>iyangsheng</b></sub>
         </a>
     </td>
     <td align="center">
@@ -245,31 +245,31 @@ Nest 旨在提供一个开箱即用的应用程序体系结构，允许轻松创
     </td></tr>
 <tr>
     <td align="center">
-        <a href="https://github.com/iyangsheng">
-            <img src="https://avatars.githubusercontent.com/u/39045336?v=4" width="100;" alt="iyangsheng"/>
+        <a href="https://github.com/znonymous29">
+            <img src="https://avatars.githubusercontent.com/u/19743142?v=4" width="100;" alt="znonymous29"/>
             <br />
-            <sub><b>iyangsheng</b></sub>
+            <sub><b>znonymous29</b></sub>
         </a>
     </td>
     <td align="center">
-        <a href="https://github.com/yuu2lee4">
-            <img src="https://avatars.githubusercontent.com/u/8046366?v=4" width="100;" alt="yuu2lee4"/>
+        <a href="https://github.com/fyzhu">
+            <img src="https://avatars.githubusercontent.com/u/5175751?v=4" width="100;" alt="fyzhu"/>
             <br />
-            <sub><b>yuu2lee4</b></sub>
+            <sub><b>fyzhu</b></sub>
         </a>
     </td>
     <td align="center">
-        <a href="https://github.com/zxC0der">
-            <img src="https://avatars.githubusercontent.com/u/73784351?v=4" width="100;" alt="zxC0der"/>
+        <a href="https://github.com/WShiBin">
+            <img src="https://avatars.githubusercontent.com/u/18117928?v=4" width="100;" alt="WShiBin"/>
             <br />
-            <sub><b>zxC0der</b></sub>
+            <sub><b>WShiBin</b></sub>
         </a>
     </td>
     <td align="center">
-        <a href="https://github.com/finalwhy">
-            <img src="https://avatars.githubusercontent.com/u/24859256?v=4" width="100;" alt="finalwhy"/>
+        <a href="https://github.com/Jimmysh">
+            <img src="https://avatars.githubusercontent.com/u/230652?v=4" width="100;" alt="Jimmysh"/>
             <br />
-            <sub><b>finalwhy</b></sub>
+            <sub><b>Jimmysh</b></sub>
         </a>
     </td>
     <td align="center">
