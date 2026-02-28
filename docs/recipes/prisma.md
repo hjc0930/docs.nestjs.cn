@@ -27,7 +27,7 @@ $ npm install -g @nestjs/cli
 $ nest new hello-prisma
 ```
 
-See the [First steps](./first-steps) page to learn more about the project files created by this command. Note also that you can now run `npm start` to start your application. The REST API running at `http://localhost:3000/` currently serves a single route that's implemented in `src/app.controller.ts`. Over the course of this guide, you'll implement additional routes to store and retrieve data about _users_ and _posts_.
+See the [First steps](/overview/first-steps) page to learn more about the project files created by this command. Note also that you can now run `npm start` to start your application. The REST API running at `http://localhost:3000/` currently serves a single route that's implemented in `src/app.controller.ts`. Over the course of this guide, you'll implement additional routes to store and retrieve data about _users_ and _posts_.
 
 #### Set up Prisma
 
@@ -119,7 +119,7 @@ Now, open up `.env` and adjust the `DATABASE_URL` environment variable to look a
 DATABASE_URL="file:./dev.db"
 ```
 
-Make sure you have a [ConfigModule](./techniques/configuration) configured, otherwise the `DATABASE_URL` variable will not be picked up from `.env`.
+Make sure you have a [ConfigModule](/techniques/configuration) configured, otherwise the `DATABASE_URL` variable will not be picked up from `.env`.
 
 SQLite databases are simple files; no server is required to use a SQLite database. So instead of configuring a connection URL with a _host_ and _port_, you can just point it to a local file which in this case is called `dev.db`. This file will be created in the next step.
 

@@ -49,7 +49,7 @@ The `forRoot()` method is used to register a `bullmq` package configuration obje
 - `prefix: string` - Prefix for all queue keys. Optional.
 - `defaultJobOptions: JobOpts` - Options to control the default settings for new jobs. See [JobOpts](https://github.com/OptimalBits/bull/blob/master/REFERENCE.md#queueadd) for more information. Optional.
 - `settings: AdvancedSettings` - Advanced Queue configuration settings. These should usually not be changed. See [AdvancedSettings](https://github.com/OptimalBits/bull/blob/master/REFERENCE.md#queue) for more information. Optional.
-- `extraOptions` - Extra options for module init. See [Manual Registration](./techniques/queues#manual-registration)
+- `extraOptions` - Extra options for module init. See [Manual Registration](/techniques/queues#manual-registration)
 
 All the options are optional, providing detailed control over queue behavior. These are passed directly to the BullMQ `Queue` constructor. Read more about these options and other options [here](https://api.docs.bullmq.io/interfaces/v4.QueueOptions.html).
 
@@ -276,7 +276,7 @@ This is covered in the [named processor](https://docs.bullmq.io/patterns/named-p
 
 #### Request-scoped consumers
 
-When a consumer is flagged as request-scoped (learn more about the injection scopes [here](/fundamentals/injection-scopes#提供者作用域)), a new instance of the class will be created exclusively for each job. The instance will be garbage-collected after the job has completed.
+When a consumer is flagged as request-scoped (learn more about the injection scopes [here](/fundamentals/provider-scopes#提供者作用域)), a new instance of the class will be created exclusively for each job. The instance will be garbage-collected after the job has completed.
 
 ```typescript
 @Processor({
@@ -404,7 +404,7 @@ BullModule.forRootAsync({
 });
 ```
 
-Our factory behaves like any other [asynchronous provider](./fundamentals/async-providers) (e.g., it can be `async` and it's able to inject dependencies through `inject`).
+Our factory behaves like any other [asynchronous provider](/fundamentals/async-providers) (e.g., it can be `async` and it's able to inject dependencies through `inject`).
 
 ```typescript
 BullModule.forRootAsync({
@@ -733,7 +733,7 @@ async transcode(job: Job<unknown>) { ... }
 
 #### Request-scoped consumers
 
-When a consumer is flagged as request-scoped (learn more about the injection scopes [here](/fundamentals/injection-scopes#提供者作用域)), a new instance of the class will be created exclusively for each job. The instance will be garbage-collected after the job has completed.
+When a consumer is flagged as request-scoped (learn more about the injection scopes [here](/fundamentals/provider-scopes#提供者作用域)), a new instance of the class will be created exclusively for each job. The instance will be garbage-collected after the job has completed.
 
 ```typescript
 @Processor({
@@ -907,7 +907,7 @@ BullModule.forRootAsync({
 });
 ```
 
-Our factory behaves like any other [asynchronous provider](./fundamentals/async-providers) (e.g., it can be `async` and it's able to inject dependencies through `inject`).
+Our factory behaves like any other [asynchronous provider](/fundamentals/async-providers) (e.g., it can be `async` and it's able to inject dependencies through `inject`).
 
 ```typescript
 BullModule.forRootAsync({

@@ -1,6 +1,6 @@
-<!-- 此文件从 content/fundamentals/module-reference.md 自动生成，请勿直接修改此文件 -->
+<!-- 此文件从 content/fundamentals/module-referenceerence.md 自动生成，请勿直接修改此文件 -->
 <!-- 生成时间: 2026-02-28T11:23:59.619Z -->
-<!-- 源文件: content/fundamentals/module-reference.md -->
+<!-- 源文件: content/fundamentals/module-referenceerence.md -->
 
 ### 模块参考
 
@@ -34,7 +34,7 @@ export class CatsService implements OnModuleInit {
 ```
 
 :::warning 警告
-无法通过 `get()` 方法检索作用域提供者（瞬时或请求作用域）。请改用下文[所述技术](../fundamentals/module-reference#解析作用域提供者) 。了解如何控制作用域请参阅[此处](/fundamentals/provider-scopes) 。
+无法通过 `get()` 方法检索作用域提供者（瞬时或请求作用域）。请改用下文[所述技术](../fundamentals/module-referenceerence#解析作用域提供者) 。了解如何控制作用域请参阅[此处](/fundamentals/provider-scopes) 。
 :::
 
 要从全局上下文中检索提供者（例如，如果该提供者已注入到其他模块中），请将 `{ strict: false }` 选项作为第二个参数传递给 `get()`。

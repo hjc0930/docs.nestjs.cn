@@ -12,7 +12,7 @@ A controller's purpose is to handle specific requests for the application. The *
 
 To create a basic controller, we use classes and **decorators**. Decorators link classes with the necessary metadata, allowing Nest to create a routing map that connects requests to their corresponding controllers.
 
-> info **Hint** To quickly create a CRUD controller with built-in [validation](./techniques/validation), you can use the CLI's [CRUD generator](./recipes/crud-generator#crud-生成器): `nest g resource [name]`.
+> info **Hint** To quickly create a CRUD controller with built-in [validation](/techniques/validation), you can use the CLI's [CRUD generator](./recipes/crud-generator#crud-生成器): `nest g resource [name]`.
 
 #### Routing
 
@@ -286,7 +286,7 @@ export class AccountController {
 
 For developers coming from other programming languages, it might be surprising to learn that in Nest, nearly everything is shared across incoming requests. This includes resources like the database connection pool, singleton services with global state, and more. It's important to understand that Node.js doesn't use the request/response Multi-Threaded Stateless Model, where each request is handled by a separate thread. As a result, using singleton instances in Nest is completely **safe** for our applications.
 
-That said, there are specific edge cases where having request-based lifetimes for controllers may be necessary. Examples include per-request caching in GraphQL applications, request tracking, or implementing multi-tenancy. You can learn more about controlling injection scopes [here](/fundamentals/injection-scopes).
+That said, there are specific edge cases where having request-based lifetimes for controllers may be necessary. Examples include per-request caching in GraphQL applications, request tracking, or implementing multi-tenancy. You can learn more about controlling injection scopes [here](/fundamentals/provider-scopes).
 
 #### Asynchronicity
 
@@ -335,7 +335,7 @@ async create(@Body() createCatDto: CreateCatDto) {
 }
 ```
 
-> info **Hint** Our `ValidationPipe` can filter out properties that should not be received by the method handler. In this case, we can whitelist the acceptable properties, and any property not included in the whitelist is automatically stripped from the resulting object. In the `CreateCatDto` example, our whitelist is the `name`, `age`, and `breed` properties. Learn more [here](./techniques/validation#剥离属性).
+> info **Hint** Our `ValidationPipe` can filter out properties that should not be received by the method handler. In this case, we can whitelist the acceptable properties, and any property not included in the whitelist is automatically stripped from the resulting object. In the `CreateCatDto` example, our whitelist is the `name`, `age`, and `breed` properties. Learn more [here](/techniques/validation#剥离属性).
 
 #### Query parameters
 

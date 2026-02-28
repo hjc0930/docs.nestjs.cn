@@ -241,7 +241,7 @@ CacheModule.registerAsync({
 }),
 ```
 
-其中 `KeyvRedis` 从 `@keyv/redis` 包导入。查看[缓存文档](./techniques/caching.md)了解更多。
+其中 `KeyvRedis` 从 `@keyv/redis` 包导入。查看[缓存文档](/techniques/caching.md)了解更多。
 
 :::warning 警告
 在此更新中，Keyv 库处理的缓存数据现在结构化为包含 `value` 和 `expires` 字段的对象，例如：`{"value": "yourData", "expires": 1678901234567}`。虽然 Keyv 在通过其 API 访问数据时会自动检索 `value` 字段，但如果您直接与缓存数据交互（例如，在 cache-manager API 之外）或需要支持使用先前版本的 `@nestjs/cache-manager` 编写的数据，了解这种更改很重要。

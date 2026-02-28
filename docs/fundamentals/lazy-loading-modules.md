@@ -63,7 +63,7 @@ const moduleRef = await this.lazyModuleLoader.load(() => LazyModule);
 
 其中 `lazy.module.ts` 是一个导出**常规 Nest 模块**的 TypeScript 文件（无需额外修改）。
 
-`LazyModuleLoader#load` 方法返回一个[模块引用](/fundamentals/module-reference) （属于 `LazyModule` 类型），该引用允许您遍历内部提供者列表，并使用注入令牌作为查找键获取任意提供者的引用。
+`LazyModuleLoader#load` 方法返回一个[模块引用](/fundamentals/module-referenceerence) （属于 `LazyModule` 类型），该引用允许您遍历内部提供者列表，并使用注入令牌作为查找键获取任意提供者的引用。
 
 例如，假设我们有一个 `LazyModule` 包含以下定义：
 
