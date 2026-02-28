@@ -1,5 +1,5 @@
 <!-- 此文件从 content/interceptors.md 自动生成，请勿直接修改此文件 -->
-<!-- 生成时间: 2026-02-28T06:24:45.980Z -->
+<!-- 生成时间: 2026-02-28T08:43:59.443Z -->
 <!-- 源文件: content/interceptors.md -->
 
 ### Interceptors
@@ -39,7 +39,6 @@ Consider, for example, an incoming `POST /cats` request. This request is destine
 The first use case we'll look at is to use an interceptor to log user interaction (e.g., storing user calls, asynchronously dispatching events or calculating a timestamp). We show a simple `LoggingInterceptor` below:
 
 ```typescript
-@@filename(logging.interceptor)
 import { Injectable, NestInterceptor, ExecutionContext, CallHandler } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
@@ -84,7 +83,6 @@ Since `handle()` returns an RxJS `Observable`, we have a wide choice of operator
 In order to set up the interceptor, we use the `@UseInterceptors()` decorator imported from the `@nestjs/common` package. Like [pipes](/pipes) and [guards](/guards), interceptors can be controller-scoped, method-scoped, or global-scoped.
 
 ```typescript
-@@filename(cats.controller)
 @UseInterceptors(LoggingInterceptor)
 export class CatsController {}
 ```
@@ -101,7 +99,6 @@ After... 1ms
 Note that we passed the `LoggingInterceptor` class (instead of an instance), leaving responsibility for instantiation to the framework and enabling dependency injection. As with pipes, guards, and exception filters, we can also pass an in-place instance:
 
 ```typescript
-@@filename(cats.controller)
 @UseInterceptors(new LoggingInterceptor())
 export class CatsController {}
 ```
@@ -118,7 +115,6 @@ app.useGlobalInterceptors(new LoggingInterceptor());
 Global interceptors are used across the whole application, for every controller and every route handler. In terms of dependency injection, global interceptors registered from outside of any module (with `useGlobalInterceptors()`, as in the example above) cannot inject dependencies since this is done outside the context of any module. In order to solve this issue, you can set up an interceptor **directly from any module** using the following construction:
 
 ```typescript
-@@filename(app.module)
 import { Module } from '@nestjs/common';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 
@@ -146,7 +142,6 @@ We already know that `handle()` returns an `Observable`. The stream contains the
 Let's create the `TransformInterceptor`, which will modify each response in a trivial way to demonstrate the process. It will use RxJS's `map()` operator to assign the response object to the `data` property of a newly created object, returning the new object to the client.
 
 ```typescript
-@@filename(transform.interceptor)
 import { Injectable, NestInterceptor, ExecutionContext, CallHandler } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -184,7 +179,6 @@ Interceptors have great value in creating re-usable solutions to requirements th
 For example, imagine we need to transform each occurrence of a `null` value to an empty string `''`. We can do it using one line of code and bind the interceptor globally so that it will automatically be used by each registered handler.
 
 ```typescript
-@@filename()
 import { Injectable, NestInterceptor, ExecutionContext, CallHandler } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -213,7 +207,6 @@ export class ExcludeNullInterceptor {
 Another interesting use-case is to take advantage of RxJS's `catchError()` operator to override thrown exceptions:
 
 ```typescript
-@@filename(errors.interceptor)
 import {
   Injectable,
   NestInterceptor,
@@ -252,7 +245,6 @@ export class ErrorsInterceptor {
 There are several reasons why we may sometimes want to completely prevent calling the handler and return a different value instead. An obvious example is to implement a cache to improve response time. Let's take a look at a simple **cache interceptor** that returns its response from a cache. In a realistic example, we'd want to consider other factors like TTL, cache invalidation, cache size, etc., but that's beyond the scope of this discussion. Here we'll provide a basic example that demonstrates the main concept.
 
 ```typescript
-@@filename(cache.interceptor)
 import { Injectable, NestInterceptor, ExecutionContext, CallHandler } from '@nestjs/common';
 import { Observable, of } from 'rxjs';
 
@@ -286,7 +278,6 @@ Our `CacheInterceptor` has a hardcoded `isCached` variable and a hardcoded respo
 The possibility of manipulating the stream using RxJS operators gives us many capabilities. Let's consider another common use case. Imagine you would like to handle **timeouts** on route requests. When your endpoint doesn't return anything after a period of time, you want to terminate with an error response. The following construction enables this:
 
 ```typescript
-@@filename(timeout.interceptor)
 import { Injectable, NestInterceptor, ExecutionContext, CallHandler, RequestTimeoutException } from '@nestjs/common';
 import { Observable, throwError, TimeoutError } from 'rxjs';
 import { catchError, timeout } from 'rxjs/operators';

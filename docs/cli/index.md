@@ -24,8 +24,6 @@ $ npm install -g @nestjs/cli
 或者，您可以使用 `npx @nestjs/cli@latest` 命令而无需全局安装 CLI。
 :::
 
-
-
 ## 基本工作流程
 
 安装后，您可以通过 `nest` 可执行文件直接从操作系统命令行调用 CLI 命令。通过输入以下内容查看可用的 `nest` 命令：
@@ -53,8 +51,6 @@ $ npm run start:dev
 :::info 提示
 我们推荐使用 [SWC 构建器](../recipes/swc.md)来获得更快的构建速度（比默认的 TypeScript 编译器快 10 倍）。
 :::
-
-
 
 ## 项目结构
 

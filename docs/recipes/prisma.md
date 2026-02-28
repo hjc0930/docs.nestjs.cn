@@ -1,6 +1,6 @@
-<!-- 此文件从 content/recipes\prisma.md 自动生成，请勿直接修改此文件 -->
-<!-- 生成时间: 2026-02-28T06:24:18.014Z -->
-<!-- 源文件: content/recipes\prisma.md -->
+<!-- 此文件从 content/recipes/prisma.md 自动生成，请勿直接修改此文件 -->
+<!-- 生成时间: 2026-02-24T02:53:52.196Z -->
+<!-- 源文件: content/recipes/prisma.md -->
 
 ### Prisma
 
@@ -8,7 +8,7 @@
 
 While Prisma can be used with plain JavaScript, it embraces TypeScript and provides a level to type-safety that goes beyond the guarantees other ORMs in the TypeScript ecosystem. You can find an in-depth comparison of the type-safety guarantees of Prisma and TypeORM [here](https://www.prisma.io/docs/orm/more/comparisons/prisma-and-typeorm#type-safety).
 
-> info **Note** If you want to get a quick overview of how Prisma works, you can follow the [Quickstart](https://www.prisma.io/docs/getting-started/prisma-orm/quickstart/prisma-postgres) or read the [Introduction](https://www.prisma.io/docs/orm/overview/introduction/what-is-prisma) in the [documentation](https://www.prisma.io/docs). There also are ready-to-run examples for [REST](https://github.com/prisma/prisma-examples/tree/b53fad046a6d55f0090ddce9fd17ec3f9b95cab3/orm/nest) and [GraphQL](https://github.com/prisma/prisma-examples/tree/b53fad046a6d55f0090ddce9fd17ec3f9b95cab3/orm/nest-graphql) in the [`prisma-examples`](https://github.com/prisma/prisma-examples/) repo.
+> info **Note** If you want to get a quick overview of how Prisma works, you can follow the [Quickstart](https://www.prisma.io/docs/getting-started/prisma-orm/quickstart/prisma-postgres) or read the [Introduction](https://www.prisma.io/docs/orm/overview/introduction/what-is-prisma) in the [documentation](https://www.prisma.io/docs). There also are ready-to-run examples for [REST](https://github.com/prisma/prisma-examples/tree/b53fad046a6d55f0090ddce9fd17ec3f9b95cab3/orm/nest) and [GraphQL](https://github.com/prisma/prisma-examples/tree/b53fad046a6d55f0090ddce9fd17ec3f9b95cab3/orm/nest-graphql) in the [__INLINE_CODE_30__](https://github.com/prisma/prisma-examples/) repo.
 
 #### Getting started
 
@@ -27,7 +27,7 @@ $ npm install -g @nestjs/cli
 $ nest new hello-prisma
 ```
 
-See the [First steps](/first-steps) page to learn more about the project files created by this command. Note also that you can now run `npm start` to start your application. The REST API running at `http://localhost:3000/` currently serves a single route that's implemented in `src/app.controller.ts`. Over the course of this guide, you'll implement additional routes to store and retrieve data about _users_ and _posts_.
+See the [First steps](./first-steps) page to learn more about the project files created by this command. Note also that you can now run `npm start` to start your application. The REST API running at `http://localhost:3000/` currently serves a single route that's implemented in `src/app.controller.ts`. Over the course of this guide, you'll implement additional routes to store and retrieve data about _users_ and _posts_.
 
 #### Set up Prisma
 
@@ -119,7 +119,7 @@ Now, open up `.env` and adjust the `DATABASE_URL` environment variable to look a
 DATABASE_URL="file:./dev.db"
 ```
 
-Make sure you have a [ConfigModule](/techniques/configuration) configured, otherwise the `DATABASE_URL` variable will not be picked up from `.env`.
+Make sure you have a [ConfigModule](./techniques/configuration) configured, otherwise the `DATABASE_URL` variable will not be picked up from `.env`.
 
 SQLite databases are simple files; no server is required to use a SQLite database. So instead of configuring a connection URL with a _host_ and _port_, you can just point it to a local file which in this case is called `dev.db`. This file will be created in the next step.
 

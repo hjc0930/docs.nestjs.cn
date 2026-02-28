@@ -1,22 +1,17 @@
-<!-- 此文件从 content/microservices\pipes.md 自动生成，请勿直接修改此文件 -->
-<!-- 生成时间: 2026-02-28T06:24:18.128Z -->
-<!-- 源文件: content/microservices\pipes.md -->
+<!-- 此文件从 content/microservices/pipes.md 自动生成，请勿直接修改此文件 -->
+<!-- 生成时间: 2026-02-24T02:57:06.340Z -->
+<!-- 源文件: content/microservices/pipes.md -->
 
-### Pipes
+### 管道
 
-There is no fundamental difference between [regular pipes](/pipes) and microservices pipes. The only difference is that instead of throwing `HttpException`, you should use `RpcException`.
+与微服务管道没有根本的不同。唯一的区别是，您应该使用 __INLINE_CODE_2__ 而不是抛出 __INLINE_CODE_1__。
 
-> info **Hint** The `RpcException` class is exposed from `@nestjs/microservices` package.
+> 提示 **提示** __INLINE_CODE_3__ 类来自 __INLINE_CODE_4__ 包。
 
-#### Binding pipes
+#### 绑定管道
 
-The following example uses a manually instantiated method-scoped pipe. Just as with HTTP based applications, you can also use controller-scoped pipes (i.e., prefix the controller class with a `@UsePipes()` decorator).
+以下示例使用手动实例化的方法作用域管道。与基于 HTTP 的应用程序一样，您也可以使用控制器作用域管道（即将控制器类prefixed with a __INLINE_CODE_5__ 装饰器）。
 
-```typescript
-@@filename()
-@UsePipes(new ValidationPipe({ exceptionFactory: (errors) => new RpcException(errors) }))
-@MessagePattern({ cmd: 'sum' })
-accumulate(data: number[]): number {
-  return (data || []).reduce((a, b) => a + b);
-}
+```bash
+$ npm i --save mqtt
 ```

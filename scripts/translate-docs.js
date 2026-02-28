@@ -365,14 +365,10 @@ Please translate the following English technical documentation to Chinese follow
       // 1. 移除所有 @@switch 分支（从 @@switch 行到代码块结束前的所有内容）
       content = content.replace(/@@switch[\s\S]*?(?=```|\n\n|$)/g, '');
 
-      // 2. 处理 @@filename 的两种场景：
-      // 场景A：@@filename 在代码块外，后面紧跟 ```lang 代码块起始符 → 替换为带注释的新代码块
-      content = content.replace(/\n?@@filename\s*\(([^)]*)\)\s*\n?```[\w]*/g, (match, filename) => {
-        return `\n\n\`\`\`typescript\n// @filename(${filename})`;
-      });
-
-      // 场景B：@@filename 在代码块内部（如 bash 块内独占一行）→ 直接删除该行
-      content = content.replace(/^@@filename\s*\([^)]*\)\s*\n/gm, '');
+      // 2. 直接删除所有 @@filename 行（无论在代码块内外）
+      // 原因：@@filename 在 NestJS 文档中始终出现在 ```typescript 代码块的第一行
+      // 用"替换为新代码块"会跨块边界错误匹配，破坏代码块结构
+      content = content.replace(/^@@filename\s*\([^)]*\)\s*\r?\n/gm, '');
 
       // 确保输出目录存在
       const outputDir = path.dirname(outputPath);

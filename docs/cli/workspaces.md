@@ -1,6 +1,6 @@
-<!-- 此文件从 content/cli\workspaces.md 自动生成，请勿直接修改此文件 -->
-<!-- 生成时间: 2026-02-28T06:24:18.290Z -->
-<!-- 源文件: content/cli\workspaces.md -->
+<!-- 此文件从 content/cli/workspaces.md 自动生成，请勿直接修改此文件 -->
+<!-- 生成时间: 2026-02-24T03:02:24.088Z -->
+<!-- 源文件: content/cli/workspaces.md -->
 
 ### Workspaces
 

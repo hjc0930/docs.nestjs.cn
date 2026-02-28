@@ -80,7 +80,6 @@ export class CatsController {}
 `@UseGuards()` 装饰器是从 `@nestjs/common` 包导入的。
 :::
 
-
 上面，我们传递了 `RolesGuard` 类（而非实例），将实例化的责任交给框架处理，并启用了依赖注入。与管道和异常过滤器类似，我们也可以直接传递一个即时实例：
 
 ```typescript
@@ -122,7 +121,6 @@ export class AppModule {}
 :::info 注意
 当使用此方法为守卫执行依赖注入时，请注意无论该结构应用于哪个模块，该守卫实际上是全局的。应在何处进行此操作？选择定义守卫的模块（如上例中的 `RolesGuard`）。此外，`useClass` 并非处理自定义提供程序注册的唯一方式。了解更多[此处](/fundamentals/dependency-injection) 。
 :::
-
 
 #### 为每个处理器设置角色
 
@@ -210,5 +208,4 @@ throw new UnauthorizedException();
 :::info 提示
 如果您正在寻找如何实现授权的实际示例，请查看[本章节](/security/authorization) 。
 :::
-
 

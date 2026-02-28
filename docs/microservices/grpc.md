@@ -1,6 +1,6 @@
-<!-- 此文件从 content/microservices\grpc.md 自动生成，请勿直接修改此文件 -->
-<!-- 生成时间: 2026-02-28T06:24:18.143Z -->
-<!-- 源文件: content/microservices\grpc.md -->
+<!-- 此文件从 content/microservices/grpc.md 自动生成，请勿直接修改此文件 -->
+<!-- 生成时间: 2026-02-24T02:57:24.596Z -->
+<!-- 源文件: content/microservices/grpc.md -->
 
 ### gRPC
 
@@ -22,8 +22,7 @@ $ npm i --save @grpc/grpc-js @grpc/proto-loader
 
 Like other Nest microservices transport layer implementations, you select the gRPC transporter mechanism using the `transport` property of the options object passed to the `createMicroservice()` method. In the following example, we'll set up a hero service. The `options` property provides metadata about that service; its properties are described <a href="microservices/grpc#选项">below</a>.
 
-```typescript
-@@filename(main)
+```typescript title="main"
 const app = await NestFactory.createMicroservice<MicroserviceOptions>(AppModule, {
   transport: Transport.GRPC,
   options: {
@@ -125,8 +124,7 @@ Next, we need to implement the service. To define a handler that fulfills this d
 
 > info **Hint** The `@MessagePattern()` decorator (<a href="microservices/basics#请求-响应">read more</a>) introduced in previous microservices chapters is not used with gRPC-based microservices. The `@GrpcMethod()` decorator effectively takes its place for gRPC-based microservices.
 
-```typescript
-@@filename(heroes.controller)
+```typescript title="heroes.controller"
 @Controller()
 export class HeroesController {
   @GrpcMethod('HeroesService', 'FindOne')
@@ -149,8 +147,7 @@ request metadata and `call` to obtain the `GrpcCall` object properties such as `
 
 Both `@GrpcMethod()` decorator arguments are optional. If called without the second argument (e.g., `'FindOne'`), Nest will automatically associate the `.proto` file rpc method with the handler based on converting the handler name to upper camel case (e.g., the `findOne` handler is associated with the `FindOne` rpc call definition). This is shown below.
 
-```typescript
-@@filename(heroes.controller)
+```typescript title="heroes.controller"
 @Controller()
 export class HeroesController {
   @GrpcMethod('HeroesService')
@@ -166,8 +163,7 @@ export class HeroesController {
 
 You can also omit the first `@GrpcMethod()` argument. In this case, Nest automatically associates the handler with the service definition from the proto definitions file based on the **class** name where the handler is defined. For example, in the following code, class `HeroesService` associates its handler methods with the `HeroesService` service definition in the `hero.proto` file based on the matching of the name `'HeroesService'`.
 
-```typescript
-@@filename(heroes.controller)
+```typescript title="heroes.controller"
 @Controller()
 export class HeroesService {
   @GrpcMethod()
@@ -267,8 +263,7 @@ interface HeroesService {
 
 A message handler is also able to return an `Observable`, in which case the result values will be emitted until the stream is completed.
 
-```typescript
-@@filename(heroes.controller)
+```typescript title="heroes.controller"
 @Get()
 call(): Observable<any> {
   return this.heroesService.findOne({ id: 1 });
@@ -306,8 +301,7 @@ $ npm i --save @grpc/reflection
 
 Then it can be hooked into the gRPC server using the `onLoadPackageDefinition` hook in your gRPC server options, as follows:
 
-```typescript
-@@filename(main)
+```typescript title="main"
 import { ReflectionService } from '@grpc/reflection';
 
 const app = await NestFactory.createMicroservice<MicroserviceOptions>(AppModule, {
@@ -400,7 +394,6 @@ bidiHello(messages: Observable<any>, metadata: Metadata, call: ServerDuplexStrea
     complete: onComplete,
   });
 
-
   return subject.asObservable();
 }
 ```
@@ -474,8 +467,7 @@ $ npm i --save grpc-health-check
 
 Then it can be hooked into the gRPC service using the `onLoadPackageDefinition` hook in your gRPC server options, as follows. Note that the `protoPath` needs to have both the health check and the hero package.
 
-```typescript
-@@filename(main)
+```typescript title="main"
 import { HealthImplementation, protoPath as healthCheckProtoPath } from 'grpc-health-check';
 
 const app = await NestFactory.createMicroservice<MicroserviceOptions>(AppModule, {
@@ -506,8 +498,7 @@ To read the metadata in `@GrpcMethod()` handler, use the second argument (metada
 
 To send back metadata from the handler, use the `ServerUnaryCall#sendMetadata()` method (third handler argument).
 
-```typescript
-@@filename(heroes.controller)
+```typescript title="heroes.controller"
 @Controller()
 export class HeroesService {
   @GrpcMethod()

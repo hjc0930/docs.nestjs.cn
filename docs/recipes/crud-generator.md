@@ -1,39 +1,36 @@
-<!-- 此文件从 content/recipes\crud-generator.md 自动生成，请勿直接修改此文件 -->
-<!-- 生成时间: 2026-02-28T06:24:18.040Z -->
-<!-- 源文件: content/recipes\crud-generator.md -->
+### CRUD 生成器（仅限 TypeScript）
 
-### CRUD generator (TypeScript only)
+在项目的整个生命周期中，当我们构建新功能时，经常需要向应用程序添加新资源。这些资源通常需要多次重复操作，每次定义新资源时我们都必须重复这些操作。
 
-Throughout the life span of a project, when we build new features, we often need to add new resources to our application. These resources typically require multiple, repetitive operations that we have to repeat each time we define a new resource.
+#### 介绍
 
-#### Introduction
+让我们设想一个真实场景：需要为两个实体（例如**用户**和**产品**实体）暴露 CRUD 端点。按照最佳实践，每个实体都需要执行以下多项操作：
 
-Let's imagine a real-world scenario, where we need to expose CRUD endpoints for 2 entities, let's say **User** and **Product** entities.
-Following the best practices, for each entity we would have to perform several operations, as follows:
+- 生成模块（`nest g mo`）以保持代码组织性并建立清晰边界（将相关组件分组）
+- 生成控制器（`nest g co`）来定义 CRUD 路由（或 GraphQL 应用的查询/变更）
+- 生成服务（`nest g s`）来实现和隔离业务逻辑
+- 生成实体类/接口来表示资源数据结构
+- 生成数据传输对象（或 GraphQL 应用的输入）来定义数据在网络中的传输格式
 
-- Generate a module (`nest g mo`) to keep code organized and establish clear boundaries (grouping related components)
-- Generate a controller (`nest g co`) to define CRUD routes (or queries/mutations for GraphQL applications)
-- Generate a service (`nest g s`) to implement & isolate business logic
-- Generate an entity class/interface to represent the resource data shape
-- Generate Data Transfer Objects (or inputs for GraphQL applications) to define how the data will be sent over the network
+步骤真不少！
 
-That's a lot of steps!
+为了加速这一重复性流程，[Nest CLI](/cli/overview) 提供了一个生成器（schematic），它能自动生成所有样板代码，帮助我们省去这些繁琐操作，大幅简化开发体验。
 
-To help speed up this repetitive process, [Nest CLI](/cli/overview) provides a generator (schematic) that automatically generates all the boilerplate code to help us avoid doing all of this, and make the developer experience much simpler.
+:::info 注意
+该 schematic 支持生成 **HTTP** 控制器、 **微服务** 控制器、**GraphQL** 解析器（包括代码优先和架构优先两种模式）以及 **WebSocket** 网关。
+:::
 
-> info **Note** The schematic supports generating **HTTP** controllers, **Microservice** controllers, **GraphQL** resolvers (both code first and schema first), and **WebSocket** Gateways.
+#### 生成新资源
 
-#### Generating a new resource
-
-To create a new resource, simply run the following command in the root directory of your project:
+要创建新资源，只需在项目根目录下运行以下命令：
 
 ```shell
 $ nest g resource
 ```
 
-`nest g resource` command not only generates all the NestJS building blocks (module, service, controller classes) but also an entity class, DTO classes as well as the testing (`.spec`) files.
+`nest g resource` 命令不仅会生成所有 NestJS 构建块（模块、服务、控制器类），还会生成实体类、DTO 类以及测试文件（`.spec`）。
 
-Below you can see the generated controller file (for REST API):
+下方可以看到生成的控制器文件（用于 REST API）：
 
 ```typescript
 @Controller('users')
@@ -67,13 +64,15 @@ export class UsersController {
 }
 ```
 
-Also, it automatically creates placeholders for all the CRUD endpoints (routes for REST APIs, queries and mutations for GraphQL, message subscribes for both Microservices and WebSocket Gateways) - all without having to lift a finger.
+此外，它会自动为所有 CRUD 端点创建占位符（REST API 的路由、GraphQL 的查询和变更、微服务和 WebSocket 网关的消息订阅）——所有这些都无需手动操作。
 
-> warning **Note** Generated service classes are **not** tied to any specific **ORM (or data source)**. This makes the generator generic enough to meet the needs of any project. By default, all methods will contain placeholders, allowing you to populate it with the data sources specific to your project.
+:::warning 注意
+生成的服务类**不**与任何特定的 **ORM（或数据源）** 绑定。这使得生成器具有足够通用性，可满足任何项目的需求。默认情况下，所有方法都将包含占位符，允许您根据项目特定的数据源进行填充。
+:::
 
-Likewise, if you want to generate resolvers for a GraphQL application, simply select the `GraphQL (code first)` (or `GraphQL (schema first)`) as your transport layer.
+同样地，如果您想为 GraphQL 应用生成解析器，只需选择 `GraphQL (code first)`（或 `GraphQL (schema first)`）作为传输层。
 
-In this case, NestJS will generate a resolver class instead of a REST API controller:
+在这种情况下，NestJS 将生成解析器类而非 REST API 控制器：
 
 ```shell
 $ nest g resource users
@@ -91,9 +90,11 @@ $ nest g resource users
 > UPDATE src/app.module.ts (312 bytes)
 ```
 
-> info **Hint** To avoid generating test files, you can pass the `--no-spec` flag, as follows: `nest g resource users --no-spec`
+:::info 提示
+若要避免生成测试文件，可传入 `--no-spec` 标志，如下所示： `nest g resource users --no-spec`
+:::
 
-We can see below, that not only were all boilerplate mutations and queries created, but everything is all tied together. We're utilizing the `UsersService`, `User` Entity, and our DTO's.
+我们可以看到，不仅所有样板化的变更和查询都已生成，而且所有内容都已完美整合。我们正在使用 `UsersService` 服务、`User` 实体以及我们的 DTO 对象。
 
 ```typescript
 import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql';

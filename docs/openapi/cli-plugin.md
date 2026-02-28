@@ -1,6 +1,6 @@
-<!-- 此文件从 content/openapi\cli-plugin.md 自动生成，请勿直接修改此文件 -->
-<!-- 生成时间: 2026-02-28T06:24:18.117Z -->
-<!-- 源文件: content/openapi\cli-plugin.md -->
+<!-- 此文件从 content/openapi/cli-plugin.md 自动生成，请勿直接修改此文件 -->
+<!-- 生成时间: 2026-02-24T02:56:27.877Z -->
+<!-- 源文件: content/openapi/cli-plugin.md -->
 
 ### CLI Plugin
 
@@ -61,7 +61,7 @@ export class CreateUserDto {
 
 Hence, if you intend to rely on automatic annotations for generating documentations and still wish for runtime validations, then the class-validator decorators are still necessary.
 
-> info **Hint** When using [mapped types utilities](/openapi/mapped-types) (like `PartialType`) in DTOs import them from `@nestjs/swagger` instead of `@nestjs/mapped-types` for the plugin to pick up the schema.
+> info **Hint** When using [mapped types utilities](./openapi/mapped-types) (like `PartialType`) in DTOs import them from `@nestjs/swagger` instead of `@nestjs/mapped-types` for the plugin to pick up the schema.
 
 The plugin adds appropriate decorators on the fly based on the **Abstract Syntax Tree**. Thus you won't have to struggle with `@ApiProperty` decorators scattered throughout the code.
 
@@ -225,7 +225,7 @@ export interface PluginOptions {
   <tr>
     <td><code>esmCompatible</code></td>
     <td><code>false</code></td>
-    <td>If set to true, resolves syntax errors encountered when using ESM (<code>&#123; "type": "module" &#125;</code>).</td>
+    <td>If set to true, resolves syntax errors encountered when using ESM (<code>&#123; "type": "module" }</code>).</td>
   </tr>
 </table>
 

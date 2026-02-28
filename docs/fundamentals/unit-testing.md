@@ -1,6 +1,6 @@
-<!-- 此文件从 content/fundamentals\unit-testing.md 自动生成，请勿直接修改此文件 -->
-<!-- 生成时间: 2026-02-28T06:24:18.066Z -->
-<!-- 源文件: content/fundamentals\unit-testing.md -->
+<!-- 此文件从 content/fundamentals/unit-testing.md 自动生成，请勿直接修改此文件 -->
+<!-- 生成时间: 2026-02-24T02:59:52.340Z -->
+<!-- 源文件: content/fundamentals/unit-testing.md -->
 
 ### Testing
 
@@ -27,33 +27,13 @@ $ npm i --save-dev @nestjs/testing
 
 In the following example, we test two classes: `CatsController` and `CatsService`. As mentioned, [Jest](https://github.com/facebook/jest) is provided as the default testing framework. It serves as a test-runner and also provides assert functions and test-double utilities that help with mocking, spying, etc. In the following basic test, we manually instantiate these classes, and ensure that the controller and service fulfill their API contract.
 
-```typescript
-@@filename(cats.controller.spec)
+```typescript title="cats.controller.spec"
 import { CatsController } from './cats.controller';
 import { CatsService } from './cats.service';
 
 describe('CatsController', () => {
   let catsController: CatsController;
   let catsService: CatsService;
-
-  beforeEach(() => {
-    catsService = new CatsService();
-    catsController = new CatsController(catsService);
-  });
-
-  describe('findAll', () => {
-    it('should return an array of cats', async () => {
-      const result = ['test'];
-      jest.spyOn(catsService, 'findAll').mockImplementation(() => result);
-
-      expect(await catsController.findAll()).toBe(result);
-    });
-  });
-});
-
-describe('CatsController', () => {
-  let catsController;
-  let catsService;
 
   beforeEach(() => {
     catsService = new CatsService();
@@ -79,8 +59,7 @@ Because the above sample is trivial, we aren't really testing anything Nest-spec
 
 The `@nestjs/testing` package provides a set of utilities that enable a more robust testing process. Let's rewrite the previous example using the built-in `Test` class:
 
-```typescript
-@@filename(cats.controller.spec)
+```typescript title="cats.controller.spec"
 import { Test } from '@nestjs/testing';
 import { CatsController } from './cats.controller';
 import { CatsService } from './cats.service';
@@ -88,30 +67,6 @@ import { CatsService } from './cats.service';
 describe('CatsController', () => {
   let catsController: CatsController;
   let catsService: CatsService;
-
-  beforeEach(async () => {
-    const moduleRef = await Test.createTestingModule({
-        controllers: [CatsController],
-        providers: [CatsService],
-      }).compile();
-
-    catsService = moduleRef.get(CatsService);
-    catsController = moduleRef.get(CatsController);
-  });
-
-  describe('findAll', () => {
-    it('should return an array of cats', async () => {
-      const result = ['test'];
-      jest.spyOn(catsService, 'findAll').mockImplementation(() => result);
-
-      expect(await catsController.findAll()).toBe(result);
-    });
-  });
-});
-
-describe('CatsController', () => {
-  let catsController;
-  let catsService;
 
   beforeEach(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -206,43 +161,12 @@ You can also retrieve these mocks out of the testing container as you normally w
 
 Unlike unit testing, which focuses on individual modules and classes, end-to-end (e2e) testing covers the interaction of classes and modules at a more aggregate level -- closer to the kind of interaction that end-users will have with the production system. As an application grows, it becomes hard to manually test the end-to-end behavior of each API endpoint. Automated end-to-end tests help us ensure that the overall behavior of the system is correct and meets project requirements. To perform e2e tests we use a similar configuration to the one we just covered in **unit testing**. In addition, Nest makes it easy to use the [Supertest](https://github.com/visionmedia/supertest) library to simulate HTTP requests.
 
-```typescript
-@@filename(cats.e2e-spec)
+```typescript title="cats.e2e-spec"
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { CatsModule } from '../../src/cats/cats.module';
 import { CatsService } from '../../src/cats/cats.service';
 import { INestApplication } from '@nestjs/common';
-
-describe('Cats', () => {
-  let app: INestApplication;
-  let catsService = { findAll: () => ['test'] };
-
-  beforeAll(async () => {
-    const moduleRef = await Test.createTestingModule({
-      imports: [CatsModule],
-    })
-      .overrideProvider(CatsService)
-      .useValue(catsService)
-      .compile();
-
-    app = moduleRef.createNestApplication();
-    await app.init();
-  });
-
-  it(`/GET cats`, () => {
-    return request(app.getHttpServer())
-      .get('/cats')
-      .expect(200)
-      .expect({
-        data: catsService.findAll(),
-      });
-  });
-
-  afterAll(async () => {
-    await app.close();
-  });
-});
 
 describe('Cats', () => {
   let app: INestApplication;
@@ -318,7 +242,7 @@ We simulate HTTP tests using the `request()` function from Supertest. We want th
 
 In this example, we also provide an alternate (test-double) implementation of the `CatsService` which simply returns a hard-coded value that we can test for. Use `overrideProvider()` to provide such an alternate implementation. Similarly, Nest provides methods to override modules, guards, interceptors, filters and pipes with the `overrideModule()`, `overrideGuard()`, `overrideInterceptor()`, `overrideFilter()`, and `overridePipe()` methods respectively.
 
-Each of the override methods (except for `overrideModule()`) returns an object with 3 different methods that mirror those described for [custom providers](/fundamentals/custom-providers):
+Each of the override methods (except for `overrideModule()`) returns an object with 3 different methods that mirror those described for [custom providers](./fundamentals/custom-providers):
 
 - `useClass`: you supply a class that will be instantiated to provide the instance to override the object (provider, guard, etc.).
 - `useValue`: you supply an instance that will override the object.
@@ -432,7 +356,7 @@ Now all your tests will use the `MockAuthGuard` on every request.
 
 [Request-scoped](/fundamentals/injection-scopes) providers are created uniquely for each incoming **request**. The instance is garbage-collected after the request has completed processing. This poses a problem, because we can't access a dependency injection sub-tree generated specifically for a tested request.
 
-We know (based on the sections above) that the `resolve()` method can be used to retrieve a dynamically instantiated class. Also, as described <a href="/fundamentals/module-ref#解析作用域提供者">here</a>, we know we can pass a unique context identifier to control the lifecycle of a DI container sub-tree. How do we leverage this in a testing context?
+We know (based on the sections above) that the `resolve()` method can be used to retrieve a dynamically instantiated class. Also, as described <a href="./fundamentals/module-ref#解析作用域提供者">here</a>, we know we can pass a unique context identifier to control the lifecycle of a DI container sub-tree. How do we leverage this in a testing context?
 
 The strategy is to generate a context identifier beforehand and force Nest to use this particular ID to create a sub-tree for all incoming requests. In this way we'll be able to retrieve instances created for a tested request.
 

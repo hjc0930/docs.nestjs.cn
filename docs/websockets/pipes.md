@@ -1,19 +1,16 @@
-<!-- 此文件从 content/websockets\pipes.md 自动生成，请勿直接修改此文件 -->
-<!-- 生成时间: 2026-02-28T06:24:18.050Z -->
-<!-- 源文件: content/websockets\pipes.md -->
+### 管道
 
-### Pipes
+[常规管道](/overview/pipes)与 WebSocket 管道之间没有根本区别。唯一的区别是，您应该使用 `WsException` 而不是抛出 `HttpException`。此外，所有管道将仅应用于 `data` 参数（因为验证或转换 `client` 实例没有意义）。
 
-There is no fundamental difference between [regular pipes](/pipes) and web sockets pipes. The only difference is that instead of throwing `HttpException`, you should use `WsException`. In addition, all pipes will be only applied to the `data` parameter (because validating or transforming `client` instance is useless).
+:::info 提示
+`WsException` 类从 `@nestjs/websockets` 包导出。
+:::
 
-> info **Hint** The `WsException` class is exposed from `@nestjs/websockets` package.
+#### 绑定管道
 
-#### Binding pipes
+以下示例使用手动实例化的方法作用域管道。就像基于 HTTP 的应用程序一样，您也可以使用网关作用域管道（即，在网关类前加上 `@UsePipes()` 装饰器）。
 
-The following example uses a manually instantiated method-scoped pipe. Just as with HTTP based applications, you can also use gateway-scoped pipes (i.e., prefix the gateway class with a `@UsePipes()` decorator).
-
-```typescript
-@@filename()
+ ```typescript title="app.gateway.ts"
 @UsePipes(new ValidationPipe({ exceptionFactory: (errors) => new WsException(errors) }))
 @SubscribeMessage('events')
 handleEvent(client: Client, data: unknown): WsResponse<unknown> {
@@ -21,3 +18,13 @@ handleEvent(client: Client, data: unknown): WsResponse<unknown> {
   return { event, data };
 }
 ```
+
+```javascript title="app.gateway.js"
+@UsePipes(new ValidationPipe({ exceptionFactory: (errors) => new WsException(errors) }))
+@SubscribeMessage('events')
+handleEvent(client, data) {
+  const event = 'events';
+  return { event, data };
+}
+```
+

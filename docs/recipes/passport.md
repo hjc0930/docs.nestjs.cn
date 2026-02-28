@@ -1,6 +1,6 @@
-<!-- 此文件从 content/recipes\passport.md 自动生成，请勿直接修改此文件 -->
-<!-- 生成时间: 2026-02-28T06:24:18.017Z -->
-<!-- 源文件: content/recipes\passport.md -->
+<!-- 此文件从 content/recipes/passport.md 自动生成，请勿直接修改此文件 -->
+<!-- 生成时间: 2026-02-24T02:53:52.278Z -->
+<!-- 源文件: content/recipes/passport.md -->
 
 ### Passport (authentication)
 
@@ -56,8 +56,7 @@ $ nest g service users
 
 Replace the default contents of these generated files as shown below. For our sample app, the `UsersService` simply maintains a hard-coded in-memory list of users, and a find method to retrieve one by username. In a real app, this is where you'd build your user model and persistence layer, using your library of choice (e.g., TypeORM, Sequelize, Mongoose, etc.).
 
-```typescript
-@@filename(users/users.service)
+```typescript title="users/users.service"
 import { Injectable } from '@nestjs/common';
 
 // This should be a real class/interface representing a user entity
@@ -86,8 +85,7 @@ export class UsersService {
 
 In the `UsersModule`, the only change needed is to add the `UsersService` to the exports array of the `@Module` decorator so that it is visible outside this module (we'll soon use it in our `AuthService`).
 
-```typescript
-@@filename(users/users.module)
+```typescript title="users/users.module"
 import { Module } from '@nestjs/common';
 import { UsersService } from './users.service';
 
@@ -100,8 +98,7 @@ export class UsersModule {}
 
 Our `AuthService` has the job of retrieving a user and verifying the password. We create a `validateUser()` method for this purpose. In the code below, we use a convenient ES6 spread operator to strip the password property from the user object before returning it. We'll be calling into the `validateUser()` method from our Passport local strategy in a moment.
 
-```typescript
-@@filename(auth/auth.service)
+```typescript title="auth/auth.service"
 import { Injectable } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 
@@ -124,8 +121,7 @@ export class AuthService {
 
 Now, we update our `AuthModule` to import the `UsersModule`.
 
-```typescript
-@@filename(auth/auth.module)
+```typescript title="auth/auth.module"
 import { Module } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { UsersModule } from '../users/users.module';
@@ -141,8 +137,7 @@ export class AuthModule {}
 
 Now we can implement our Passport **local authentication strategy**. Create a file called `local.strategy.ts` in the `auth` folder, and add the following code:
 
-```typescript
-@@filename(auth/local.strategy)
+```typescript title="auth/local.strategy"
 import { Strategy } from 'passport-local';
 import { PassportStrategy } from '@nestjs/passport';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
@@ -166,7 +161,7 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
 
 We've followed the recipe described earlier for all Passport strategies. In our use case with passport-local, there are no configuration options, so our constructor simply calls `super()`, without an options object.
 
-> info **Hint** We can pass an options object in the call to `super()` to customize the behavior of the passport strategy. In this example, the passport-local strategy by default expects properties called `username` and `password` in the request body. Pass an options object to specify different property names, for example: `super({{ '{' }} usernameField: 'email' {{ '}' }})`. See the [Passport documentation](http://www.passportjs.org/docs/configure/) for more information.
+> info **Hint** We can pass an options object in the call to `super()` to customize the behavior of the passport strategy. In this example, the passport-local strategy by default expects properties called `username` and `password` in the request body. Pass an options object to specify different property names, for example: `super({ usernameField: 'email' })`. See the [Passport documentation](http://www.passportjs.org/docs/configure/) for more information.
 
 We've also implemented the `validate()` method. For each strategy, Passport will call the verify function (implemented with the `validate()` method in `@nestjs/passport`) using an appropriate strategy-specific set of parameters. For the local-strategy, Passport expects a `validate()` method with the following signature: `validate(username: string, password:string): any`.
 
@@ -176,8 +171,7 @@ Typically, the only significant difference in the `validate()` method for each s
 
 We need to configure our `AuthModule` to use the Passport features we just defined. Update `auth.module.ts` to look like this:
 
-```typescript
-@@filename(auth/auth.module)
+```typescript title="auth/auth.module"
 import { Module } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { UsersModule } from '../users/users.module';
@@ -216,8 +210,7 @@ With the strategy in place, we can now implement a bare-bones `/auth/login` rout
 
 Open the `app.controller.ts` file and replace its contents with the following:
 
-```typescript
-@@filename(app.controller)
+```typescript title="app.controller"
 import { Controller, Request, Post, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 
@@ -245,8 +238,7 @@ $ # result -> {"userId":1,"username":"john"}
 
 While this works, passing the strategy name directly to the `AuthGuard()` introduces magic strings in the codebase. Instead, we recommend creating your own class, as shown below:
 
-```typescript
-@@filename(auth/local-auth.guard)
+```typescript title="auth/local-auth.guard"
 import { Injectable } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 
@@ -299,8 +291,7 @@ Let's take a closer look at how a `POST /auth/login` request is handled. We've d
 
 With this in mind, we can now finally generate a real JWT, and return it in this route. To keep our services cleanly modularized, we'll handle generating the JWT in the `authService`. Open the `auth.service.ts` file in the `auth` folder, and add the `login()` method, and import the `JwtService` as shown:
 
-```typescript
-@@filename(auth/auth.service)
+```typescript title="auth/auth.service"
 import { Injectable } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
@@ -328,7 +319,6 @@ export class AuthService {
     };
   }
 }
-
 ```
 
 We're using the `@nestjs/jwt` library, which supplies a `sign()` function to generate our JWT from a subset of the `user` object properties, which we then return as a simple object with a single `access_token` property. Note: we choose a property name of `sub` to hold our `userId` value to be consistent with JWT standards. Don't forget to inject the JwtService provider into the `AuthService`.
@@ -337,8 +327,7 @@ We now need to update the `AuthModule` to import the new dependencies and config
 
 First, create `constants.ts` in the `auth` folder, and add the following code:
 
-```typescript
-@@filename(auth/constants)
+```typescript title="auth/constants"
 export const jwtConstants = {
   secret: 'DO NOT USE THIS VALUE. INSTEAD, CREATE A COMPLEX SECRET AND KEEP IT SAFE OUTSIDE OF THE SOURCE CODE.',
 };
@@ -350,8 +339,7 @@ We'll use this to share our key between the JWT signing and verifying steps.
 
 Now, open `auth.module.ts` in the `auth` folder and update it to look like this:
 
-```typescript
-@@filename(auth/auth.module)
+```typescript title="auth/auth.module"
 import { Module } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LocalStrategy } from './local.strategy';
@@ -379,8 +367,7 @@ We configure the `JwtModule` using `register()`, passing in a configuration obje
 
 Now we can update the `/auth/login` route to return a JWT.
 
-```typescript
-@@filename(app.controller)
+```typescript title="app.controller"
 import { Controller, Request, Post, UseGuards } from '@nestjs/common';
 import { LocalAuthGuard } from './auth/local-auth.guard';
 import { AuthService } from './auth/auth.service';
@@ -410,8 +397,7 @@ $ # Note: above JWT truncated
 
 We can now address our final requirement: protecting endpoints by requiring a valid JWT be present on the request. Passport can help us here too. It provides the [passport-jwt](https://github.com/mikenicholson/passport-jwt) strategy for securing RESTful endpoints with JSON Web Tokens. Start by creating a file called `jwt.strategy.ts` in the `auth` folder, and add the following code:
 
-```typescript
-@@filename(auth/jwt.strategy)
+```typescript title="auth/jwt.strategy"
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
 import { Injectable } from '@nestjs/common';
@@ -449,8 +435,7 @@ It's also worth pointing out that this approach leaves us room ('hooks' as it we
 
 Add the new `JwtStrategy` as a provider in the `AuthModule`:
 
-```typescript
-@@filename(auth/auth.module)
+```typescript title="auth/auth.module"
 import { Module } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LocalStrategy } from './local.strategy';
@@ -479,8 +464,7 @@ By importing the same secret used when we signed the JWT, we ensure that the **v
 
 Finally, we define the `JwtAuthGuard` class which extends the built-in `AuthGuard`:
 
-```typescript
-@@filename(auth/jwt-auth.guard)
+```typescript title="auth/jwt-auth.guard"
 import { Injectable } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 
@@ -494,8 +478,7 @@ We can now implement our protected route and its associated Guard.
 
 Open the `app.controller.ts` file and update it as shown below:
 
-```typescript
-@@filename(app.controller)
+```typescript title="app.controller"
 import { Controller, Get, Request, Post, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
 import { LocalAuthGuard } from './auth/local-auth.guard';
@@ -710,7 +693,7 @@ Then, you refer to this via a decorator like `@UseGuards(AuthGuard('myjwt'))`.
 
 #### GraphQL
 
-In order to use an AuthGuard with [GraphQL](/graphql/quick-start), extend the built-in `AuthGuard` class and override the `getRequest()` method.
+In order to use an AuthGuard with [GraphQL](./graphql/quick-start), extend the built-in `AuthGuard` class and override the `getRequest()` method.
 
 ```typescript
 @Injectable()

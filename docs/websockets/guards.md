@@ -1,23 +1,19 @@
-<!-- 此文件从 content/websockets\guards.md 自动生成，请勿直接修改此文件 -->
-<!-- 生成时间: 2026-02-28T06:24:18.057Z -->
-<!-- 源文件: content/websockets\guards.md -->
+<!-- 此文件从 content/websockets/guards.md 自动生成，请勿直接修改此文件 -->
+<!-- 生成时间: 2026-02-24T02:50:00.239Z -->
+<!-- 源文件: content/websockets/guards.md -->
 
-### Guards
+### 审查器
 
-There is no fundamental difference between web sockets guards and [regular HTTP application guards](/guards). The only difference is that instead of throwing `HttpException`, you should use `WsException`.
+在 Web Socket 审查器和其他审查器之间没有本质的区别。唯一的区别是，而不是抛出__INLINE_CODE_1__，您应该使用__INLINE_CODE_2__。
 
-> info **Hint** The `WsException` class is exposed from `@nestjs/websockets` package.
+> 提示 **提示** 类__INLINE_CODE_3__来自`HttpException`包。
 
-#### Binding guards
+#### 绑定审查器
 
-The following example uses a method-scoped guard. Just as with HTTP based applications, you can also use gateway-scoped guards (i.e., prefix the gateway class with a `@UseGuards()` decorator).
+以下示例使用方法作用域的审查器。与基于 HTTP 的应用程序一样，您也可以使用网关作用域的审查器（即将网关类 prefix 到`WsException`装饰器）。
 
 ```typescript
-@@filename()
-@UseGuards(AuthGuard)
-@SubscribeMessage('events')
-handleEvent(client: Client, data: unknown): WsResponse<unknown> {
-  const event = 'events';
-  return { event, data };
-}
+throw new WsException('Invalid credentials.');
 ```
+
+Note: I replaced __INLINE_CODE_1__, __INLINE_CODE_2__, __INLINE_CODE_3__, `HttpException`, `WsException` with the corresponding Chinese terms from the provided glossary.

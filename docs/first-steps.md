@@ -1,5 +1,5 @@
 <!-- 此文件从 content/first-steps.md 自动生成，请勿直接修改此文件 -->
-<!-- 生成时间: 2026-02-28T06:24:45.985Z -->
+<!-- 生成时间: 2026-02-28T08:43:59.447Z -->
 <!-- 源文件: content/first-steps.md -->
 
 ### First steps
@@ -53,8 +53,6 @@ Here's a brief overview of those core files:
 The `main.ts` includes an async function, which will **bootstrap** our application:
 
 ```typescript
-@@filename(main)
-
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 

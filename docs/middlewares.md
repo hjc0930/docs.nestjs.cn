@@ -1,5 +1,5 @@
 <!-- 此文件从 content/middlewares.md 自动生成，请勿直接修改此文件 -->
-<!-- 生成时间: 2026-02-28T06:24:45.974Z -->
+<!-- 生成时间: 2026-02-28T08:43:59.438Z -->
 <!-- 源文件: content/middlewares.md -->
 
 ### Middleware
@@ -27,7 +27,6 @@ You implement custom Nest middleware in either a function, or in a class with an
 > warning **Warning** `Express` and `fastify` handle middleware differently and provide different method signatures, read more [here](/techniques/performance#middleware).
 
 ```typescript
-@@filename(logger.middleware)
 import { Injectable, NestMiddleware } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
 
@@ -57,7 +56,6 @@ Nest middleware fully supports Dependency Injection. Just as with providers and 
 There is no place for middleware in the `@Module()` decorator. Instead, we set them up using the `configure()` method of the module class. Modules that include middleware have to implement the `NestModule` interface. Let's set up the `LoggerMiddleware` at the `AppModule` level.
 
 ```typescript
-@@filename(app.module)
 import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
 import { LoggerMiddleware } from './common/middleware/logger.middleware';
 import { CatsModule } from './cats/cats.module';
@@ -88,7 +86,6 @@ export class AppModule {
 In the above example we have set up the `LoggerMiddleware` for the `/cats` route handlers that were previously defined inside the `CatsController`. We may also further restrict a middleware to a particular request method by passing an object containing the route `path` and request `method` to the `forRoutes()` method when configuring the middleware. In the example below, notice that we import the `RequestMethod` enum to reference the desired request method type.
 
 ```typescript
-@@filename(app.module)
 import { Module, NestModule, RequestMethod, MiddlewareConsumer } from '@nestjs/common';
 import { LoggerMiddleware } from './common/middleware/logger.middleware';
 import { CatsModule } from './cats/cats.module';
@@ -147,7 +144,6 @@ forRoutes({
 The `MiddlewareConsumer` is a helper class. It provides several built-in methods to manage middleware. All of them can be simply **chained** in the [fluent style](https://en.wikipedia.org/wiki/Fluent_interface). The `forRoutes()` method can take a single string, multiple strings, a `RouteInfo` object, a controller class and even multiple controller classes. In most cases you'll probably just pass a list of **controllers** separated by commas. Below is an example with a single controller:
 
 ```typescript
-@@filename(app.module)
 import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
 import { LoggerMiddleware } from './common/middleware/logger.middleware';
 import { CatsModule } from './cats/cats.module';
@@ -206,7 +202,6 @@ This approach provides flexibility in applying or excluding middleware based on 
 The `LoggerMiddleware` class we've been using is quite simple. It has no members, no additional methods, and no dependencies. Why can't we just define it in a simple function instead of a class? In fact, we can. This type of middleware is called **functional middleware**. Let's transform the logger middleware from class-based into functional middleware to illustrate the difference:
 
 ```typescript
-@@filename(logger.middleware)
 import { Request, Response, NextFunction } from 'express';
 
 export function logger(req: Request, res: Response, next: NextFunction) {
@@ -218,7 +213,6 @@ export function logger(req: Request, res: Response, next: NextFunction) {
 And use it within the `AppModule`:
 
 ```typescript
-@@filename(app.module)
 consumer
   .apply(logger)
   .forRoutes(CatsController);
@@ -239,7 +233,6 @@ consumer.apply(cors(), helmet(), logger).forRoutes(CatsController);
 If we want to bind middleware to every registered route at once, we can use the `use()` method that is supplied by the `INestApplication` instance:
 
 ```typescript
-@@filename(main)
 const app = await NestFactory.create(AppModule);
 app.use(logger);
 await app.listen(process.env.PORT ?? 3000);

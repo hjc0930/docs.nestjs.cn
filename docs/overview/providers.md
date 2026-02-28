@@ -12,7 +12,6 @@
 由于 Nest 允许您以面向对象的方式设计和组织依赖关系，我们强烈建议遵循 [SOLID 原则](https://en.wikipedia.org/wiki/SOLID) 。
 :::
 
-
 #### 服务
 
 让我们从创建一个简单的 `CatsService` 开始。该服务将处理数据存储和检索，并将被 `CatsController` 使用。由于其在管理应用逻辑中的角色，它非常适合被定义为一个提供者。

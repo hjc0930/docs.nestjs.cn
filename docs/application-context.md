@@ -1,17 +1,16 @@
 <!-- 此文件从 content/application-context.md 自动生成，请勿直接修改此文件 -->
-<!-- 生成时间: 2026-02-28T06:24:17.876Z -->
+<!-- 生成时间: 2026-02-24T02:49:46.540Z -->
 <!-- 源文件: content/application-context.md -->
 
-### Standalone applications
+### standalone 应用
 
-There are several ways of mounting a Nest application. You can create a web app, a microservice or just a bare Nest **standalone application** (without any network listeners). The Nest standalone application is a wrapper around the Nest **IoC container**, which holds all instantiated classes. We can obtain a reference to any existing instance from within any imported module directly using the standalone application object. Thus, you can take advantage of the Nest framework anywhere, including, for example, scripted **CRON** jobs. You can even build a **CLI** on top of it.
+Nest 应用程序可以有多种方式进行挂载。您可以创建一个 web 应用程序、一个微服务或只是一个没有网络监听器的 Nest standalone 应用程序（无网络监听器）。Nest standalone 应用程序是一个对 Nest IoC 容器的包装器，它持有所有实例化的类。我们可以从任何导入的模块中使用 standalone 应用程序对象来获取任何已存在的实例的引用。因此，您可以在任何地方使用 Nest 框架，包括例如脚本的 CRON 工作或 CLI。
 
-#### Getting started
+#### 入门
 
-To create a Nest standalone application, use the following construction:
+创建一个 Nest standalone 应用程序请使用以下构造：
 
 ```typescript
-@@filename()
 async function bootstrap() {
   const app = await NestFactory.createApplicationContext(AppModule);
   // your application logic here ...
@@ -19,23 +18,21 @@ async function bootstrap() {
 bootstrap();
 ```
 
-#### Retrieving providers from static modules
+#### 从静态模块中获取提供者
 
-The standalone application object allows you to obtain a reference to any instance registered within the Nest application. Let's imagine that we have a `TasksService` provider in the `TasksModule` module that was imported by our `AppModule` module. This class provides a set of methods that we want to call from within a CRON job.
+standalone 应用程序对象允许您获取 Nest 应用程序中注册的任何实例的引用。让我们假设我们在 `TasksService` 模块中有一个 `TasksModule` 提供者，该模块被我们的 `AppModule` 模块导入。这类提供者提供了一组方法，我们想从 CRON 工作中调用这些方法。
 
 ```typescript
-@@filename()
 const tasksService = app.get(TasksService);
 ```
 
-To access the `TasksService` instance we use the `get()` method. The `get()` method acts like a **query** that searches for an instance in each registered module. You can pass any provider's token to it. Alternatively, for strict context checking, pass an options object with the `strict: true` property. With this option in effect, you have to navigate through specific modules to obtain a particular instance from the selected context.
+要访问 `TasksService` 实例，我们使用 `get()` 方法。`get()` 方法像一个查询一样搜索每个注册模块中的实例。您可以将任何提供者的令牌传递给它。或者，在严格上下文检查的情况下，传递一个包含 `strict: true` 属性的选项对象。使用该选项，您需要在特定的模块中导航以获取特定的实例。
 
 ```typescript
-@@filename()
 const tasksService = app.select(TasksModule).get(TasksService, { strict: true });
 ```
 
-Following is a summary of the methods available for retrieving instance references from the standalone application object.
+以下是从 standalone 应用程序对象中获取实例引用方法的总结。
 
 <table>
   <tr>
@@ -56,18 +53,17 @@ Following is a summary of the methods available for retrieving instance referenc
   </tr>
 </table>
 
-> info **Hint** In non-strict mode, the root module is selected by default. To select any other module, you need to navigate the modules graph manually, step by step.
+> info **Hint** 在非严格模式下，root 模块默认被选择。在选择其他模块时，您需要手动导航模块图。
 
-Keep in mind that a standalone application does not have any network listeners, so any Nest features related to HTTP (e.g., middleware, interceptors, pipes, guards, etc.) are not available in this context.
+请注意，standalone 应用程序没有网络监听器，因此与 HTTP 相关的 Nest 功能（例如中间件、拦截器、管道、守卫等）在这个上下文中不可用。
 
-For example, even if you register a global interceptor in your application and then retrieve a controller's instance using the `app.get()` method, the interceptor will not be executed.
+例如，即使您在应用程序中注册了一个全局拦截器，然后使用 `app.get()` 方法获取控制器的实例，拦截器将不会被执行。
 
-#### Retrieving providers from dynamic modules
+#### 从动态模块中获取提供者
 
-When dealing with [dynamic modules](/fundamentals/dynamic-modules), we should supply the same object that represents the registered dynamic module in the application to `app.select`. For example:
+在处理 [dynamic modules](/fundamentals/dynamic-modules) 时，我们需要向 `app.select` 传递相同的对象，该对象表示应用程序中注册的动态模块。例如：
 
 ```typescript
-@@filename()
 export const dynamicConfigModule = ConfigModule.register({ folder: './config' });
 
 @Module({
@@ -76,19 +72,17 @@ export const dynamicConfigModule = ConfigModule.register({ folder: './config' })
 export class AppModule {}
 ```
 
-Then you can select that module later on:
+然后，您可以在后续选择该模块：
 
 ```typescript
-@@filename()
 const configService = app.select(dynamicConfigModule).get(ConfigService, { strict: true });
 ```
 
-#### Terminating phase
+#### 终止阶段
 
-If you want the Node application to close after the script finishes (e.g., for a script running CRON jobs), you must call the `app.close()` method in the end of your `bootstrap` function like this:
+如果您想在 Node 应用程序关闭后（例如在 CRON 工作中）结束脚本，必须在 `bootstrap` 函数的末尾调用 `app.close()` 方法，如下所示：
 
 ```typescript
-@@filename()
 async function bootstrap() {
   const app = await NestFactory.createApplicationContext(AppModule);
   // application logic...
@@ -97,8 +91,8 @@ async function bootstrap() {
 bootstrap();
 ```
 
-And as mentioned in the [Lifecycle events](/fundamentals/lifecycle-events) chapter, that will trigger lifecycle hooks.
+正如在 [Lifecycle events](/fundamentals/lifecycle-events) 章节中所述，这将触发生命周期钩子。
 
-#### Example
+#### 示例
 
-A working example is available [here](https://github.com/nestjs/nest/tree/master/sample/18-context).
+有一个可工作的示例可在 [here](https://github.com/nestjs/nest/tree/master/sample/18-context) 中找到。

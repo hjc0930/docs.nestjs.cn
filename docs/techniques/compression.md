@@ -1,25 +1,21 @@
-<!-- 此文件从 content/techniques\compression.md 自动生成，请勿直接修改此文件 -->
-<!-- 生成时间: 2026-02-28T06:24:17.986Z -->
-<!-- 源文件: content/techniques\compression.md -->
+### 压缩
 
-### Compression
+压缩能显著减小响应体的大小，从而提升网页应用的加载速度。
 
-Compression can greatly decrease the size of the response body, thereby increasing the speed of a web app.
+对于**高流量**的生产环境网站，强烈建议将压缩工作从应用服务器卸载——通常交由反向代理（如 Nginx）处理。这种情况下不应使用压缩中间件。
 
-For **high-traffic** websites in production, it is strongly recommended to offload compression from the application server - typically in a reverse proxy (e.g., Nginx). In that case, you should not use compression middleware.
+#### 与 Express 配合使用（默认）
 
-#### Use with Express (default)
+使用 [compression](https://github.com/expressjs/compression) 中间件包来启用 gzip 压缩功能。
 
-Use the [compression](https://github.com/expressjs/compression) middleware package to enable gzip compression.
-
-First install the required package:
+首先安装所需的包：
 
 ```bash
 $ npm i --save compression
 $ npm i --save-dev @types/compression
 ```
 
-Once the installation is complete, apply the compression middleware as global middleware.
+安装完成后，将压缩中间件作为全局中间件应用。
 
 ```typescript
 import * as compression from 'compression';
@@ -27,42 +23,36 @@ import * as compression from 'compression';
 app.use(compression());
 ```
 
-#### Use with Fastify
+#### 与 Fastify 一起使用
 
-If using the `FastifyAdapter`, you'll want to use [fastify-compress](https://github.com/fastify/fastify-compress):
+如果使用 `FastifyAdapter`，则需要使用 [fastify-compress](https://github.com/fastify/fastify-compress)：
 
 ```bash
 $ npm i --save @fastify/compress
 ```
 
-Once the installation is complete, apply the `@fastify/compress` middleware as global middleware.
-
-> warning **Warning** Please ensure, that you use the type `NestFastifyApplication` when creating the application. Otherwise, you cannot use `register` to apply the compression-middleware.
+安装完成后，将 `@fastify/compress` 中间件作为全局中间件应用。
 
 ```typescript
-import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
-
 import compression from '@fastify/compress';
-
-// inside bootstrap()
-const app = await NestFactory.create<NestFastifyApplication>(AppModule, new FastifyAdapter());
+// somewhere in your initialization file
 await app.register(compression);
 ```
 
-By default, `@fastify/compress` will use Brotli compression (on Node >= 11.7.0) when browsers indicate support for the encoding. While Brotli can be quite efficient in terms of compression ratio, it can also be quite slow. By default, Brotli sets a maximum compression quality of 11, although it can be adjusted to reduce compression time in lieu of compression quality by adjusting the `BROTLI_PARAM_QUALITY` between 0 min and 11 max. This will require fine tuning to optimize space/time performance. An example with quality 4: 
+默认情况下，当浏览器支持该编码时，`@fastify/compress` 会使用 Brotli 压缩（Node 版本≥11.7.0）。虽然 Brotli 在压缩率方面非常高效，但其速度可能较慢。Brotli 默认设置最大压缩质量为 11，但可以通过调整 `BROTLI_PARAM_QUALITY` 参数（取值范围 0-11）来牺牲压缩质量换取更快的压缩速度。这需要进行精细调优以平衡空间/时间性能。以下是一个质量为 4 的示例：
 
 ```typescript
-import { constants } from 'node:zlib';
+import { constants } from 'zlib';
 // somewhere in your initialization file
 await app.register(compression, { brotliOptions: { params: { [constants.BROTLI_PARAM_QUALITY]: 4 } } });
 ```
 
-To simplify, you may want to tell `fastify-compress` to only use deflate and gzip to compress responses; you'll end up with potentially larger responses but they'll be delivered much more quickly.
+为简化操作，您可以配置 `fastify-compress` 仅使用 deflate 和 gzip 压缩响应数据——虽然可能生成更大的响应体，但传输速度会显著提升。
 
-To specify encodings, provide a second argument to `app.register`:
+要指定编码方式，请向 `app.register` 传入第二个参数：
 
 ```typescript
 await app.register(compression, { encodings: ['gzip', 'deflate'] });
 ```
 
-The above tells `fastify-compress` to only use gzip and deflate encodings, preferring gzip if the client supports both.
+上述配置会指示 `fastify-compress` 仅使用 gzip 和 deflate 编码，并在客户端同时支持两者时优先选用 gzip。

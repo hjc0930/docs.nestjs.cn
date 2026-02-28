@@ -46,8 +46,6 @@ $ npm i @nestjs/graphql @nestjs/apollo @apollo/server graphql
 `@nestjs/graphql@>=9` 和 `@nestjs/apollo^10` 包与 Apollo v3 兼容，而 `@nestjs/graphql@^8` 仅支持 Apollo v2。
 :::
 
-
-
 ## 快速开始
 
 安装包后，我们可以导入 `GraphQLModule` 并使用 `forRoot()` 静态方法配置它：
@@ -76,8 +74,6 @@ Playground 是一个图形化、交互式、浏览器内的 GraphQL IDE，默认
 :::info 注意
 默认的 Apollo playground 已被弃用，将在下一个主要版本中删除。建议使用 [GraphiQL](https://github.com/graphql/graphiql)，只需在 `GraphQLModule` 配置中设置 `graphiql: true`：
 :::
-
-
 
 ```typescript
 GraphQLModule.forRoot<ApolloDriverConfig>({

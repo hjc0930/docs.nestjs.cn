@@ -1,5 +1,5 @@
 <!-- 此文件从 content/components.md 自动生成，请勿直接修改此文件 -->
-<!-- 生成时间: 2026-02-28T06:24:45.999Z -->
+<!-- 生成时间: 2026-02-28T08:43:59.460Z -->
 <!-- 源文件: content/components.md -->
 
 ### Providers
@@ -17,7 +17,6 @@ In the previous chapter, we created a simple `CatsController`. Controllers shoul
 Let's begin by creating a simple `CatsService`. This service will handle data storage and retrieval, and it will be used by the `CatsController`. Because of its role in managing the application's logic, it’s an ideal candidate to be defined as a provider.
 
 ```typescript
-@@filename(cats.service)
 import { Injectable } from '@nestjs/common';
 import { Cat } from './interfaces/cat.interface';
 
@@ -57,7 +56,6 @@ Our `CatsService` is a basic class with one property and two methods. The key ad
 Additionally, this example makes use of a `Cat` interface, which likely looks something like this:
 
 ```typescript
-@@filename(interfaces/cat.interface)
 export interface Cat {
   name: string;
   age: number;
@@ -68,7 +66,6 @@ export interface Cat {
 Now that we have a service class to retrieve cats, let's use it inside the `CatsController`:
 
 ```typescript
-@@filename(cats.controller)
 import { Controller, Get, Post, Body } from '@nestjs/common';
 import { CreateCatDto } from './dto/create-cat.dto';
 import { CatsService } from './cats.service';
@@ -169,7 +166,6 @@ export class HttpService<T> {
 Now that we've defined a provider (`CatsService`) and a consumer (`CatsController`), we need to register the service with Nest so that it can handle the injection. This is done by editing the module file (`app.module.ts`) and adding the service to the `providers` array in the `@Module()` decorator.
 
 ```typescript
-@@filename(app.module)
 import { Module } from '@nestjs/common';
 import { CatsController } from './cats/cats.controller';
 import { CatsService } from './cats/cats.service';

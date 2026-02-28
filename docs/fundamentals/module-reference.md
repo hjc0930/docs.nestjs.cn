@@ -1,27 +1,23 @@
-<!-- 此文件从 content/fundamentals\module-reference.md 自动生成，请勿直接修改此文件 -->
-<!-- 生成时间: 2026-02-28T06:24:18.072Z -->
-<!-- 源文件: content/fundamentals\module-reference.md -->
+### 模块参考
 
-### Module reference
+Nest 提供了 `ModuleRef` 类来导航内部提供者列表，并使用其注入令牌作为查找键获取任何提供者的引用。`ModuleRef` 类还提供了一种动态实例化静态和范围提供者的方法。`ModuleRef` 可以以常规方式注入到类中：
 
-Nest provides the `ModuleRef` class to navigate the internal list of providers and obtain a reference to any provider using its injection token as a lookup key. The `ModuleRef` class also provides a way to dynamically instantiate both static and scoped providers. `ModuleRef` can be injected into a class in the normal way:
-
-```typescript
-@@filename(cats.service)
+ ```typescript title="cats.service.ts"
 @Injectable()
 export class CatsService {
   constructor(private moduleRef: ModuleRef) {}
 }
 ```
 
-> info **Hint** The `ModuleRef` class is imported from the `@nestjs/core` package.
+:::info 提示
+`ModuleRef` 类是从 `@nestjs/core` 包中导入的。
+:::
 
-#### Retrieving instances
+#### 获取实例
 
-The `ModuleRef` instance (hereafter we'll refer to it as the **module reference**) has a `get()` method. By default, this method returns a provider, controller, or injectable (e.g., guard, interceptor, etc.) that was registered and has been instantiated in the *current module* using its injection token/class name. If the instance is not found, an exception will be raised.
+`ModuleRef` 实例（以下简称**模块引用** ）具有一个 `get()` 方法。默认情况下，该方法会返回一个已注册并在*当前模块*中使用其注入令牌/类名实例化的提供者、控制器或可注入对象（如守卫、拦截器等）。如果找不到实例，则会抛出异常。
 
-```typescript
-@@filename(cats.service)
+ ```typescript title="cats.service.ts"
 @Injectable()
 export class CatsService implements OnModuleInit {
   private service: Service;
@@ -31,27 +27,23 @@ export class CatsService implements OnModuleInit {
     this.service = this.moduleRef.get(Service);
   }
 }
-
-  onModuleInit() {
-    this.service = this.moduleRef.get(Service);
-  }
-}
 ```
 
-> warning **Warning** You can't retrieve scoped providers (transient or request-scoped) with the `get()` method. Instead, use the technique described <a href="/fundamentals/module-ref#解析作用域提供者">below</a>. Learn how to control scopes [here](/fundamentals/injection-scopes).
+:::warning 警告
+无法通过 `get()` 方法检索作用域提供者（瞬时或请求作用域）。请改用下文[所述技术](../fundamentals/module-reference#解析作用域提供者) 。了解如何控制作用域请参阅[此处](/fundamentals/provider-scopes) 。
+:::
 
-To retrieve a provider from the global context (for example, if the provider has been injected in a different module), pass the `{{ '{' }} strict: false {{ '}' }}` option as a second argument to `get()`.
+要从全局上下文中检索提供者（例如，如果该提供者已注入到其他模块中），请将 `{ strict: false }` 选项作为第二个参数传递给 `get()`。
 
 ```typescript
 this.moduleRef.get(Service, { strict: false });
 ```
 
-#### Resolving scoped providers
+#### 解析作用域提供者
 
-To dynamically resolve a scoped provider (transient or request-scoped), use the `resolve()` method, passing the provider's injection token as an argument.
+要动态解析一个作用域提供者（瞬态或请求作用域），请使用 `resolve()` 方法，并将提供者的注入令牌作为参数传入。
 
-```typescript
-@@filename(cats.service)
+ ```typescript title="cats.service.ts"
 @Injectable()
 export class CatsService implements OnModuleInit {
   private transientService: TransientService;
@@ -61,17 +53,11 @@ export class CatsService implements OnModuleInit {
     this.transientService = await this.moduleRef.resolve(TransientService);
   }
 }
-
-  async onModuleInit() {
-    this.transientService = await this.moduleRef.resolve(TransientService);
-  }
-}
 ```
 
-The `resolve()` method returns a unique instance of the provider, from its own **DI container sub-tree**. Each sub-tree has a unique **context identifier**. Thus, if you call this method more than once and compare instance references, you will see that they are not equal.
+`resolve()` 方法会从它自己的**依赖注入容器子树**中返回该提供者的唯一实例。每个子树都有一个唯一的**上下文标识符** 。因此，如果多次调用此方法并比较实例引用，你会发现它们并不相同。
 
-```typescript
-@@filename(cats.service)
+ ```typescript title="cats.service.ts"
 @Injectable()
 export class CatsService implements OnModuleInit {
   constructor(private moduleRef: ModuleRef) {}
@@ -84,21 +70,11 @@ export class CatsService implements OnModuleInit {
     console.log(transientServices[0] === transientServices[1]); // false
   }
 }
-
-  async onModuleInit() {
-    const transientServices = await Promise.all([
-      this.moduleRef.resolve(TransientService),
-      this.moduleRef.resolve(TransientService),
-    ]);
-    console.log(transientServices[0] === transientServices[1]); // false
-  }
-}
 ```
 
-To generate a single instance across multiple `resolve()` calls, and ensure they share the same generated DI container sub-tree, you can pass a context identifier to the `resolve()` method. Use the `ContextIdFactory` class to generate a context identifier. This class provides a `create()` method that returns an appropriate unique identifier.
+要在多个 `resolve()` 调用间生成单一实例，并确保它们共享相同的依赖注入容器子树，你可以向 `resolve()` 方法传入一个上下文标识符。使用 `ContextIdFactory` 类来生成上下文标识符，该类提供了 `create()` 方法，可返回一个合适的唯一标识符。
 
-```typescript
-@@filename(cats.service)
+ ```typescript title="cats.service.ts"
 @Injectable()
 export class CatsService implements OnModuleInit {
   constructor(private moduleRef: ModuleRef) {}
@@ -112,37 +88,28 @@ export class CatsService implements OnModuleInit {
     console.log(transientServices[0] === transientServices[1]); // true
   }
 }
-
-  async onModuleInit() {
-    const contextId = ContextIdFactory.create();
-    const transientServices = await Promise.all([
-      this.moduleRef.resolve(TransientService, contextId),
-      this.moduleRef.resolve(TransientService, contextId),
-    ]);
-    console.log(transientServices[0] === transientServices[1]); // true
-  }
-}
 ```
 
-> info **Hint** The `ContextIdFactory` class is imported from the `@nestjs/core` package.
+:::info 注意
+`ContextIdFactory` 类是从 `@nestjs/core` 包导入的。
+:::
 
-#### Registering `REQUEST` provider
+#### 注册 `REQUEST` 提供者
 
-Manually generated context identifiers (with `ContextIdFactory.create()`) represent DI sub-trees in which `REQUEST` provider is `undefined` as they are not instantiated and managed by the Nest dependency injection system.
+手动生成的上下文标识符（使用 `ContextIdFactory.create()`）代表 DI 子树，在这些子树中 `REQUEST` 提供者为 `undefined`，因为它们不是由 Nest 依赖注入系统实例化和管理的。
 
-To register a custom `REQUEST` object for a manually created DI sub-tree, use the `ModuleRef#registerRequestByContextId()` method, as follows:
+要为手动创建的 DI 子树注册自定义 `REQUEST` 对象，请使用 `ModuleRef#registerRequestByContextId()` 方法，如下所示：
 
 ```typescript
 const contextId = ContextIdFactory.create();
 this.moduleRef.registerRequestByContextId(/* YOUR_REQUEST_OBJECT */, contextId);
 ```
 
-#### Getting current sub-tree
+#### 获取当前子树
 
-Occasionally, you may want to resolve an instance of a request-scoped provider within a **request context**. Let's say that `CatsService` is request-scoped and you want to resolve the `CatsRepository` instance which is also marked as a request-scoped provider. In order to share the same DI container sub-tree, you must obtain the current context identifier instead of generating a new one (e.g., with the `ContextIdFactory.create()` function, as shown above). To obtain the current context identifier, start by injecting the request object using `@Inject()` decorator.
+有时，你可能需要在**请求上下文**中解析一个请求作用域提供者的实例。假设 `CatsService` 是请求作用域的，而你想解析同样标记为请求作用域提供者的 `CatsRepository` 实例。为了共享同一个 DI 容器子树，你必须获取当前上下文标识符，而不是生成新的标识符（例如使用上文所示的 `ContextIdFactory.create()` 函数）。要获取当前上下文标识符，首先使用 `@Inject()` 装饰器注入请求对象。
 
-```typescript
-@@filename(cats.service)
+ ```typescript title="cats.service.ts"
 @Injectable()
 export class CatsService {
   constructor(
@@ -151,21 +118,22 @@ export class CatsService {
 }
 ```
 
-> info **Hint** Learn more about the request provider [here](/fundamentals/injection-scopes#请求提供者).
+:::info 了解
+ 请求提供者的更多信息，请点击[此处](../fundamentals/provider-scopes#请求提供者) 。
+:::
 
-Now, use the `getByRequest()` method of the `ContextIdFactory` class to create a context id based on the request object, and pass this to the `resolve()` call:
+现在，使用 `ContextIdFactory` 类的 `getByRequest()` 方法基于请求对象创建上下文 ID，并将其传递给 `resolve()` 调用：
 
 ```typescript
 const contextId = ContextIdFactory.getByRequest(this.request);
 const catsRepository = await this.moduleRef.resolve(CatsRepository, contextId);
 ```
 
-#### Instantiating custom classes dynamically
+#### 动态实例化自定义类
 
-To dynamically instantiate a class that **wasn't previously registered** as a **provider**, use the module reference's `create()` method.
+要动态实例化一个**先前未注册**为**提供者**的类，可使用模块引用的 `create()` 方法。
 
-```typescript
-@@filename(cats.service)
+ ```typescript title="cats.service.ts"
 @Injectable()
 export class CatsService implements OnModuleInit {
   private catsFactory: CatsFactory;
@@ -175,13 +143,6 @@ export class CatsService implements OnModuleInit {
     this.catsFactory = await this.moduleRef.create(CatsFactory);
   }
 }
-
-  async onModuleInit() {
-    this.catsFactory = await this.moduleRef.create(CatsFactory);
-  }
-}
 ```
 
-This technique enables you to conditionally instantiate different classes outside of the framework container.
-
-<app-banner-devtools></app-banner-devtools>
+该技术使您能够在框架容器之外有条件地实例化不同的类。

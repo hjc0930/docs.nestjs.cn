@@ -238,7 +238,6 @@ getDocs(@Query('version') version) {
 带参数的路由应在所有静态路径之后声明。这样可以防止参数化路径拦截本该由静态路径处理的流量。
 :::
 
-
 ```typescript
 @Get(':id')
 findOne(@Param() params: any): string {

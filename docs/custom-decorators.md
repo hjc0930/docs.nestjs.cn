@@ -1,5 +1,5 @@
 <!-- 此文件从 content/custom-decorators.md 自动生成，请勿直接修改此文件 -->
-<!-- 生成时间: 2026-02-28T06:24:45.995Z -->
+<!-- 生成时间: 2026-02-28T08:43:59.456Z -->
 <!-- 源文件: content/custom-decorators.md -->
 
 ### Custom route decorators
@@ -72,7 +72,6 @@ const user = req.user;
 In order to make your code more readable and transparent, you can create a `@User()` decorator and reuse it across all of your controllers.
 
 ```typescript
-@@filename(user.decorator)
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 
 export const User = createParamDecorator(
@@ -86,7 +85,6 @@ export const User = createParamDecorator(
 Then, you can simply use it wherever it fits your requirements.
 
 ```typescript
-@@filename()
 @Get()
 async findOne(@User() user: UserEntity) {
   console.log(user);
@@ -110,7 +108,6 @@ When the behavior of your decorator depends on some conditions, you can use the 
 Let's define a decorator that takes a property name as key, and returns the associated value if it exists (or undefined if it doesn't exist, or if the `user` object has not been created).
 
 ```typescript
-@@filename(user.decorator)
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 
 export const User = createParamDecorator(
@@ -133,7 +130,6 @@ export const User = createParamDecorator((data, ctx) => {
 Here's how you could then access a particular property via the `@User()` decorator in the controller:
 
 ```typescript
-@@filename()
 @Get()
 async findOne(@User('firstName') firstName: string) {
   console.log(`Hello ${firstName}`);
@@ -149,7 +145,6 @@ You can use this same decorator with different keys to access different properti
 Nest treats custom param decorators in the same fashion as the built-in ones (`@Body()`, `@Param()` and `@Query()`). This means that pipes are executed for the custom annotated parameters as well (in our examples, the `user` argument). Moreover, you can apply the pipe directly to the custom decorator:
 
 ```typescript
-@@filename()
 @Get()
 async findOne(
   @User(new ValidationPipe({ validateCustomDecorators: true }))
@@ -166,7 +161,6 @@ async findOne(
 Nest provides a helper method to compose multiple decorators. For example, suppose you want to combine all decorators related to authentication into a single decorator. This could be done with the following construction:
 
 ```typescript
-@@filename(auth.decorator)
 import { applyDecorators } from '@nestjs/common';
 
 export function Auth(...roles: Role[]) {

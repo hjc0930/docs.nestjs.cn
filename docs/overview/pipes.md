@@ -105,13 +105,11 @@ async findOne(@Param('uuid', new ParseUUIDPipe()) uuid: string) {
 使用 `ParseUUIDPipe()` 时会解析版本 3、4 或 5 的 UUID，若只需特定版本的 UUID，可在管道选项中传入版本号。
 :::
 
-
 上文我们已了解如何绑定各类内置的 `Parse*` 解析管道。绑定验证管道略有不同，我们将在下一节详细讨论。
 
 :::info 注意
 另请参阅[验证技术](/techniques/validation)章节获取验证管道的详细示例。
 :::
-
 
 #### 自定义管道
 
@@ -160,8 +158,6 @@ export interface ArgumentMetadata {
 :::warning 警告
 TypeScript 接口在转译过程中会被移除。因此，如果方法参数的类型声明为接口而非类，`metatype` 的值将会是 `Object`。
 :::
-
-
 
 #### 基于模式的验证
 

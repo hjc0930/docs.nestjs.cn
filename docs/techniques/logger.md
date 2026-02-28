@@ -1,6 +1,6 @@
-<!-- 此文件从 content/techniques\logger.md 自动生成，请勿直接修改此文件 -->
-<!-- 生成时间: 2026-02-28T06:24:17.974Z -->
-<!-- 源文件: content/techniques\logger.md -->
+<!-- 此文件从 content/techniques/logger.md 自动生成，请勿直接修改此文件 -->
+<!-- 生成时间: 2026-02-24T02:51:08.249Z -->
+<!-- 源文件: content/techniques/logger.md -->
 
 ### Logger
 
