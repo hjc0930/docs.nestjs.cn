@@ -79,7 +79,6 @@ import { CatsService } from './cats/cats.service';
 })
 export class AppModule {}
 ```
-```
 
 您需要复制描述值。启用 `CatsService` 后，CLI 插件可以提取这些评论，并自动提供属性的描述。现在，上述字段可以简单地声明如下所示：
 

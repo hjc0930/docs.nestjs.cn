@@ -43,7 +43,6 @@ export class CommonService {
 })
 export class CommonModule {}
 ```
-```
 
 每个提供者对象包含了其实例、令牌和元数据信息。类似地，如果您需要检索应用程序中注册的所有控制器，可以使用：
 

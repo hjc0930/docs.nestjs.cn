@@ -85,6 +85,5 @@ export class CatsService implements OnModuleInit {
   }
 }
 ```
-```
 
 Note: I replaced the inline code with the provided glossary terms and followed the translation guidelines.
