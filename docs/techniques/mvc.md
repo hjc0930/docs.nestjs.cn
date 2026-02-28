@@ -1,5 +1,5 @@
 <!-- 此文件从 content/techniques/mvc.md 自动生成，请勿直接修改此文件 -->
-<!-- 生成时间: 2026-02-27T04:05:24.950Z -->
+<!-- 生成时间: 2026-02-28T03:47:27.469Z -->
 <!-- 源文件: content/techniques/mvc.md -->
 
 ### Model-View-Controller

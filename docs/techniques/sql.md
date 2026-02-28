@@ -1,5 +1,5 @@
 <!-- 此文件从 content/techniques/sql.md 自动生成，请勿直接修改此文件 -->
-<!-- 生成时间: 2026-02-27T04:05:25.270Z -->
+<!-- 生成时间: 2026-02-28T03:47:28.319Z -->
 <!-- 源文件: content/techniques/sql.md -->
 
 ### Database
@@ -76,6 +76,7 @@ export class AppModule {
   constructor(private dataSource: DataSource) {}
 }
 ```
+```
 
 #### Repository pattern
 
@@ -129,6 +130,7 @@ import { User } from './users/user.entity';
 })
 export class AppModule {}
 ```
+```
 
 Next, let's look at the `UsersModule`:
 
@@ -175,6 +177,7 @@ export class UsersService {
   }
 }
 ```
+```
 
 > warning **Notice** Don't forget to import the `UsersModule` into the root `AppModule`.
 
@@ -207,6 +210,7 @@ import { UsersController } from './users.controller';
   controllers: [UsersController]
 })
 export class UserHttpModule {}
+```
 ```
 
 #### Relations
@@ -274,6 +278,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
   ],
 })
 export class AppModule {}
+```
 ```
 
 With that option specified, every entity registered through the `forFeature()` method will be automatically added to the `entities` array of the configuration object.
@@ -748,6 +753,7 @@ export class AppService {
   constructor(private sequelize: Sequelize) {}
 }
 ```
+```
 
 #### Models
 
@@ -794,6 +800,7 @@ import { User } from './users/user.model';
   ],
 })
 export class AppModule {}
+```
 ```
 
 Next, let's look at the `UsersModule`:
@@ -845,6 +852,7 @@ export class UsersService {
   }
 }
 ```
+```
 
 > warning **Notice** Don't forget to import the `UsersModule` into the root `AppModule`.
 
@@ -877,6 +885,7 @@ import { UsersController } from './users.controller';
   controllers: [UsersController]
 })
 export class UserHttpModule {}
+```
 ```
 
 #### Relations
@@ -942,6 +951,7 @@ import { SequelizeModule } from '@nestjs/sequelize';
   ],
 })
 export class AppModule {}
+```
 ```
 
 With that option specified, every model registered through the `forFeature()` method will be automatically added to the `models` array of the configuration object.

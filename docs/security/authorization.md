@@ -1,5 +1,5 @@
 <!-- 此文件从 content/security/authorization.md 自动生成，请勿直接修改此文件 -->
-<!-- 生成时间: 2026-02-27T04:05:24.387Z -->
+<!-- 生成时间: 2026-02-28T03:47:27.539Z -->
 <!-- 源文件: content/security/authorization.md -->
 
 ### Authorization
@@ -44,6 +44,7 @@ Now that we have a custom `@Roles()` decorator, we can use it to decorate any ro
 create(@Body() createCatDto: CreateCatDto) {
   this.catsService.create(createCatDto);
 }
+```
 ```
 
 Finally, we create a `RolesGuard` class which will compare the roles assigned to the current user to the actual roles required by the current route being processed. In order to access the route's role(s) (custom metadata), we'll use the `Reflector` helper class, which is provided out of the box by the framework and exposed from the `@nestjs/core` package.

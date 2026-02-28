@@ -1,5 +1,5 @@
 <!-- 此文件从 content/recipes/swc.md 自动生成，请勿直接修改此文件 -->
-<!-- 生成时间: 2026-02-27T04:05:25.079Z -->
+<!-- 生成时间: 2026-02-28T03:47:27.540Z -->
 <!-- 源文件: content/recipes/swc.md -->
 
 ### SWC
@@ -60,6 +60,7 @@ async function bootstrap() {
 }
 
 bootstrap();
+```
 ```
 
 #### 自定义

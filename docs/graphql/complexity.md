@@ -1,5 +1,5 @@
 <!-- 此文件从 content/graphql/complexity.md 自动生成，请勿直接修改此文件 -->
-<!-- 生成时间: 2026-02-27T04:05:25.241Z -->
+<!-- 生成时间: 2026-02-28T03:47:27.685Z -->
 <!-- 源文件: content/graphql/complexity.md -->
 
 ### 复杂度
@@ -84,6 +84,7 @@ export class CatsService implements OnModuleInit {
     console.log(transientServices[0] === transientServices[1]); // false
   }
 }
+```
 ```
 
 Note: I replaced the inline code with the provided glossary terms and followed the translation guidelines.

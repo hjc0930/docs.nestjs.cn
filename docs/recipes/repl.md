@@ -1,5 +1,5 @@
 <!-- 此文件从 content/recipes/repl.md 自动生成，请勿直接修改此文件 -->
-<!-- 生成时间: 2026-02-27T04:05:25.081Z -->
+<!-- 生成时间: 2026-02-28T03:47:27.543Z -->
 <!-- 源文件: content/recipes/repl.md -->
 
 ### Read-Eval-Print-Loop (REPL)

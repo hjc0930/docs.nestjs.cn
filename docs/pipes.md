@@ -1,5 +1,5 @@
 <!-- 此文件从 content/pipes.md 自动生成，请勿直接修改此文件 -->
-<!-- 生成时间: 2026-02-27T04:05:25.253Z -->
+<!-- 生成时间: 2026-02-28T03:47:27.468Z -->
 <!-- 源文件: content/pipes.md -->
 
 ### Pipes
@@ -125,6 +125,7 @@ export class ValidationPipe implements PipeTransform {
   }
 }
 ```
+```
 
 > info **Hint** `PipeTransform<T, R>` is a generic interface that must be implemented by any pipe. The generic interface uses `T` to indicate the type of the input `value`, and `R` to indicate the return type of the `transform()` method.
 
@@ -197,6 +198,7 @@ export class CreateCatDto {
   age: number;
   breed: string;
 }
+```
 ```
 
 We want to ensure that any incoming request to the create method contains a valid body. So we have to validate the three members of the `createCatDto` object. We could do this inside the route handler method, but doing so is not ideal as it would break the **single responsibility principle** (SRP).
@@ -345,6 +347,7 @@ export class ValidationPipe implements PipeTransform<any> {
   }
 }
 ```
+```
 
 > info **Hint** As a reminder, you don't have to build a generic validation pipe on your own since the `ValidationPipe` is provided by Nest out-of-the-box. The built-in `ValidationPipe` offers more options than the sample we built in this chapter, which has been kept basic for the sake of illustrating the mechanics of a custom-built pipe. You can find full details, along with lots of examples [here](/techniques/validation).
 
@@ -385,6 +388,7 @@ async function bootstrap() {
   await app.listen(process.env.PORT ?? 3000);
 }
 bootstrap();
+```
 ```
 
 > warning **Notice** In the case of <a href="faq/hybrid-application">hybrid apps</a> the `useGlobalPipes()` method doesn't set up pipes for gateways and microservices. For "standard" (non-hybrid) microservice apps, `useGlobalPipes()` does mount pipes globally.
@@ -435,6 +439,7 @@ export class ParseIntPipe implements PipeTransform<string, number> {
     return val;
   }
 }
+```
 ```
 
 We can then bind this pipe to the selected param as shown below:

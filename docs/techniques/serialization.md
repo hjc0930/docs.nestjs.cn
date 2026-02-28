@@ -1,5 +1,5 @@
 <!-- 此文件从 content/techniques/serialization.md 自动生成，请勿直接修改此文件 -->
-<!-- 生成时间: 2026-02-27T04:05:24.872Z -->
+<!-- 生成时间: 2026-02-28T03:47:27.405Z -->
 <!-- 源文件: content/techniques/serialization.md -->
 
 ### 序列化

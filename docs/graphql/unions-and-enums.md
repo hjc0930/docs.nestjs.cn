@@ -1,5 +1,5 @@
 <!-- 此文件从 content/graphql/unions-and-enums.md 自动生成，请勿直接修改此文件 -->
-<!-- 生成时间: 2026-02-27T04:05:25.190Z -->
+<!-- 生成时间: 2026-02-28T03:47:27.676Z -->
 <!-- 源文件: content/graphql/unions-and-enums.md -->
 
 ### 联合类型

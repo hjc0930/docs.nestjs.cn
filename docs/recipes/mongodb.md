@@ -1,5 +1,5 @@
 <!-- 此文件从 content/recipes/mongodb.md 自动生成，请勿直接修改此文件 -->
-<!-- 生成时间: 2026-02-27T04:05:25.093Z -->
+<!-- 生成时间: 2026-02-28T03:47:27.579Z -->
 <!-- 源文件: content/recipes/mongodb.md -->
 
 ### MongoDB (Mongoose)

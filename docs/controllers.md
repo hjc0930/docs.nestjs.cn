@@ -1,5 +1,5 @@
 <!-- 此文件从 content/controllers.md 自动生成，请勿直接修改此文件 -->
-<!-- 生成时间: 2026-02-27T04:05:24.855Z -->
+<!-- 生成时间: 2026-02-28T03:47:27.486Z -->
 <!-- 源文件: content/controllers.md -->
 
 ### Controllers
@@ -154,6 +154,7 @@ export class CatsController {
   }
 }
 ```
+```
 
 It's that simple. Nest provides decorators for all of the standard HTTP methods: `@Get()`, `@Post()`, `@Put()`, `@Delete()`, `@Patch()`, `@Options()`, and `@Head()`. In addition, `@All()` defines an endpoint that handles all of them.
 
@@ -307,6 +308,7 @@ findAll(): Observable<any[]> {
   return of([]);
 }
 ```
+```
 
 Both approaches are valid, and you can choose the one that best suits your needs.
 
@@ -333,6 +335,7 @@ It has only three basic properties. Thereafter we can use the newly created DTO 
 async create(@Body() createCatDto: CreateCatDto) {
   return 'This action adds a new cat';
 }
+```
 ```
 
 > info **Hint** Our `ValidationPipe` can filter out properties that should not be received by the method handler. In this case, we can whitelist the acceptable properties, and any property not included in the whitelist is automatically stripped from the resulting object. In the `CreateCatDto` example, our whitelist is the `name`, `age`, and `breed` properties. Learn more [here](./techniques/validation#剥离属性).
@@ -442,6 +445,7 @@ import { CatsController } from './cats/cats.controller';
   controllers: [CatsController],
 })
 export class AppModule {}
+```
 ```
 
 We attached the metadata to the module class using the `@Module()` decorator, and now Nest can easily determine which controllers need to be mounted.

@@ -1,5 +1,5 @@
 <!-- 此文件从 content/websockets/exception-filters.md 自动生成，请勿直接修改此文件 -->
-<!-- 生成时间: 2026-02-27T04:05:24.384Z -->
+<!-- 生成时间: 2026-02-28T03:47:26.758Z -->
 <!-- 源文件: content/websockets/exception-filters.md -->
 
 ### 异常过滤器
@@ -40,6 +40,7 @@ app.enableVersioning({
   key: 'v=',
 });
 await app.listen(process.env.PORT ?? 3000);
+```
 ```
 
 #### 继承

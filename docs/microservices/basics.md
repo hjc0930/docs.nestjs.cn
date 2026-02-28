@@ -1,5 +1,5 @@
 <!-- 此文件从 content/microservices/basics.md 自动生成，请勿直接修改此文件 -->
-<!-- 生成时间: 2026-02-27T04:05:25.236Z -->
+<!-- 生成时间: 2026-02-28T03:47:27.772Z -->
 <!-- 源文件: content/microservices/basics.md -->
 
 ### Overview
@@ -119,6 +119,7 @@ export class MathController {
     return (data || []).reduce((a, b) => a + b);
   }
 }
+```
 ```
 
 In the above code, the `accumulate()` **message handler** listens for messages that match the `{ cmd: 'sum' }` message pattern. The message handler takes a single argument, the `data` passed from the client. In this case, the data is an array of numbers that need to be accumulated.
