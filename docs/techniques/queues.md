@@ -404,7 +404,7 @@ BullModule.forRootAsync({
 });
 ```
 
-Our factory behaves like any other [asynchronous provider](/fundamentals/async-providers) (e.g., it can be `async` and it's able to inject dependencies through `inject`).
+Our factory behaves like any other [asynchronous provider](/fundamentals/async-components) (e.g., it can be `async` and it's able to inject dependencies through `inject`).
 
 ```typescript
 BullModule.forRootAsync({
@@ -907,7 +907,7 @@ BullModule.forRootAsync({
 });
 ```
 
-Our factory behaves like any other [asynchronous provider](/fundamentals/async-providers) (e.g., it can be `async` and it's able to inject dependencies through `inject`).
+Our factory behaves like any other [asynchronous provider](/fundamentals/async-components) (e.g., it can be `async` and it's able to inject dependencies through `inject`).
 
 ```typescript
 BullModule.forRootAsync({

@@ -8,7 +8,7 @@ Nest is database agnostic, allowing you to easily integrate with any SQL or NoSQ
 
 You can also directly use any general purpose Node.js database integration **library** or ORM, such as [MikroORM](https://mikro-orm.io/) (see [MikroORM recipe](/recipes/mikroorm)), [Sequelize](https://sequelize.org/) (see [Sequelize integration](/techniques/sql#sequelize-集成)), [Knex.js](https://knexjs.org/) (see [Knex.js tutorial](https://dev.to/nestjs/build-a-nestjs-module-for-knex-js-or-other-resource-based-libraries-in-5-minutes-12an)), [TypeORM](https://github.com/typeorm/typeorm), and [Prisma](https://www.github.com/prisma/prisma) (see [Prisma recipe](/recipes/prisma)), to operate at a higher level of abstraction.
 
-For convenience, Nest provides tight integration with TypeORM and Sequelize out-of-the-box with the `@nestjs/typeorm` and `@nestjs/sequelize` packages respectively, which we'll cover in the current chapter, and Mongoose with `@nestjs/mongoose`, which is covered in [this chapter](/techniques/mongodb). These integrations provide additional NestJS-specific features, such as model/repository injection, testability, and asynchronous configuration to make accessing your chosen database even easier.
+For convenience, Nest provides tight integration with TypeORM and Sequelize out-of-the-box with the `@nestjs/typeorm` and `@nestjs/sequelize` packages respectively, which we'll cover in the current chapter, and Mongoose with `@nestjs/mongoose`, which is covered in [this chapter](/techniques/mongo). These integrations provide additional NestJS-specific features, such as model/repository injection, testability, and asynchronous configuration to make accessing your chosen database even easier.
 
 ### TypeORM Integration
 
@@ -580,7 +580,7 @@ TypeOrmModule.forRootAsync({
 });
 ```
 
-Our factory behaves like any other [asynchronous provider](/fundamentals/async-providers) (e.g., it can be `async` and it's able to inject dependencies through `inject`).
+Our factory behaves like any other [asynchronous provider](/fundamentals/async-components) (e.g., it can be `async` and it's able to inject dependencies through `inject`).
 
 ```typescript
 TypeOrmModule.forRootAsync({
@@ -1117,7 +1117,7 @@ SequelizeModule.forRootAsync({
 });
 ```
 
-Our factory behaves like any other [asynchronous provider](/fundamentals/async-providers) (e.g., it can be `async` and it's able to inject dependencies through `inject`).
+Our factory behaves like any other [asynchronous provider](/fundamentals/async-components) (e.g., it can be `async` and it's able to inject dependencies through `inject`).
 
 ```typescript
 SequelizeModule.forRootAsync({
