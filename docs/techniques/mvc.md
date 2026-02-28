@@ -1,3 +1,7 @@
+<!-- 此文件从 content/techniques/mvc.md 自动生成，请勿直接修改此文件 -->
+<!-- 生成时间: 2026-02-28T11:23:59.619Z -->
+<!-- 源文件: content/techniques/mvc.md -->
+
 ### 模型-视图-控制器
 
 默认情况下，Nest 底层使用了 [Express](https://github.com/expressjs/express) 库。因此，所有在 Express 中使用 MVC（模型-视图-控制器）模式的技术同样适用于 Nest。

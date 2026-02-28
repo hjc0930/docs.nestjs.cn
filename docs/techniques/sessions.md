@@ -1,3 +1,7 @@
+<!-- 此文件从 content/techniques/sessions.md 自动生成，请勿直接修改此文件 -->
+<!-- 生成时间: 2026-02-28T11:23:59.619Z -->
+<!-- 源文件: content/techniques/sessions.md -->
+
 ### 会话
 
 **HTTP 会话**提供了一种在多个请求间存储用户信息的方式，这对于 [MVC](/techniques/mvc) 应用程序特别有用。

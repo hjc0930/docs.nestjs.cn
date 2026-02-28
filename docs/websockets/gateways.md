@@ -1,3 +1,7 @@
+<!-- 此文件从 content/websockets/gateways.md 自动生成，请勿直接修改此文件 -->
+<!-- 生成时间: 2026-02-28T11:23:59.619Z -->
+<!-- 源文件: content/websockets/gateways.md -->
+
 ### 网关
 
 本文档其他部分讨论的大多数概念，如依赖注入、装饰器、异常过滤器、管道、守卫和拦截器，同样适用于网关。只要可能，Nest 都会抽象实现细节，使得相同的组件可以跨基于 HTTP 的平台、WebSocket 和微服务运行。本节将介绍 Nest 中特定于 WebSocket 的方面。

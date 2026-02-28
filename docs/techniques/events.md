@@ -1,3 +1,7 @@
+<!-- 此文件从 content/techniques/events.md 自动生成，请勿直接修改此文件 -->
+<!-- 生成时间: 2026-02-28T11:23:59.619Z -->
+<!-- 源文件: content/techniques/events.md -->
+
 ### 事件
 
 [事件发射器](https://www.npmjs.com/package/@nestjs/event-emitter)包（`@nestjs/event-emitter`）提供了一个简单的观察者实现，允许您订阅和监听应用程序中发生的各种事件。事件是实现应用程序各模块解耦的绝佳方式，因为单个事件可以拥有多个彼此独立的监听器。

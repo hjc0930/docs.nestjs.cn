@@ -1,3 +1,7 @@
+<!-- 此文件从 content/openapi/types-and-parameters.md 自动生成，请勿直接修改此文件 -->
+<!-- 生成时间: 2026-02-28T11:23:59.619Z -->
+<!-- 源文件: content/openapi/types-and-parameters.md -->
+
 ### 类型与参数
 
 `SwaggerModule` 会搜索路由处理器中的所有 `@Body()`、`@Query()` 和 `@Param()` 装饰器来生成 API 文档。它还会利用反射机制创建相应的模型定义。请看以下代码：

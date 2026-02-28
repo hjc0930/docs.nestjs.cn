@@ -1,3 +1,7 @@
+<!-- 此文件从 content/recipes/mikroorm.md 自动生成，请勿直接修改此文件 -->
+<!-- 生成时间: 2026-02-28T11:23:59.619Z -->
+<!-- 源文件: content/recipes/mikroorm.md -->
+
 ### MikroORM
 
 本指南旨在帮助用户在 Nest 中快速上手 MikroORM。MikroORM 是基于数据映射器、工作单元和身份映射模式的 Node.js TypeScript ORM，是 TypeORM 的优秀替代方案，从 TypeORM 迁移也相当容易。完整文档可查阅[此处](https://mikro-orm.io/docs) 。

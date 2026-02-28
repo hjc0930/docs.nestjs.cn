@@ -1,3 +1,7 @@
+<!-- 此文件从 content/fundamentals/lifecycle-events.md 自动生成，请勿直接修改此文件 -->
+<!-- 生成时间: 2026-02-28T11:23:59.619Z -->
+<!-- 源文件: content/fundamentals/lifecycle-events.md -->
+
 ### 生命周期事件
 
 Nest 应用程序以及其中的每个组件都拥有由 Nest 管理的生命周期。Nest 提供了**生命周期钩子** ，这些钩子能让你观测到关键的生命周期事件，并在事件发生时执行相应操作（即在模块、提供者或控制器上运行注册的代码）。

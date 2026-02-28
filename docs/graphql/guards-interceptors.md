@@ -1,3 +1,7 @@
+<!-- 此文件从 content/graphql/guards-interceptors.md 自动生成，请勿直接修改此文件 -->
+<!-- 生成时间: 2026-02-28T11:23:59.619Z -->
+<!-- 源文件: content/graphql/guards-interceptors.md -->
+
 ### 其他功能
 
 在 GraphQL 领域，关于如何处理**身份验证**或操作**副作用**等问题存在诸多争议。我们应该在业务逻辑内部处理这些问题吗？应该使用高阶函数来增强带有授权逻辑的查询和变更吗？还是应该使用[模式指令](https://www.apollographql.com/docs/apollo-server/schema/directives/) ？这些问题并没有放之四海而皆准的单一答案。

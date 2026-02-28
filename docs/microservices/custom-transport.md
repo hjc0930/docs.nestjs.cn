@@ -1,3 +1,7 @@
+<!-- 此文件从 content/microservices/custom-transport.md 自动生成，请勿直接修改此文件 -->
+<!-- 生成时间: 2026-02-28T11:23:59.619Z -->
+<!-- 源文件: content/microservices/custom-transport.md -->
+
 ### 自定义传输器
 
 Nest 提供了多种开箱即用的**传输器** ，同时提供了允许开发者构建新自定义传输策略的 API。传输器让你能够通过可插拔的通信层和非常简单的应用级消息协议（阅读完整[文章](https://dev.to/nestjs/integrate-nestjs-with-external-services-using-microservice-transporters-part-1-p3) ）在网络中连接组件。

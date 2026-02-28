@@ -1,3 +1,7 @@
+<!-- 此文件从 content/recipes/hot-reload.md 自动生成，请勿直接修改此文件 -->
+<!-- 生成时间: 2026-02-28T11:23:59.619Z -->
+<!-- 源文件: content/recipes/hot-reload.md -->
+
 ### 热重载
 
 对应用程序启动过程影响最大的是 **TypeScript 编译** 。幸运的是，借助 [webpack](https://github.com/webpack/webpack) 的 HMR（热模块替换）功能，我们无需在每次变更时重新编译整个项目。这大幅减少了实例化应用程序所需的时间，使迭代开发变得更加轻松。

@@ -1,3 +1,7 @@
+<!-- 此文件从 content/fundamentals/module-reference.md 自动生成，请勿直接修改此文件 -->
+<!-- 生成时间: 2026-02-28T11:23:59.619Z -->
+<!-- 源文件: content/fundamentals/module-reference.md -->
+
 ### 模块参考
 
 Nest 提供了 `ModuleRef` 类来导航内部提供者列表，并使用其注入令牌作为查找键获取任何提供者的引用。`ModuleRef` 类还提供了一种动态实例化静态和范围提供者的方法。`ModuleRef` 可以以常规方式注入到类中：

@@ -1,3 +1,7 @@
+<!-- 此文件从 content/recipes/nest-commander.md 自动生成，请勿直接修改此文件 -->
+<!-- 生成时间: 2026-02-28T11:23:59.619Z -->
+<!-- 源文件: content/recipes/nest-commander.md -->
+
 ### Nest Commander
 
 除了[独立应用](/standalone-applications)文档外，还有 [nest-commander](https://jmcdo29.github.io/nest-commander) 包可用于编写命令行应用程序，其结构类似于典型的 Nest 应用。

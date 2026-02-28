@@ -1,3 +1,7 @@
+<!-- 此文件从 content/graphql/interfaces.md 自动生成，请勿直接修改此文件 -->
+<!-- 生成时间: 2026-02-28T11:23:59.619Z -->
+<!-- 源文件: content/graphql/interfaces.md -->
+
 ### 接口
 
 与许多类型系统一样，GraphQL 支持接口。 **接口**是一种抽象类型，它包含一组字段，类型必须包含这些字段才能实现该接口（更多信息请参阅[此处](https://graphql.org/learn/schema/#interfaces) ）。

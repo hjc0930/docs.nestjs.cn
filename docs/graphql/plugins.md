@@ -1,3 +1,7 @@
+<!-- 此文件从 content/graphql/plugins.md 自动生成，请勿直接修改此文件 -->
+<!-- 生成时间: 2026-02-28T11:23:59.619Z -->
+<!-- 源文件: content/graphql/plugins.md -->
+
 ### Apollo 插件
 
 插件能够通过响应特定事件执行自定义操作来扩展 Apollo Server 的核心功能。目前这些事件对应 GraphQL 请求生命周期的各个阶段，以及 Apollo Server 自身的启动过程（详见[此处](https://www.apollographql.com/docs/apollo-server/integrations/plugins/) ）。例如，一个基础日志插件可以记录发送到 Apollo Server 的每个请求所关联的 GraphQL 查询字符串。

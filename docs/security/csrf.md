@@ -1,3 +1,7 @@
+<!-- 此文件从 content/security/csrf.md 自动生成，请勿直接修改此文件 -->
+<!-- 生成时间: 2026-02-28T11:23:59.619Z -->
+<!-- 源文件: content/security/csrf.md -->
+
 ### CSRF 防护
 
 跨站请求伪造（CSRF 或 XSRF）是一种攻击类型，其中**未经授权的**命令从受信任的用户发送到 Web 应用程序。为了帮助防止这种情况，您可以使用 [csrf-csrf](https://github.com/Psifi-Solutions/csrf-csrf) 包。

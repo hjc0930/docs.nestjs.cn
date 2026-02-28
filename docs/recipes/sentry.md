@@ -1,3 +1,7 @@
+<!-- 此文件从 content/recipes/sentry.md 自动生成，请勿直接修改此文件 -->
+<!-- 生成时间: 2026-02-28T11:23:59.619Z -->
+<!-- 源文件: content/recipes/sentry.md -->
+
 ### Sentry
 
 [Sentry](https://sentry.io) 是一个错误追踪和性能监控平台，可帮助开发者实时识别并修复问题。本指南展示如何将 Sentry 的 [NestJS SDK](https://docs.sentry.io/platforms/javascript/guides/nestjs/) 集成到您的 NestJS 应用中。

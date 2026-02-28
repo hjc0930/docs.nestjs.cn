@@ -1,3 +1,7 @@
+<!-- 此文件从 content/faq/global-prefix.md 自动生成，请勿直接修改此文件 -->
+<!-- 生成时间: 2026-02-28T11:23:59.619Z -->
+<!-- 源文件: content/faq/global-prefix.md -->
+
 ### 全局前缀
 
 要为 HTTP 应用程序中**每个路由**设置统一前缀，可使用 `INestApplication` 实例的 `setGlobalPrefix()` 方法。

@@ -1,3 +1,7 @@
+<!-- 此文件从 content/graphql/field-middleware.md 自动生成，请勿直接修改此文件 -->
+<!-- 生成时间: 2026-02-28T11:23:59.619Z -->
+<!-- 源文件: content/graphql/field-middleware.md -->
+
 ### 字段中间件
 
 :::warning 警告

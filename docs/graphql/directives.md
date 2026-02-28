@@ -1,3 +1,7 @@
+<!-- 此文件从 content/graphql/directives.md 自动生成，请勿直接修改此文件 -->
+<!-- 生成时间: 2026-02-28T11:23:59.619Z -->
+<!-- 源文件: content/graphql/directives.md -->
+
 ### 指令
 
 指令可以附加在字段或片段包含上，能够以服务器所需的任何方式影响查询的执行（了解更多[此处](https://graphql.org/learn/queries/#directives) ）。GraphQL 规范提供了几个默认指令：

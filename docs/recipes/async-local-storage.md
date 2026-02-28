@@ -1,3 +1,7 @@
+<!-- 此文件从 content/recipes/async-local-storage.md 自动生成，请勿直接修改此文件 -->
+<!-- 生成时间: 2026-02-28T11:23:59.619Z -->
+<!-- 源文件: content/recipes/async-local-storage.md -->
+
 ## 异步本地存储 (Async Local Storage)
 
 `AsyncLocalStorage` 是一个 [Node.js API](https://nodejs.org/api/async_context.html#async_context_class_asynclocalstorage)（基于 `async_hooks` API），它提供了一种无需显式传递函数参数就能在应用中传播本地状态的替代方案。这类似于其他语言中的线程本地存储。

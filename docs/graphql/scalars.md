@@ -1,3 +1,7 @@
+<!-- 此文件从 content/graphql/scalars.md 自动生成，请勿直接修改此文件 -->
+<!-- 生成时间: 2026-02-28T11:23:59.619Z -->
+<!-- 源文件: content/graphql/scalars.md -->
+
 ### 标量类型
 
 GraphQL 对象类型具有名称和字段，但这些字段最终需要解析为具体数据。这就是标量类型的作用：它们表示查询的叶节点（了解更多[此处](https://graphql.org/learn/schema/#scalar-types) ）。GraphQL 默认包含以下类型：`Int`、`Float`、`String`、`Boolean` 和 `ID`。除了这些内置类型，您可能还需要支持自定义原子数据类型（例如 `Date`）。

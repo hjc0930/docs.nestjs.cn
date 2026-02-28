@@ -1,3 +1,7 @@
+<!-- 此文件从 content/discover/who-uses.md 自动生成，请勿直接修改此文件 -->
+<!-- 生成时间: 2026-02-28T11:23:59.619Z -->
+<!-- 源文件: content/discover/who-uses.md -->
+
 # 谁在使用 NestJS？
 
 我们很自豪能为各类公司提供规模化产品构建支持。如果您正在使用 NestJS 并希望在此展示，请查看此[讨论帖](https://github.com/nestjs/nest/issues/1006)。我们很乐意将贵司标志展示于此！

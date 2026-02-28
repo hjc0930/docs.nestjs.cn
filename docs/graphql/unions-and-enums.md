@@ -1,3 +1,7 @@
+<!-- 此文件从 content/graphql/unions-and-enums.md 自动生成，请勿直接修改此文件 -->
+<!-- 生成时间: 2026-02-28T11:23:59.619Z -->
+<!-- 源文件: content/graphql/unions-and-enums.md -->
+
 ### 联合类型
 
 联合类型与接口非常相似，但它们不能指定类型之间的任何公共字段（了解更多[此处](https://graphql.org/learn/schema/#union-types) ）。联合类型适用于从单个字段返回不相交的数据类型。

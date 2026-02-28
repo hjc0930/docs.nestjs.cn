@@ -1,3 +1,7 @@
+<!-- 此文件从 content/fundamentals/platform-agnosticism.md 自动生成，请勿直接修改此文件 -->
+<!-- 生成时间: 2026-02-28T11:23:59.619Z -->
+<!-- 源文件: content/fundamentals/platform-agnosticism.md -->
+
 ### 平台无关性
 
 Nest 是一个平台无关的框架。这意味着您可以开发**可复用的逻辑部件** ，这些部件可以跨不同类型的应用程序使用。例如，大多数组件可以在不同的底层 HTTP 服务器框架（如 Express 和 Fastify）之间无需修改直接复用，甚至能跨不同*类型*的应用程序（如 HTTP 服务器框架、采用不同传输层的微服务以及 Web Sockets）使用。

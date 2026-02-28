@@ -1,3 +1,7 @@
+<!-- 此文件从 content/openapi/operations.md 自动生成，请勿直接修改此文件 -->
+<!-- 生成时间: 2026-02-28T11:23:59.619Z -->
+<!-- 源文件: content/openapi/operations.md -->
+
 ### 操作
 
 在 OpenAPI 术语中，路径（paths）是指 API 暴露的端点（资源），例如 `/users` 或 `/reports/summary`，而操作（operations）则是指用于操作这些路径的 HTTP 方法，例如 `GET`、`POST` 或 `DELETE`。

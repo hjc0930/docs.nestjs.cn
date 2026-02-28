@@ -1,3 +1,7 @@
+<!-- 此文件从 content/recipes/documentation.md 自动生成，请勿直接修改此文件 -->
+<!-- 生成时间: 2026-02-28T11:23:59.619Z -->
+<!-- 源文件: content/recipes/documentation.md -->
+
 ### 文档
 
 **Compodoc** 是一款专为 Angular 应用设计的文档工具。由于 Nest 和 Angular 具有相似的项目与代码结构，**Compodoc** 同样适用于 Nest 应用程序。

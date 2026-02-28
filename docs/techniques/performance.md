@@ -1,3 +1,7 @@
+<!-- 此文件从 content/techniques/performance.md 自动生成，请勿直接修改此文件 -->
+<!-- 生成时间: 2026-02-28T11:23:59.619Z -->
+<!-- 源文件: content/techniques/performance.md -->
+
 ### 性能（Fastify）
 
 默认情况下，Nest 使用 [Express](https://expressjs.com/) 框架。如前所述，Nest 也兼容其他库，例如 [Fastify](https://github.com/fastify/fastify)。Nest 通过实现框架适配器来达成这种框架无关性，该适配器的主要功能是将中间件和处理器代理到相应库的特定实现。

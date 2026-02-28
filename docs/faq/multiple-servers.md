@@ -1,3 +1,7 @@
+<!-- 此文件从 content/faq/multiple-servers.md 自动生成，请勿直接修改此文件 -->
+<!-- 生成时间: 2026-02-28T11:23:59.619Z -->
+<!-- 源文件: content/faq/multiple-servers.md -->
+
 ### HTTPS
 
 要创建使用 HTTPS 协议的应用程序，需在传递给 `NestFactory` 类的 `create()` 方法的配置对象中设置 `httpsOptions` 属性：

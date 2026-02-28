@@ -1,3 +1,7 @@
+<!-- 此文件从 content/security/cors.md 自动生成，请勿直接修改此文件 -->
+<!-- 生成时间: 2026-02-28T11:23:59.619Z -->
+<!-- 源文件: content/security/cors.md -->
+
 ### CORS
 
 跨域资源共享（CORS）是一种允许从另一个域请求资源的机制。在底层，Nest 根据底层平台使用 Express [cors](https://github.com/expressjs/cors) 或 Fastify [@fastify/cors](https://github.com/fastify/fastify-cors) 包。这些包提供了您可以根据需求自定义的各种选项。

@@ -1,3 +1,7 @@
+<!-- 此文件从 content/openapi/other-features.md 自动生成，请勿直接修改此文件 -->
+<!-- 生成时间: 2026-02-28T11:23:59.619Z -->
+<!-- 源文件: content/openapi/other-features.md -->
+
 ### 其他功能
 
 本页面列出了您可能会觉得有用的所有其他可用功能。

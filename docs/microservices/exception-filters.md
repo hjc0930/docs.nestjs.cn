@@ -1,3 +1,7 @@
+<!-- 此文件从 content/microservices/exception-filters.md 自动生成，请勿直接修改此文件 -->
+<!-- 生成时间: 2026-02-28T11:23:59.619Z -->
+<!-- 源文件: content/microservices/exception-filters.md -->
+
 ### 异常过滤器
 
 HTTP [异常过滤器](/overview/exception-filters)层与对应微服务层的唯一区别在于，不应抛出 `HttpException`，而应使用 `RpcException`。

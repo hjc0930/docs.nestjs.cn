@@ -1,3 +1,7 @@
+<!-- 此文件从 content/techniques/cookies.md 自动生成，请勿直接修改此文件 -->
+<!-- 生成时间: 2026-02-28T11:23:59.619Z -->
+<!-- 源文件: content/techniques/cookies.md -->
+
 ### Cookies
 
 **HTTP cookie** 是存储在用户浏览器中的一小段数据。Cookies 的设计初衷是作为网站记忆状态信息的可靠机制。当用户再次访问网站时，cookie 会自动随请求发送。

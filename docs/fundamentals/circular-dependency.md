@@ -1,3 +1,7 @@
+<!-- 此文件从 content/fundamentals/circular-dependency.md 自动生成，请勿直接修改此文件 -->
+<!-- 生成时间: 2026-02-28T11:23:59.619Z -->
+<!-- 源文件: content/fundamentals/circular-dependency.md -->
+
 # 循环依赖
 
 循环依赖指的是两个类相互依赖的情况。例如，类 A 需要类 B，而类 B 也需要类 A。在 Nest 中，模块之间以及提供者之间都可能出现循环依赖。

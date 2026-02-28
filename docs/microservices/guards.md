@@ -1,3 +1,7 @@
+<!-- 此文件从 content/microservices/guards.md 自动生成，请勿直接修改此文件 -->
+<!-- 生成时间: 2026-02-28T11:23:59.619Z -->
+<!-- 源文件: content/microservices/guards.md -->
+
 ### 守卫
 
 微服务守卫与[常规 HTTP 应用守卫](/overview/guards)没有本质区别。唯一的不同在于，你应该使用 `RpcException` 而不是抛出 `HttpException`。

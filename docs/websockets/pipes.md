@@ -1,3 +1,7 @@
+<!-- 此文件从 content/websockets/pipes.md 自动生成，请勿直接修改此文件 -->
+<!-- 生成时间: 2026-02-28T11:23:59.619Z -->
+<!-- 源文件: content/websockets/pipes.md -->
+
 ### 管道
 
 [常规管道](/overview/pipes)与 WebSocket 管道之间没有根本区别。唯一的区别是，您应该使用 `WsException` 而不是抛出 `HttpException`。此外，所有管道将仅应用于 `data` 参数（因为验证或转换 `client` 实例没有意义）。
