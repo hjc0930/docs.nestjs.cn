@@ -265,7 +265,9 @@ class DocumentTranslator {
    */
   restoreCodeBlocks(content) {
     for (const [placeholder, original] of this.codeBlockPlaceholders) {
-      content = content.replace(new RegExp(placeholder, 'g'), original);
+      // 转义 placeholder 中的特殊正则表达式字符，避免构建正则时出错
+      const escapedPlaceholder = placeholder.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      content = content.replace(new RegExp(escapedPlaceholder, 'g'), original);
     }
     return content;
   }
@@ -307,6 +309,14 @@ Translation Requirements:
    - Keep relative paths unchanged (e.g., ./guide/introduction)
    - Keep docs.nestjs.com links unchanged (will be processed later)
    - Maintain anchor links as-is (e.g., #provider-scope)
+
+6. **CRITICAL - Placeholder Preservation**:
+   - NEVER modify, explain, translate, or expand placeholders like __INLINE_CODE_X__, __CODE_BLOCK_X__, __LINK_X__, __HTML_TAG_X__
+   - These are special markers that will be automatically replaced with original content after translation
+   - Do NOT add any "Note:" sections listing or explaining what placeholders mean
+   - Do NOT generate content like "* __INLINE_CODE_1__ is replaced with ..." - this is WRONG
+   - Keep placeholders exactly as they appear in the source text, in their original positions
+   - Example: If you see "__INLINE_CODE_1__" in the source, output "__INLINE_CODE_1__" in the same location in your translation
 
 Please translate the following English technical documentation to Chinese following these rules:`;
 
