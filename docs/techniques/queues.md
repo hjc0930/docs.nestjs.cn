@@ -119,7 +119,7 @@ BullModule.registerQueue({
 
 #### Producers
 
-Job producers add jobs to queues. Producers are typically application services (Nest [providers](/providers)). To add jobs to a queue, first inject the queue into the service as follows:
+Job producers add jobs to queues. Producers are typically application services (Nest [providers](/overview/providers)). To add jobs to a queue, first inject the queue into the service as follows:
 
 ```typescript
 import { Injectable } from '@nestjs/common';
@@ -595,7 +595,7 @@ BullModule.registerQueue({
 
 #### Producers
 
-Job producers add jobs to queues. Producers are typically application services (Nest [providers](/providers)). To add jobs to a queue, first inject the queue into the service as follows:
+Job producers add jobs to queues. Producers are typically application services (Nest [providers](/overview/providers)). To add jobs to a queue, first inject the queue into the service as follows:
 
 ```typescript
 import { Injectable } from '@nestjs/common';

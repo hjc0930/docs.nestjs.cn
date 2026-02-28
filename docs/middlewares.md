@@ -238,4 +238,4 @@ app.use(logger);
 await app.listen(process.env.PORT ?? 3000);
 ```
 
-> info **Hint** Accessing the DI container in a global middleware is not possible. You can use a [functional middleware](middleware#函数式中间件) instead when using `app.use()`. Alternatively, you can use a class middleware and consume it with `.forRoutes('*')` within the `AppModule` (or any other module).
+> info **Hint** Accessing the DI container in a global middleware is not possible. You can use a [functional middleware](/overview/middlewares#函数式中间件) instead when using `app.use()`. Alternatively, you can use a class middleware and consume it with `.forRoutes('*')` within the `AppModule` (or any other module).
