@@ -1,5 +1,5 @@
 <!-- 此文件从 content/controllers.md 自动生成，请勿直接修改此文件 -->
-<!-- 生成时间: 2026-02-24T02:49:46.576Z -->
+<!-- 生成时间: 2026-02-28T06:24:17.868Z -->
 <!-- 源文件: content/controllers.md -->
 
 ### Controllers
@@ -12,13 +12,14 @@ A controller's purpose is to handle specific requests for the application. The *
 
 To create a basic controller, we use classes and **decorators**. Decorators link classes with the necessary metadata, allowing Nest to create a routing map that connects requests to their corresponding controllers.
 
-> info **Hint** To quickly create a CRUD controller with built-in [validation](./techniques/validation), you can use the CLI's [CRUD generator](./recipes/crud-generator#crud-生成器): `nest g resource [name]`.
+> info **Hint** To quickly create a CRUD controller with built-in [validation](/techniques/validation), you can use the CLI's [CRUD generator](/recipes/crud-generator#crud-生成器): `nest g resource [name]`.
 
 #### Routing
 
 In the following example, we’ll use the `@Controller()` decorator, which is **required** to define a basic controller. We'll specify an optional route path prefix of `cats`. Using a path prefix in the `@Controller()` decorator helps us group related routes together and reduces repetitive code. For example, if we want to group routes that manage interactions with a cat entity under the `/cats` path, we can specify the `cats` path prefix in the `@Controller()` decorator. This way, we don't need to repeat that portion of the path for each route in the file.
 
-```typescript title="cats.controller"
+```typescript
+@@filename(cats.controller)
 import { Controller, Get } from '@nestjs/common';
 
 @Controller('cats')
@@ -28,7 +29,14 @@ export class CatsController {
     return 'This action returns all cats';
   }
 }
-```
+
+@Controller('cats')
+export class CatsController {
+  @Get()
+  findAll() {
+    return 'This action returns all cats';
+  }
+}
 ```
 
 > info **Hint** To create a controller using the CLI, simply execute the `$ nest g controller [name]` command.
@@ -61,7 +69,7 @@ This method will return a 200 status code along with the associated response, wh
   </tr>
 </table>
 
-> warning **Warning** Nest detects when the handler is using either `@Res()` or `@Next()`, indicating you have chosen the library-specific option. If both approaches are used at the same time, the Standard approach is **automatically disabled** for this single route and will no longer work as expected. To use both approaches at the same time (for example, by injecting the response object to only set cookies/headers but still leave the rest to the framework), you must set the `passthrough` option to `true` in the `@Res({ passthrough: true })` decorator.
+> warning **Warning** Nest detects when the handler is using either `@Res()` or `@Next()`, indicating you have chosen the library-specific option. If both approaches are used at the same time, the Standard approach is **automatically disabled** for this single route and will no longer work as expected. To use both approaches at the same time (for example, by injecting the response object to only set cookies/headers but still leave the rest to the framework), you must set the `passthrough` option to `true` in the `@Res({{ '{' }} passthrough: true {{ '}' }})` decorator.
 
 <app-banner-devtools></app-banner-devtools>
 
@@ -69,7 +77,8 @@ This method will return a 200 status code along with the associated response, wh
 
 Handlers often need access to the client’s **request** details. Nest provides access to the [request object](https://expressjs.com/en/api.html#req) from the underlying platform (Express by default). You can access the request object by instructing Nest to inject it using the `@Req()` decorator in the handler’s signature.
 
-```typescript title="cats.controller"
+```typescript
+@@filename(cats.controller)
 import { Controller, Get, Req } from '@nestjs/common';
 import type { Request } from 'express';
 
@@ -77,6 +86,15 @@ import type { Request } from 'express';
 export class CatsController {
   @Get()
   findAll(@Req() request: Request): string {
+    return 'This action returns all cats';
+  }
+}
+
+@Controller('cats')
+export class CatsController {
+  @Get()
+  @Bind(Req())
+  findAll(request) {
     return 'This action returns all cats';
   }
 }
@@ -138,7 +156,8 @@ The request object represents the HTTP request and contains properties for the q
 
 Earlier, we defined an endpoint to fetch the cats resource (**GET** route). We'll typically also want to provide an endpoint that creates new records. For this, let's create the **POST** handler:
 
-```typescript title="cats.controller"
+```typescript
+@@filename(cats.controller)
 import { Controller, Get, Post } from '@nestjs/common';
 
 @Controller('cats')
@@ -150,6 +169,19 @@ export class CatsController {
 
   @Get()
   findAll(): string {
+    return 'This action returns all cats';
+  }
+}
+
+@Controller('cats')
+export class CatsController {
+  @Post()
+  create() {
+    return 'This action adds a new cat';
+  }
+
+  @Get()
+  findAll() {
     return 'This action returns all cats';
   }
 }
@@ -172,7 +204,7 @@ The `'abcd/*'` route path will match `abcd/`, `abcd/123`, `abcd/abc`, and so on.
 
 This approach works on both Express and Fastify. However, with the latest release of Express (v5), the routing system has become more strict. In pure Express, you must use a named wildcard to make the route work—for example, `abcd/*splat`, where `splat` is simply the name of the wildcard parameter and has no special meaning. You can name it anything you like. That said, since Nest provides a compatibility layer for Express, you can still use the asterisk (`*`) as a wildcard.
 
-When it comes to asterisks used in the **middle of a route**, Express requires named wildcards (e.g., `ab{*splat}cd`), while Fastify does not support them at all.
+When it comes to asterisks used in the **middle of a route**, Express requires named wildcards (e.g., `ab{{ '{' }}*splat&#125;cd`), while Fastify does not support them at all.
 
 #### Status code
 
@@ -224,7 +256,7 @@ Returned values will override any arguments passed to the `@Redirect()` decorato
 @Redirect('./', 302)
 getDocs(@Query('version') version) {
   if (version && version === '5') {
-    return { url: './v5/' };
+    return { url: '/v5/' };
   }
 }
 ```
@@ -236,6 +268,7 @@ Routes with static paths won’t work when you need to accept **dynamic data** a
 > info **Hint** Routes with parameters should be declared after any static paths. This prevents the parameterized paths from intercepting traffic destined for the static paths.
 
 ```typescript
+@@filename()
 @Get(':id')
 findOne(@Param() params: any): string {
   console.log(params.id);
@@ -248,6 +281,7 @@ The `@Param()` decorator is used to decorate a method parameter (in the example 
 > info **Hint** Import `Param` from the `@nestjs/common` package.
 
 ```typescript
+@@filename()
 @Get(':id')
 findOne(@Param('id') id: string): string {
   return `This action returns a #${id} cat`;
@@ -292,7 +326,8 @@ That said, there are specific edge cases where having request-based lifetimes fo
 
 We love modern JavaScript, especially its emphasis on **asynchronous** data handling. That’s why Nest fully supports `async` functions. Every `async` function must return a `Promise`, which allows you to return a deferred value that Nest can resolve automatically. Here's an example:
 
-```typescript title="cats.controller"
+```typescript
+@@filename(cats.controller)
 @Get()
 async findAll(): Promise<any[]> {
   return [];
@@ -301,7 +336,8 @@ async findAll(): Promise<any[]> {
 
 This code is perfectly valid. But Nest takes it a step further by allowing route handlers to return RxJS [observable streams](https://rxjs-dev.firebaseapp.com/guide/observable) as well. Nest will handle the subscription internally and resolve the final emitted value once the stream completes.
 
-```typescript title="cats.controller"
+```typescript
+@@filename(cats.controller)
 @Get()
 findAll(): Observable<any[]> {
   return of([]);
@@ -318,7 +354,8 @@ Before we proceed (if you're using TypeScript), we need to define the **DTO** (D
 
 Let's create the `CreateCatDto` class:
 
-```typescript title="create-cat.dto"
+```typescript
+@@filename(create-cat.dto)
 export class CreateCatDto {
   name: string;
   age: number;
@@ -328,14 +365,15 @@ export class CreateCatDto {
 
 It has only three basic properties. Thereafter we can use the newly created DTO inside the `CatsController`:
 
-```typescript title="cats.controller"
+```typescript
+@@filename(cats.controller)
 @Post()
 async create(@Body() createCatDto: CreateCatDto) {
   return 'This action adds a new cat';
 }
 ```
 
-> info **Hint** Our `ValidationPipe` can filter out properties that should not be received by the method handler. In this case, we can whitelist the acceptable properties, and any property not included in the whitelist is automatically stripped from the resulting object. In the `CreateCatDto` example, our whitelist is the `name`, `age`, and `breed` properties. Learn more [here](./techniques/validation#剥离属性).
+> info **Hint** Our `ValidationPipe` can filter out properties that should not be received by the method handler. In this case, we can whitelist the acceptable properties, and any property not included in the whitelist is automatically stripped from the resulting object. In the `CreateCatDto` example, our whitelist is the `name`, `age`, and `breed` properties. Learn more [here](/techniques/validation#剥离属性).
 
 #### Query parameters
 
@@ -343,7 +381,8 @@ When handling query parameters in your routes, you can use the `@Query()` decora
 
 Consider a route where we want to filter a list of cats based on query parameters like `age` and `breed`. First, define the query parameters in the `CatsController`:
 
-```typescript title="cats.controller"
+```typescript
+@@filename(cats.controller)
 @Get()
 async findAll(@Query('age') age: number, @Query('breed') breed: string) {
   return `This action returns all cats filtered by age: ${age} and breed: ${breed}`;
@@ -393,7 +432,8 @@ There's a separate chapter about handling errors (i.e., working with exceptions)
 
 Below is an example that demonstrates the use of several available decorators to create a basic controller. This controller provides a few methods to access and manipulate internal data.
 
-```typescript title="cats.controller"
+```typescript
+@@filename(cats.controller)
 import { Controller, Get, Query, Post, Body, Put, Param, Delete } from '@nestjs/common';
 import { CreateCatDto, UpdateCatDto, ListAllEntities } from './dto';
 
@@ -424,6 +464,40 @@ export class CatsController {
     return `This action removes a #${id} cat`;
   }
 }
+
+@Controller('cats')
+export class CatsController {
+  @Post()
+  @Bind(Body())
+  create(createCatDto) {
+    return 'This action adds a new cat';
+  }
+
+  @Get()
+  @Bind(Query())
+  findAll(query) {
+    console.log(query);
+    return `This action returns all cats (limit: ${query.limit} items)`;
+  }
+
+  @Get(':id')
+  @Bind(Param('id'))
+  findOne(id) {
+    return `This action returns a #${id} cat`;
+  }
+
+  @Put(':id')
+  @Bind(Param('id'), Body())
+  update(id, updateCatDto) {
+    return `This action updates a #${id} cat`;
+  }
+
+  @Delete(':id')
+  @Bind(Param('id'))
+  remove(id) {
+    return `This action removes a #${id} cat`;
+  }
+}
 ```
 
 > info **Hint** Nest CLI offers a generator (schematic) that automatically creates **all the boilerplate code**, saving you from doing this manually and improving the overall developer experience. Learn more about this feature [here](/recipes/crud-generator).
@@ -434,7 +508,8 @@ Even with the `CatsController` fully defined, Nest doesn't yet know about it and
 
 Controllers must always be part of a module, which is why we include the `controllers` array within the `@Module()` decorator. Since we haven’t defined any other modules apart from the root `AppModule`, we’ll use it to register the `CatsController`:
 
-```typescript title="app.module"
+```typescript
+@@filename(app.module)
 import { Module } from '@nestjs/common';
 import { CatsController } from './cats/cats.controller';
 
@@ -451,6 +526,7 @@ We attached the metadata to the module class using the `@Module()` decorator, an
 So far, we've covered the standard Nest way of manipulating responses. Another approach is to use a library-specific [response object](https://expressjs.com/en/api.html#res). To inject a specific response object, we can use the `@Res()` decorator. To highlight the differences, let’s rewrite the `CatsController` like this:
 
 ```typescript
+@@filename()
 import { Controller, Get, Post, Res, HttpStatus } from '@nestjs/common';
 import { Response } from 'express';
 
@@ -466,6 +542,21 @@ export class CatsController {
      res.status(HttpStatus.OK).json([]);
   }
 }
+
+@Controller('cats')
+export class CatsController {
+  @Post()
+  @Bind(Res(), Body())
+  create(res, createCatDto) {
+    res.status(HttpStatus.CREATED).send();
+  }
+
+  @Get()
+  @Bind(Res())
+  findAll(res) {
+     res.status(HttpStatus.OK).json([]);
+  }
+}
 ```
 
 While this approach works and offers more flexibility by giving full control over the response object (such as header manipulation and access to library-specific features), it should be used with caution. Generally, this method is less clear and comes with some downsides. The main disadvantage is that your code becomes platform-dependent, as different underlying libraries may have different APIs for the response object. Additionally, it can make testing more challenging, as you'll need to mock the response object, among other things.
@@ -473,6 +564,7 @@ While this approach works and offers more flexibility by giving full control ove
 Furthermore, by using this approach, you lose compatibility with Nest features that rely on standard response handling, such as Interceptors and the `@HttpCode()` / `@Header()` decorators. To address this, you can enable the `passthrough` option like this:
 
 ```typescript
+@@filename()
 @Get()
 findAll(@Res({ passthrough: true }) res: Response) {
   res.status(HttpStatus.OK);

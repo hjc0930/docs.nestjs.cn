@@ -1,6 +1,6 @@
-<!-- 此文件从 content/techniques/task-scheduling.md 自动生成，请勿直接修改此文件 -->
-<!-- 生成时间: 2026-02-24T02:50:25.425Z -->
-<!-- 源文件: content/techniques/task-scheduling.md -->
+<!-- 此文件从 content/techniques\task-scheduling.md 自动生成，请勿直接修改此文件 -->
+<!-- 生成时间: 2026-02-28T06:24:17.941Z -->
+<!-- 源文件: content/techniques\task-scheduling.md -->
 
 ### Task scheduling
 
@@ -16,7 +16,8 @@ $ npm install --save @nestjs/schedule
 
 To activate job scheduling, import the `ScheduleModule` into the root `AppModule` and run the `forRoot()` static method as shown below:
 
-```typescript title="app.module"
+```typescript
+@@filename(app.module)
 import { Module } from '@nestjs/common';
 import { ScheduleModule } from '@nestjs/schedule';
 

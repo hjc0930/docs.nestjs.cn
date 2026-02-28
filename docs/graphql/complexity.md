@@ -1,24 +1,26 @@
-### 复杂度
+<!-- 此文件从 content/graphql\complexity.md 自动生成，请勿直接修改此文件 -->
+<!-- 生成时间: 2026-02-28T06:24:18.250Z -->
+<!-- 源文件: content/graphql\complexity.md -->
 
-:::warning 警告
-本章仅适用于代码优先方法。
-:::
+### Complexity
 
-查询复杂度功能允许您定义特定字段的复杂程度，并通过设置**最大复杂度**来限制查询。其核心思想是使用简单数字来定义每个字段的复杂度，通常默认给每个字段分配 `1` 的复杂度值。此外，GraphQL 查询的复杂度计算可以通过所谓的复杂度估算器进行自定义。复杂度估算器是一个计算字段复杂度的简单函数，您可以在规则中添加任意数量的估算器，它们会按顺序依次执行。第一个返回数值型复杂度结果的估算器将决定该字段的最终复杂度。
+> warning **Warning** This chapter applies only to the code first approach.
 
-`@nestjs/graphql` 包与 [graphql-query-complexity](https://github.com/slicknode/graphql-query-complexity) 等工具深度集成，后者提供了基于成本分析的解决方案。通过该库，您可以拒绝执行那些被认为代价过高的 GraphQL 服务器查询。
+Query complexity allows you to define how complex certain fields are, and to restrict queries with a **maximum complexity**. The idea is to define how complex each field is by using a simple number. A common default is to give each field a complexity of `1`. In addition, the complexity calculation of a GraphQL query can be customized with so-called complexity estimators. A complexity estimator is a simple function that calculates the complexity for a field. You can add any number of complexity estimators to the rule, which are then executed one after another. The first estimator that returns a numeric complexity value determines the complexity for that field.
 
-#### 安装
+The `@nestjs/graphql` package integrates very well with tools like [graphql-query-complexity](https://github.com/slicknode/graphql-query-complexity) that provides a cost analysis-based solution. With this library, you can reject queries to your GraphQL server that are deemed too costly to execute.
 
-要开始使用它，我们首先需要安装所需的依赖项。
+#### Installation
+
+To begin using it, we first install the required dependency.
 
 ```bash
 $ npm install --save graphql-query-complexity
 ```
 
-#### 快速开始
+#### Getting started
 
-安装过程完成后，我们就可以定义 `ComplexityPlugin` 类：
+Once the installation process is complete, we can define the `ComplexityPlugin` class:
 
 ```typescript
 import { GraphQLSchemaHost } from '@nestjs/graphql';
@@ -57,7 +59,7 @@ export class ComplexityPlugin implements ApolloServerPlugin {
         });
         if (complexity > maxComplexity) {
           throw new GraphQLError(
-            `Query is too complex: ${complexity}. Maximum allowed complexity: ${maxComplexity}`
+            `Query is too complex: ${complexity}. Maximum allowed complexity: ${maxComplexity}`,
           );
         }
         console.log('Query Complexity:', complexity);
@@ -67,36 +69,32 @@ export class ComplexityPlugin implements ApolloServerPlugin {
 }
 ```
 
-出于演示目的，我们将允许的最大复杂度指定为 `20`。在上面的示例中，我们使用了 2 个估算器：`simpleEstimator` 和 `fieldExtensionsEstimator`。
+For demonstration purposes, we specified the maximum allowed complexity as `20`. In the example above, we used 2 estimators, the `simpleEstimator` and the `fieldExtensionsEstimator`.
 
-- `simpleEstimator`：简单估算器为每个字段返回一个固定的复杂度值
-- `fieldExtensionsEstimator`：字段扩展估算器用于提取模式中每个字段的复杂度值
+- `simpleEstimator`: the simple estimator returns a fixed complexity for each field
+- `fieldExtensionsEstimator`: the field extensions estimator extracts the complexity value for each field of your schema
 
-:::info 提示
-请记得将此类添加到任意模块的 providers 数组中
-:::
+> info **Hint** Remember to add this class to the providers array in any module.
 
+#### Field-level complexity
 
-
-#### 字段级复杂度
-
-启用此插件后，我们现在可以通过在传入 `@Field()` 装饰器的选项对象中指定 `complexity` 属性来定义任意字段的复杂度，如下所示：
+With this plugin in place, we can now define the complexity for any field by specifying the `complexity` property in the options object passed into the `@Field()` decorator, as follows:
 
 ```typescript
 @Field({ complexity: 3 })
 title: string;
 ```
 
-或者，你也可以定义估算函数：
+Alternatively, you can define the estimator function:
 
 ```typescript
 @Field({ complexity: (options: ComplexityEstimatorArgs) => ... })
 title: string;
 ```
 
-#### 查询/变更级别的复杂度
+#### Query/Mutation-level complexity
 
-此外，`@Query()` 和 `@Mutation()` 装饰器可以像这样指定一个 `complexity` 属性：
+In addition, `@Query()` and `@Mutation()` decorators may have a `complexity` property specified like so:
 
 ```typescript
 @Query({ complexity: (options: ComplexityEstimatorArgs) => options.args.count * options.childComplexity })

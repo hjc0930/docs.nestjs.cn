@@ -1,17 +1,21 @@
+<!-- 此文件从 content/techniques\cookies.md 自动生成，请勿直接修改此文件 -->
+<!-- 生成时间: 2026-02-28T06:24:17.982Z -->
+<!-- 源文件: content/techniques\cookies.md -->
+
 ### Cookies
 
-**HTTP cookie** 是存储在用户浏览器中的一小段数据。Cookies 的设计初衷是作为网站记忆状态信息的可靠机制。当用户再次访问网站时，cookie 会自动随请求发送。
+An **HTTP cookie** is a small piece of data stored by the user's browser. Cookies were designed to be a reliable mechanism for websites to remember stateful information. When the user visits the website again, the cookie is automatically sent with the request.
 
-#### 与 Express 配合使用（默认）
+#### Use with Express (default)
 
-首先安装[所需包](https://github.com/expressjs/cookie-parser) （TypeScript 用户还需安装其类型声明）：
+First install the [required package](https://github.com/expressjs/cookie-parser) (and its types for TypeScript users):
 
 ```shell
 $ npm i cookie-parser
 $ npm i -D @types/cookie-parser
 ```
 
-安装完成后，将 `cookie-parser` 中间件作为全局中间件应用（例如在 `main.ts` 文件中）。
+Once the installation is complete, apply the `cookie-parser` middleware as global middleware (for example, in your `main.ts` file).
 
 ```typescript
 import * as cookieParser from 'cookie-parser';
@@ -19,16 +23,16 @@ import * as cookieParser from 'cookie-parser';
 app.use(cookieParser());
 ```
 
-你可以向 `cookieParser` 中间件传递多个选项：
+You can pass several options to the `cookieParser` middleware:
 
-- `secret` 用于签名 cookie 的字符串或数组。这是可选的，如果未指定，则不会解析已签名的 cookie。如果提供字符串，则将其用作密钥。如果提供数组，则会尝试按顺序使用每个密钥来验证 cookie 签名。
-- `options` 一个对象，作为第二个参数传递给 `cookie.parse`。更多信息请参阅 [cookie](https://www.npmjs.org/package/cookie)。
+- `secret` a string or array used for signing cookies. This is optional and if not specified, will not parse signed cookies. If a string is provided, this is used as the secret. If an array is provided, an attempt will be made to unsign the cookie with each secret in order.
+- `options` an object that is passed to `cookie.parse` as the second option. See [cookie](https://www.npmjs.org/package/cookie) for more information.
 
-该中间件会解析请求中的 `Cookie` 头部，并将 cookie 数据暴露为属性 `req.cookies`；如果提供了密钥，还会暴露为属性 `req.signedCookies`。这些属性是 cookie 名称与 cookie 值的键值对。
+The middleware will parse the `Cookie` header on the request and expose the cookie data as the property `req.cookies` and, if a secret was provided, as the property `req.signedCookies`. These properties are name value pairs of the cookie name to cookie value.
 
-当提供密钥时，该模块会对已签名的 cookie 值进行解密验证，并将这些键值对从 `req.cookies` 移动到 `req.signedCookies`。已签名的 cookie 是指值以 `s:` 为前缀的 cookie。签名验证失败的 cookie 值将被置为 `false` 而非被篡改后的值。
+When a secret is provided, this module will unsign and validate any signed cookie values and move those name value pairs from `req.cookies` into `req.signedCookies`. A signed cookie is a cookie that has a value prefixed with `s:`. Signed cookies that fail signature validation will have the value `false` instead of the tampered value.
 
-完成此设置后，您现在可以在路由处理程序中读取 cookie，如下所示：
+With this in place, you can now read cookies from within the route handlers, as follows:
 
 ```typescript
 @Get()
@@ -38,11 +42,9 @@ findAll(@Req() request: Request) {
 }
 ```
 
-:::info 提示
-`@Req()` 装饰器需从 `@nestjs/common` 导入，而 `Request` 需从 `express` 包导入。
-:::
+> info **Hint** The `@Req()` decorator is imported from the `@nestjs/common`, while `Request` from the `express` package.
 
-要为输出响应附加 cookie，请使用 `Response#cookie()` 方法：
+To attach a cookie to an outgoing response, use the `Response#cookie()` method:
 
 ```typescript
 @Get()
@@ -51,38 +53,31 @@ findAll(@Res({ passthrough: true }) response: Response) {
 }
 ```
 
-:::warning 警告
-如果希望将响应处理逻辑交由框架处理，请记得将 `passthrough` 选项设为 `true`，如上所示。更多信息请参阅 [此处](/overview/controllers#库特定方法) 。
-:::
+> warning **Warning** If you want to leave the response handling logic to the framework, remember to set the `passthrough` option to `true`, as shown above. Read more [here](/controllers#库特定方法).
 
-:::info 提示
-`@Res()` 装饰器从 `@nestjs/common` 导入，而 `Response` 则来自 `express` 包。
-:::
+> info **Hint** The `@Res()` decorator is imported from the `@nestjs/common`, while `Response` from the `express` package.
 
-#### 与 Fastify 一起使用
+#### Use with Fastify
 
-首先安装所需依赖包：
+First install the required package:
 
 ```shell
 $ npm i @fastify/cookie
 ```
 
-安装完成后，注册 `@fastify/cookie` 插件：
+Once the installation is complete, register the `@fastify/cookie` plugin:
 
 ```typescript
 import fastifyCookie from '@fastify/cookie';
 
 // somewhere in your initialization file
-const app = await NestFactory.create<NestFastifyApplication>(
-  AppModule,
-  new FastifyAdapter()
-);
+const app = await NestFactory.create<NestFastifyApplication>(AppModule, new FastifyAdapter());
 await app.register(fastifyCookie, {
   secret: 'my-secret', // for cookies signature
 });
 ```
 
-配置完成后，您现在可以在路由处理程序中读取 cookie，如下所示：
+With this in place, you can now read cookies from within the route handlers, as follows:
 
 ```typescript
 @Get()
@@ -91,12 +86,9 @@ findAll(@Req() request: FastifyRequest) {
 }
 ```
 
-:::info 注意
-`@Req()` 装饰器是从 `@nestjs/common` 导入的，而 `FastifyRequest` 则来自 `fastify` 包。
-:::
+> info **Hint** The `@Req()` decorator is imported from the `@nestjs/common`, while `FastifyRequest` from the `fastify` package.
 
-
-要为传出响应附加 cookie，请使用 `FastifyReply#setCookie()` 方法：
+To attach a cookie to an outgoing response, use the `FastifyReply#setCookie()` method:
 
 ```typescript
 @Get()
@@ -105,34 +97,28 @@ findAll(@Res({ passthrough: true }) response: FastifyReply) {
 }
 ```
 
-要了解更多关于 `FastifyReply#setCookie()` 方法的信息，请查看此[页面](https://github.com/fastify/fastify-cookie#sending) 。
+To read more about `FastifyReply#setCookie()` method, check out this [page](https://github.com/fastify/fastify-cookie#sending).
 
-:::warning 警告
- 如果希望将响应处理逻辑交由框架处理，请记得将 `passthrough` 选项设为 `true`，如上所示。更多信息请参阅 [此处](/overview/controllers#库特定方法) 。
-:::
+> warning **Warning** If you want to leave the response handling logic to the framework, remember to set the `passthrough` option to `true`, as shown above. Read more [here](/controllers#库特定方法).
 
-:::info 提示
-`@Res()` 装饰器从 `@nestjs/common` 导入，而 `FastifyReply` 则来自 `fastify` 包。
-:::
+> info **Hint** The `@Res()` decorator is imported from the `@nestjs/common`, while `FastifyReply` from the `fastify` package.
 
-#### 创建自定义装饰器（跨平台）
+#### Creating a custom decorator (cross-platform)
 
-为提供便捷的声明式方法来访问传入的 cookies，我们可以创建一个[自定义装饰器](/overview/custom-decorators) 。
+To provide a convenient, declarative way of accessing incoming cookies, we can create a [custom decorator](/custom-decorators).
 
 ```typescript
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 
-export const Cookies = createParamDecorator(
-  (data: string, ctx: ExecutionContext) => {
-    const request = ctx.switchToHttp().getRequest();
-    return data ? request.cookies?.[data] : request.cookies;
-  }
-);
+export const Cookies = createParamDecorator((data: string, ctx: ExecutionContext) => {
+  const request = ctx.switchToHttp().getRequest();
+  return data ? request.cookies?.[data] : request.cookies;
+});
 ```
 
-`@Cookies()` 装饰器将从 `req.cookies` 对象中提取所有 cookie 或指定名称的 cookie，并用该值填充被装饰的参数。
+The `@Cookies()` decorator will extract all cookies, or a named cookie from the `req.cookies` object and populate the decorated parameter with that value.
 
-通过这种方式，我们现在可以在路由处理程序签名中使用该装饰器，如下所示：
+With this in place, we can now use the decorator in a route handler signature, as follows:
 
 ```typescript
 @Get()

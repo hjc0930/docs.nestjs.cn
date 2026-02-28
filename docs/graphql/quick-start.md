@@ -1,12 +1,12 @@
-<!-- 此文件从 content/graphql/quick-start.md 自动生成，请勿直接修改此文件 -->
-<!-- 生成时间: 2026-02-24T02:58:12.529Z -->
-<!-- 源文件: content/graphql/quick-start.md -->
+<!-- 此文件从 content/graphql\quick-start.md 自动生成，请勿直接修改此文件 -->
+<!-- 生成时间: 2026-02-28T06:24:18.177Z -->
+<!-- 源文件: content/graphql\quick-start.md -->
 
 ## Harnessing the power of TypeScript & GraphQL
 
 [GraphQL](https://graphql.org/) is a powerful query language for APIs and a runtime for fulfilling those queries with your existing data. It's an elegant approach that solves many problems typically found with REST APIs. For background, we suggest reading this [comparison](https://www.apollographql.com/blog/graphql-vs-rest) between GraphQL and REST. GraphQL combined with [TypeScript](https://www.typescriptlang.org/) helps you develop better type safety with your GraphQL queries, giving you end-to-end typing.
 
-In this chapter, we assume a basic understanding of GraphQL, and focus on how to work with the built-in `@nestjs/graphql` module. The `GraphQLModule` can be configured to use [Apollo](https://www.apollographql.com/) server (with the `@nestjs/apollo` driver) and [Mercurius](https://github.com/mercurius-js/mercurius) (with the `@nestjs/mercurius`). We provide official integrations for these proven GraphQL packages to provide a simple way to use GraphQL with Nest (see more integrations [here](./graphql/quick-start#third-party-integrations)).
+In this chapter, we assume a basic understanding of GraphQL, and focus on how to work with the built-in `@nestjs/graphql` module. The `GraphQLModule` can be configured to use [Apollo](https://www.apollographql.com/) server (with the `@nestjs/apollo` driver) and [Mercurius](https://github.com/mercurius-js/mercurius) (with the `@nestjs/mercurius`). We provide official integrations for these proven GraphQL packages to provide a simple way to use GraphQL with Nest (see more integrations [here](/graphql/quick-start#third-party-integrations)).
 
 You can also build your own dedicated driver (read more on that [here](/graphql/other-features#creating-a-custom-driver)).
 
@@ -44,6 +44,7 @@ In the **schema first** approach, the source of truth is GraphQL SDL (Schema Def
 Once the packages are installed, we can import the `GraphQLModule` and configure it with the `forRoot()` static method.
 
 ```typescript
+@@filename()
 import { Module } from '@nestjs/common';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
@@ -63,6 +64,7 @@ export class AppModule {}
 The `forRoot()` method takes an options object as an argument. These options are passed through to the underlying driver instance (read more about available settings here: [Apollo](https://www.apollographql.com/docs/apollo-server/api/apollo-server) and [Mercurius](https://github.com/mercurius-js/mercurius/blob/master/docs/api/options.md#plugin-options)). For example, if you want to disable the `playground` and turn off `debug` mode (for Apollo), pass the following options:
 
 ```typescript
+@@filename()
 import { Module } from '@nestjs/common';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
@@ -288,7 +290,7 @@ One technique is to use a factory function:
 }),
 ```
 
-Like other factory providers, our factory function can be <a href="./fundamentals/custom-providers#factory-providers-usefactory">async</a> and can inject dependencies through `inject`.
+Like other factory providers, our factory function can be <a href="/fundamentals/custom-providers#factory-providers-usefactory">async</a> and can inject dependencies through `inject`.
 
 ```typescript
 GraphQLModule.forRootAsync<ApolloDriverConfig>({
@@ -337,6 +339,7 @@ GraphQLModule.forRootAsync<ApolloDriverConfig>({
 Instead of using Apollo, Fastify users (read more [here](/techniques/performance)) can alternatively use the `@nestjs/mercurius` driver.
 
 ```typescript
+@@filename()
 import { Module } from '@nestjs/common';
 import { GraphQLModule } from '@nestjs/graphql';
 import { MercuriusDriver, MercuriusDriverConfig } from '@nestjs/mercurius';

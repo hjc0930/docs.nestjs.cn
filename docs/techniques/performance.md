@@ -1,29 +1,31 @@
-### 性能（Fastify）
+<!-- 此文件从 content/techniques\performance.md 自动生成，请勿直接修改此文件 -->
+<!-- 生成时间: 2026-02-28T06:24:17.968Z -->
+<!-- 源文件: content/techniques\performance.md -->
 
-默认情况下，Nest 使用 [Express](https://expressjs.com/) 框架。如前所述，Nest 也兼容其他库，例如 [Fastify](https://github.com/fastify/fastify)。Nest 通过实现框架适配器来达成这种框架无关性，该适配器的主要功能是将中间件和处理器代理到相应库的特定实现。
+### Performance (Fastify)
 
-:::info 注意
-要实现框架适配器，目标库必须提供与 Express 类似的请求/响应管道处理机制。
-:::
+By default, Nest makes use of the [Express](https://expressjs.com/) framework. As mentioned earlier, Nest also provides compatibility with other libraries such as, for example, [Fastify](https://github.com/fastify/fastify). Nest achieves this framework independence by implementing a framework adapter whose primary function is to proxy middleware and handlers to appropriate library-specific implementations.
 
+> info **Hint** Note that in order for a framework adapter to be implemented, the target library has to provide similar request/response pipeline processing as found in Express.
 
-[Fastify](https://github.com/fastify/fastify) 是 Nest 的绝佳替代框架，因为它以类似 Express 的方式解决设计问题。但 fastify 比 Express **快得多** ，基准测试结果几乎快两倍。一个合理的问题是：为什么 Nest 默认使用 Express 作为 HTTP 提供者？原因是 Express 使用广泛、知名度高，并拥有大量兼容中间件，这些都可以被 Nest 用户直接使用。
+[Fastify](https://github.com/fastify/fastify) provides a good alternative framework for Nest because it solves design issues in a similar manner to Express. However, fastify is much **faster** than Express, achieving almost two times better benchmarks results. A fair question is why does Nest use Express as the default HTTP provider? The reason is that Express is widely-used, well-known, and has an enormous set of compatible middleware, which is available to Nest users out-of-the-box.
 
-但由于 Nest 提供了框架无关性，您可以轻松在不同框架间迁移。当您非常注重极高性能时，Fastify 可能是更好的选择。要使用 Fastify，只需如本章所示选择内置的 `FastifyAdapter` 即可。
+But since Nest provides framework-independence, you can easily migrate between them. Fastify can be a better choice when you place high value on very fast performance. To utilize Fastify, simply choose the built-in `FastifyAdapter` as shown in this chapter.
 
-#### 安装
+#### Installation
 
-首先，我们需要安装所需的包：
+First, we need to install the required package:
 
 ```bash
 $ npm i --save @nestjs/platform-fastify
 ```
 
-#### 适配器
+#### Adapter
 
-安装 Fastify 平台后，我们就可以使用 `FastifyAdapter` 了。
+Once the Fastify platform is installed, we can use the `FastifyAdapter`.
 
- ```typescript title="main.ts"
+```typescript
+@@filename(main)
 import { NestFactory } from '@nestjs/core';
 import {
   FastifyAdapter,
@@ -41,25 +43,25 @@ async function bootstrap() {
 bootstrap();
 ```
 
-默认情况下，Fastify 仅监听 `localhost 127.0.0.1` 接口（ [了解更多](https://www.fastify.io/docs/latest/Guides/Getting-Started/#your-first-server) ）。若需接受其他主机的连接，应在 `listen()` 调用中指定 `'0.0.0.0'`：
+By default, Fastify listens only on the `localhost 127.0.0.1` interface ([read more](https://www.fastify.io/docs/latest/Guides/Getting-Started/#your-first-server)). If you want to accept connections on other hosts, you should specify `'0.0.0.0'` in the `listen()` call:
 
 ```typescript
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
-    new FastifyAdapter()
+    new FastifyAdapter(),
   );
   await app.listen(3000, '0.0.0.0');
 }
 ```
 
-#### 平台特定包
+#### Platform specific packages
 
-请注意，当使用 `FastifyAdapter` 时，Nest 会将 Fastify 作为 **HTTP 提供程序** 。这意味着所有依赖 Express 的方案可能不再适用，而应改用 Fastify 的等效包。
+Keep in mind that when you use the `FastifyAdapter`, Nest uses Fastify as the **HTTP provider**. This means that each recipe that relies on Express may no longer work. You should, instead, use Fastify equivalent packages.
 
-#### 重定向响应
+#### Redirect response
 
-Fastify 处理重定向响应的方式与 Express 略有不同。要进行正确的重定向，需同时返回状态码和 URL，如下所示：
+Fastify handles redirect responses slightly differently than Express. To do a proper redirect with Fastify, return both the status code and the URL, as follows:
 
 ```typescript
 @Get()
@@ -68,19 +70,20 @@ index(@Res() res) {
 }
 ```
 
-#### Fastify 配置选项
+#### Fastify options
 
-您可以通过 `FastifyAdapter` 构造函数将选项传入 Fastify。例如：
+You can pass options into the Fastify constructor through the `FastifyAdapter` constructor. For example:
 
 ```typescript
 new FastifyAdapter({ logger: true });
 ```
 
-#### 中间件
+#### Middleware
 
-中间件函数获取的是原始的 `req` 和 `res` 对象，而非 Fastify 的封装对象。这是底层使用的 `middie` 包以及 `fastify` 的工作机制 - 更多信息请参阅此[页面](https://www.fastify.io/docs/latest/Reference/Middleware/)
+Middleware functions retrieve the raw `req` and `res` objects instead of Fastify's wrappers. This is how the `middie` package works (that's used under the hood) and `fastify` - check out this [page](https://www.fastify.io/docs/latest/Reference/Middleware/) for more information,
 
- ```typescript title="logger.middleware.ts"
+```typescript
+@@filename(logger.middleware)
 import { Injectable, NestMiddleware } from '@nestjs/common';
 import { FastifyRequest, FastifyReply } from 'fastify';
 
@@ -91,11 +94,19 @@ export class LoggerMiddleware implements NestMiddleware {
     next();
   }
 }
+
+@Injectable()
+export class LoggerMiddleware {
+  use(req, res, next) {
+    console.log('Request...');
+    next();
+  }
+}
 ```
 
-#### 路由配置
+#### Route Config
 
-你可以使用 Fastify 的[路由配置](https://fastify.dev/docs/latest/Reference/Routes/#config)功能，配合 `@RouteConfig()` 装饰器。
+You can use the [route config](https://fastify.dev/docs/latest/Reference/Routes/#config) feature of Fastify with the `@RouteConfig()` decorator.
 
 ```typescript
 @RouteConfig({ output: 'hello world' })
@@ -105,9 +116,9 @@ index(@Req() req) {
 }
 ```
 
-#### 路由约束
+#### Route Constraints
 
-自 v10.3.0 版本起，`@nestjs/platform-fastify` 支持 Fastify 的[路由约束](https://fastify.dev/docs/latest/Reference/Routes/#constraints)功能，通过 `@RouteConstraints` 装饰器实现。
+As of v10.3.0, `@nestjs/platform-fastify` supports [route constraints](https://fastify.dev/docs/latest/Reference/Routes/#constraints) feature of Fastify with `@RouteConstraints` decorator.
 
 ```typescript
 @RouteConstraints({ version: '1.2.x' })
@@ -116,10 +127,8 @@ newFeature() {
 }
 ```
 
-:::info 提示
-`@RouteConfig()` 和 `@RouteConstraints` 是从 `@nestjs/platform-fastify` 导入的。
-:::
+> info **Hint** `@RouteConfig()` and `@RouteConstraints` are imported from `@nestjs/platform-fastify`.
 
-#### 示例
+#### Example
 
-一个可用的示例[在此处](https://github.com/nestjs/nest/tree/master/sample/10-fastify)查看。
+A working example is available [here](https://github.com/nestjs/nest/tree/master/sample/10-fastify).

@@ -1,16 +1,18 @@
-### 异常过滤器
+<!-- 此文件从 content/websockets\exception-filters.md 自动生成，请勿直接修改此文件 -->
+<!-- 生成时间: 2026-02-28T06:24:18.060Z -->
+<!-- 源文件: content/websockets\exception-filters.md -->
 
-HTTP [异常过滤器](/overview/exception-filters) 层和相应的 web sockets 层之间的唯一区别是，您应该使用 `WsException` 而不是抛出 `HttpException`。
+### Exception filters
+
+The only difference between the HTTP [exception filter](/exception-filters) layer and the corresponding web sockets layer is that instead of throwing `HttpException`, you should use `WsException`.
 
 ```typescript
 throw new WsException('Invalid credentials.');
 ```
 
-:::info 提示
-`WsException` 类从 `@nestjs/websockets` 包导入。
-:::
+> info **Hint** The `WsException` class is imported from the `@nestjs/websockets` package.
 
-使用上面的示例，Nest 将处理抛出的异常并发出具有以下结构的 `exception` 消息：
+With the sample above, Nest will handle the thrown exception and emit the `exception` message with the following structure:
 
 ```typescript
 {
@@ -19,9 +21,9 @@ throw new WsException('Invalid credentials.');
 }
 ```
 
-#### 过滤器
+#### Filters
 
-Web sockets 异常过滤器的行为等同于 HTTP 异常过滤器。以下示例使用手动实例化的方法作用域过滤器。就像基于 HTTP 的应用程序一样，您也可以使用网关作用域过滤器（即，在网关类前加上 `@UseFilters()` 装饰器）。
+Web sockets exception filters behave equivalently to HTTP exception filters. The following example uses a manually instantiated method-scoped filter. Just as with HTTP based applications, you can also use gateway-scoped filters (i.e., prefix the gateway class with a `@UseFilters()` decorator).
 
 ```typescript
 @UseFilters(new WsExceptionFilter())
@@ -32,13 +34,14 @@ onEvent(client, data: any): WsResponse<any> {
 }
 ```
 
-#### 继承
+#### Inheritance
 
-通常，您会创建完全定制的异常过滤器来满足您的应用程序需求。但是，可能会有一些用例，您只想简单地扩展**核心异常过滤器**，并根据某些因素覆盖行为。
+Typically, you'll create fully customized exception filters crafted to fulfill your application requirements. However, there might be use-cases when you would like to simply extend the **core exception filter**, and override the behavior based on certain factors.
 
-为了将异常处理委托给基础过滤器，您需要扩展 `BaseWsExceptionFilter` 并调用继承的 `catch()` 方法。
+In order to delegate exception processing to the base filter, you need to extend `BaseWsExceptionFilter` and call the inherited `catch()` method.
 
- ```typescript title="all-exceptions.filter.ts"
+```typescript
+@@filename()
 import { Catch, ArgumentsHost } from '@nestjs/common';
 import { BaseWsExceptionFilter } from '@nestjs/websockets';
 
@@ -50,16 +53,4 @@ export class AllExceptionsFilter extends BaseWsExceptionFilter {
 }
 ```
 
-```javascript title="all-exceptions.filter.js"
-import { Catch } from '@nestjs/common';
-import { BaseWsExceptionFilter } from '@nestjs/websockets';
-
-@Catch()
-export class AllExceptionsFilter extends BaseWsExceptionFilter {
-  catch(exception, host) {
-    super.catch(exception, host);
-  }
-}
-```
-
-上述实现只是一个演示该方法的外壳。您对扩展异常过滤器的实现将包括您量身定制的**业务逻辑**（例如，处理各种条件）。
+The above implementation is just a shell demonstrating the approach. Your implementation of the extended exception filter would include your tailored **business logic** (e.g., handling various conditions).

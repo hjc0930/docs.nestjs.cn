@@ -1,26 +1,27 @@
-## 异步本地存储 (Async Local Storage)
+<!-- 此文件从 content/recipes\async-local-storage.md 自动生成，请勿直接修改此文件 -->
+<!-- 生成时间: 2026-02-28T06:24:18.048Z -->
+<!-- 源文件: content/recipes\async-local-storage.md -->
 
-`AsyncLocalStorage` 是一个 [Node.js API](https://nodejs.org/api/async_context.html#async_context_class_asynclocalstorage)（基于 `async_hooks` API），它提供了一种无需显式传递函数参数就能在应用中传播本地状态的替代方案。这类似于其他语言中的线程本地存储。
+### Async Local Storage
 
-异步本地存储的核心思想是我们可以用 `AsyncLocalStorage#run` 调用*包装*某些函数调用。所有在被包装调用内执行的代码都能访问相同的 `store`，且每个调用链都将拥有唯一的存储空间。
+`AsyncLocalStorage` is a [Node.js API](https://nodejs.org/api/async_context.html#async_context_class_asynclocalstorage) (based on the `async_hooks` API) that provides an alternative way of propagating local state through the application without the need to explicitly pass it as a function parameter. It is similar to a thread-local storage in other languages.
 
-在 NestJS 上下文中，这意味着如果我们能在请求生命周期中找到某个位置来包装请求的剩余代码，就能访问和修改仅对该请求可见的状态，这可以作为 REQUEST 作用域提供程序的替代方案，并解决其部分局限性。
+The main idea of Async Local Storage is that we can _wrap_ some function call with the `AsyncLocalStorage#run` call. All code that is invoked within the wrapped call gets access to the same `store`, which will be unique to each call chain.
 
-或者，我们可以使用 ALS（异步本地存储）仅为系统的一部分（例如*事务*对象）传播上下文，而无需在服务间显式传递，这样可以提高隔离性和封装性。
+In the context of NestJS, that means if we can find a place within the request's lifecycle where we can wrap the rest of the request's code, we will be able to access and modify state visible only to that request, which may serve as an alternative to REQUEST-scoped providers and some of their limitations.
 
-#### 自定义实现
+Alternatively, we can use ALS to propagate context for only a part of the system (for example the _transaction_ object) without passing it around explicitly across services, which can increase isolation and encapsulation.
 
-NestJS 本身并未为 `AsyncLocalStorage` 提供任何内置抽象，因此让我们通过最简单的 HTTP 案例来了解如何自行实现，以便更好地理解整个概念：
+#### Custom implementation
 
-:::info 提示
-如需使用现成的[专用包](#nestjs-cls)，请继续阅读下文。
-:::
+NestJS itself does not provide any built-in abstraction for `AsyncLocalStorage`, so let's walk through how we could implement it ourselves for the simplest HTTP case to get a better understanding of the whole concept:
 
+> info **info** For a ready-made [dedicated package](recipes/async-local-storage#nestjs-cls), continue reading below.
 
+1. First, create a new instance of the `AsyncLocalStorage` in some shared source file. Since we're using NestJS, let's also turn it into a module with a custom provider.
 
-1. 首先，在某个共享源文件中创建一个新的 `AsyncLocalStorage` 实例。由于我们使用 NestJS，让我们也将其转换为带有自定义提供者的模块。
-
- ```typescript title="als.module.ts"
+```ts
+@@filename(als.module)
 @Module({
   providers: [
     {
@@ -32,16 +33,12 @@ NestJS 本身并未为 `AsyncLocalStorage` 提供任何内置抽象，因此让�
 })
 export class AlsModule {}
 ```
+>  info **Hint** `AsyncLocalStorage` is imported from `async_hooks`.
 
-:::info 提示
-`AsyncLocalStorage` 是从 `async_hooks` 导入的。
-:::
+2. We're only concerned with HTTP, so let's use a middleware to wrap the `next` function with `AsyncLocalStorage#run`. Since a middleware is the first thing that the request hits, this will make the `store` available in all enhancers and the rest of the system.
 
-
-
-2. 我们只关注 HTTP，所以让我们使用中间件将 `next` 函数用 `AsyncLocalStorage#run` 包装起来。由于中间件是请求最先到达的地方，这将使得 `store` 在所有增强器和系统其余部分中都可用。
-
- ```typescript title="app.module.ts"
+```ts
+@@filename(app.module)
 @Module({
   imports: [AlsModule],
   providers: [CatsService],
@@ -69,11 +66,29 @@ export class AppModule implements NestModule {
       .forRoutes('*path');
   }
 }
+
+  configure(consumer) {
+    // bind the middleware,
+    consumer
+      .apply((req, res, next) => {
+        // populate the store with some default values
+        // based on the request,
+        const store = {
+          userId: req.headers['x-user-id'],
+        };
+        // and pass the "next" function as callback
+        // to the "als.run" method together with the store.
+        this.als.run(store, () => next());
+      })
+      .forRoutes('*path');
+  }
+}
 ```
 
-3.  现在，在请求生命周期的任何地方，我们都可以访问本地存储实例。
+3. Now, anywhere within the lifecycle of a request, we can access the local store instance.
 
-```ts title="cats.service"
+```ts
+@@filename(cats.service)
 @Injectable()
 export class CatsService {
   constructor(
@@ -89,41 +104,44 @@ export class CatsService {
     return this.catsRepository.getForUser(userId);
   }
 }
+
+  getCatForUser() {
+    // The "getStore" method will always return the
+    // store instance associated with the given request.
+    const userId = this.als.getStore()["userId"] as number;
+    return this.catsRepository.getForUser(userId);
+  }
+}
 ```
 
-4.  就这样，我们现在有了无需注入整个 `REQUEST` 对象就能共享请求相关状态的方法。
+4. That's it. Now we have a way to share request related state without needing to inject the whole `REQUEST` object.
 
-:::warning 警告
-请注意，虽然该技术在许多用例中很有用，但它本质上会使代码流程变得晦涩（创建隐式上下文），因此请负责任地使用它，尤其要避免创建上下文式的" [上帝对象](https://en.wikipedia.org/wiki/God_object) "。
-:::
-
-
+> warning **warning** Please be aware that while the technique is useful for many use-cases, it inherently obfuscates the code flow (creating implicit context), so use it responsibly and especially avoid creating contextual "[God objects](https://en.wikipedia.org/wiki/God_object)".
 
 ### NestJS CLS
 
-[nestjs-cls](https://github.com/Papooch/nestjs-cls) 包相比直接使用原生 `AsyncLocalStorage`（`CLS` 是 _continuation-local storage_ 的缩写）提供了多项开发者体验改进。它将实现抽象为一个 `ClsModule`，为不同传输方式（不仅限于 HTTP）提供多种初始化 `store` 的方法，同时还支持强类型。
+The [nestjs-cls](https://github.com/Papooch/nestjs-cls) package provides several DX improvements over using plain `AsyncLocalStorage` (`CLS` is an abbreviation of the term _continuation-local storage_). It abstracts the implementation into a `ClsModule` that offers various ways of initializing the `store` for different transports (not only HTTP), as well as a strong-typing support.
 
-然后可以通过可注入的 `ClsService` 访问存储，或者通过使用[代理提供者](https://www.npmjs.com/package/nestjs-cls#proxy-providers)将其完全从业务逻辑中抽象出来。
+The store can then be accessed with an injectable `ClsService`, or entirely abstracted away from the business logic by using [Proxy Providers](https://www.npmjs.com/package/nestjs-cls#proxy-providers).
 
-:::info nestjs-cls
-`nestjs-cls` 是第三方包，不由 NestJS 核心团队维护。如发现该库的任何问题，请在[相应仓库](https://github.com/Papooch/nestjs-cls/issues)中报告。
-:::
+> info **info** `nestjs-cls` is a third party package and is not managed by the NestJS core team. Please, report any issues found with the library in the [appropriate repository](https://github.com/Papooch/nestjs-cls/issues).
 
-#### 安装
+#### Installation
 
-除了对 `@nestjs` 库的对等依赖外，它仅使用 Node.js 内置 API。可像安装其他包一样安装它。
+Apart from a peer dependency on the `@nestjs` libs, it only uses the built-in Node.js API. Install it as any other package.
 
 ```bash
 npm i nestjs-cls
 ```
 
-#### 使用方法
+#### Usage
 
-可以使用 `nestjs-cls` 实现与[上文](#自定义实现)描述的类似功能，如下所示：
+A similar functionality as described [above](recipes/async-local-storage#自定义实现) can be implemented using `nestjs-cls` as follows:
 
-1.  在根模块中导入 `ClsModule`。
+1. Import the `ClsModule` in the root module.
 
-```ts title="app.module"
+```ts
+@@filename(app.module)
 @Module({
   imports: [
     // Register the ClsModule,
@@ -146,9 +164,10 @@ npm i nestjs-cls
 export class AppModule {}
 ```
 
-2.  然后就可以使用 `ClsService` 来访问存储值。
+2. And then can use the `ClsService` to access the store values.
 
-```ts title="cats.service"
+```ts
+@@filename(cats.service)
 @Injectable()
 export class CatsService {
   constructor(
@@ -163,9 +182,16 @@ export class CatsService {
     return this.catsRepository.getForUser(userId);
   }
 }
+
+  getCatForUser() {
+    // and use the "get" method to retrieve any stored value.
+    const userId = this.cls.get('userId');
+    return this.catsRepository.getForUser(userId);
+  }
+}
 ```
 
-3.  为了获得由 `ClsService` 管理的存储值的强类型（同时获取字符串键的自动建议），我们可以在注入时使用可选类型参数 `ClsService<MyClsStore>`。
+3. To get strong typing of the store values managed by the `ClsService` (and also get auto-suggestions of the string keys), we can use an optional type parameter `ClsService<MyClsStore>` when injecting it.
 
 ```ts
 export interface MyClsStore extends ClsStore {
@@ -173,15 +199,12 @@ export interface MyClsStore extends ClsStore {
 }
 ```
 
-:::info 提示
-也可以让包自动生成一个请求 ID，稍后通过 `cls.getId()` 访问它，或者使用 `cls.get(CLS_REQ)` 获取整个请求对象。
-:::
+> info **hint** It it also possible to let the package automatically generate a Request ID and access it later with `cls.getId()`, or to get the whole Request object using `cls.get(CLS_REQ)`.
+#### Testing
 
-#### 测试
+Since the `ClsService` is just another injectable provider, it can be entirely mocked out in unit tests.
 
-由于 `ClsService` 只是另一个可注入的提供者，因此在单元测试中可以完全模拟它。
-
-然而，在某些集成测试中，我们可能仍希望使用真实的 `ClsService` 实现。在这种情况下，我们需要用 `ClsService#run` 或 `ClsService#runWith` 调用来包装上下文感知的代码片段。
+However, in certain integration tests, we might still want to use the real `ClsService` implementation. In that case, we will need to wrap the context-aware piece of code with a call to `ClsService#run` or `ClsService#runWith`.
 
 ```ts
 describe('CatsService', () => {
@@ -232,6 +255,6 @@ describe('CatsService', () => {
 })
 ```
 
-#### 更多信息
+#### More information
 
-访问 [NestJS CLS GitHub 页面](https://github.com/Papooch/nestjs-cls)获取完整的 API 文档和更多代码示例。
+Visit the [NestJS CLS GitHub Page](https://github.com/Papooch/nestjs-cls) for the full API documentation and more code examples.

@@ -1,6 +1,6 @@
-<!-- 此文件从 content/techniques/queues.md 自动生成，请勿直接修改此文件 -->
-<!-- 生成时间: 2026-02-24T02:50:53.719Z -->
-<!-- 源文件: content/techniques/queues.md -->
+<!-- 此文件从 content/techniques\queues.md 自动生成，请勿直接修改此文件 -->
+<!-- 生成时间: 2026-02-28T06:24:17.966Z -->
+<!-- 源文件: content/techniques\queues.md -->
 
 ### Queues
 
@@ -26,7 +26,8 @@ $ npm install --save @nestjs/bullmq bullmq
 
 Once the installation process is complete, we can import the `BullModule` into the root `AppModule`.
 
-```typescript title="app.module"
+```typescript
+@@filename(app.module)
 import { Module } from '@nestjs/common';
 import { BullModule } from '@nestjs/bullmq';
 
@@ -49,7 +50,7 @@ The `forRoot()` method is used to register a `bullmq` package configuration obje
 - `prefix: string` - Prefix for all queue keys. Optional.
 - `defaultJobOptions: JobOpts` - Options to control the default settings for new jobs. See [JobOpts](https://github.com/OptimalBits/bull/blob/master/REFERENCE.md#queueadd) for more information. Optional.
 - `settings: AdvancedSettings` - Advanced Queue configuration settings. These should usually not be changed. See [AdvancedSettings](https://github.com/OptimalBits/bull/blob/master/REFERENCE.md#queue) for more information. Optional.
-- `extraOptions` - Extra options for module init. See [Manual Registration](./techniques/queues#manual-registration)
+- `extraOptions` - Extra options for module init. See [Manual Registration](/techniques/queues#manual-registration)
 
 All the options are optional, providing detailed control over queue behavior. These are passed directly to the BullMQ `Queue` constructor. Read more about these options and other options [here](https://api.docs.bullmq.io/interfaces/v4.QueueOptions.html).
 
@@ -369,7 +370,8 @@ Job handlers can also be run in a separate (forked) process ([source](https://do
 - Much better utilization of multi-core CPUs.
 - Less connections to redis.
 
-```typescript title="app.module"
+```typescript
+@@filename(app.module)
 import { Module } from '@nestjs/common';
 import { BullModule } from '@nestjs/bullmq';
 import { join } from 'node:path';
@@ -404,7 +406,7 @@ BullModule.forRootAsync({
 });
 ```
 
-Our factory behaves like any other [asynchronous provider](./fundamentals/async-providers) (e.g., it can be `async` and it's able to inject dependencies through `inject`).
+Our factory behaves like any other [asynchronous provider](/fundamentals/async-providers) (e.g., it can be `async` and it's able to inject dependencies through `inject`).
 
 ```typescript
 BullModule.forRootAsync({
@@ -512,7 +514,8 @@ $ npm install --save @nestjs/bull bull
 
 Once the installation process is complete, we can import the `BullModule` into the root `AppModule`.
 
-```typescript title="app.module"
+```typescript
+@@filename(app.module)
 import { Module } from '@nestjs/common';
 import { BullModule } from '@nestjs/bull';
 
@@ -729,7 +732,7 @@ You can designate that a job handler method will handle **only** jobs of a certa
 async transcode(job: Job<unknown>) { ... }
 ```
 
-> warning **Warning** When defining multiple consumers for the same queue, the `concurrency` option in `@Process({ concurrency: 1 })` won't take effect. The minimum `concurrency` will match the number of consumers defined. This also applies even if `@Process()` handlers use a different `name` to handle named jobs.
+> warning **Warning** When defining multiple consumers for the same queue, the `concurrency` option in `@Process({{ '{' }} concurrency: 1 {{ '}' }})` won't take effect. The minimum `concurrency` will match the number of consumers defined. This also applies even if `@Process()` handlers use a different `name` to handle named jobs.
 
 #### Request-scoped consumers
 
@@ -863,7 +866,8 @@ Job handlers can also be run in a separate (forked) process ([source](https://gi
 - Much better utilization of multi-core CPUs.
 - Less connections to redis.
 
-```ts title="app.module"
+```ts
+@@filename(app.module)
 import { Module } from '@nestjs/common';
 import { BullModule } from '@nestjs/bull';
 import { join } from 'path';
@@ -881,7 +885,8 @@ export class AppModule {}
 
 Please note that because your function is being executed in a forked process, Dependency Injection (and IoC container) won't be available. That means that your processor function will need to contain (or create) all instances of external dependencies it needs.
 
-```ts title="processor"
+```ts
+@@filename(processor)
 import { Job, DoneCallback } from 'bull';
 
 export default function (job: Job, cb: DoneCallback) {
@@ -907,7 +912,7 @@ BullModule.forRootAsync({
 });
 ```
 
-Our factory behaves like any other [asynchronous provider](./fundamentals/async-providers) (e.g., it can be `async` and it's able to inject dependencies through `inject`).
+Our factory behaves like any other [asynchronous provider](/fundamentals/async-providers) (e.g., it can be `async` and it's able to inject dependencies through `inject`).
 
 ```typescript
 BullModule.forRootAsync({

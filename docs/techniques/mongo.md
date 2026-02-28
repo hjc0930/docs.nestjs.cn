@@ -1,6 +1,6 @@
-<!-- 此文件从 content/techniques/mongo.md 自动生成，请勿直接修改此文件 -->
-<!-- 生成时间: 2026-02-24T02:51:08.102Z -->
-<!-- 源文件: content/techniques/mongo.md -->
+<!-- 此文件从 content/techniques\mongo.md 自动生成，请勿直接修改此文件 -->
+<!-- 生成时间: 2026-02-28T06:24:17.972Z -->
+<!-- 源文件: content/techniques\mongo.md -->
 
 ### Mongo
 
@@ -14,7 +14,8 @@ $ npm i @nestjs/mongoose mongoose
 
 Once the installation process is complete, we can import the `MongooseModule` into the root `AppModule`.
 
-```typescript title="app.module"
+```typescript
+@@filename(app.module)
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 
@@ -34,7 +35,8 @@ Schemas can be created with NestJS decorators, or with Mongoose itself manually.
 
 Let's define the `CatSchema`:
 
-```typescript title="schemas/cat.schema"
+```typescript
+@@filename(schemas/cat.schema)
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
 
@@ -136,7 +138,8 @@ The `cat.schema` file resides in a folder in the `cats` directory, where we also
 
 Let's look at the `CatsModule`:
 
-```typescript title="cats.module"
+```typescript
+@@filename(cats.module)
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { CatsController } from './cats.controller';
@@ -155,7 +158,8 @@ The `MongooseModule` provides the `forFeature()` method to configure the module,
 
 Once you've registered the schema, you can inject a `Cat` model into the `CatsService` using the `@InjectModel()` decorator:
 
-```typescript title="cats.service"
+```typescript
+@@filename(cats.service)
 import { Model } from 'mongoose';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
@@ -220,7 +224,8 @@ In this example, `@InjectConnection()` is used to inject the Mongoose connection
 
 Some projects require multiple database connections. This can also be achieved with this module. To work with multiple connections, first create the connections. In this case, connection naming becomes **mandatory**.
 
-```typescript title="app.module"
+```typescript
+@@filename(app.module)
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 
@@ -277,7 +282,8 @@ To inject a given `Connection` to a custom provider (for example, factory provid
 
 If you are just looking to inject the model from a named database, you can use the connection name as a second parameter to the `@InjectModel()` decorator.
 
-```typescript title="cats.service"
+```typescript
+@@filename(cats.service)
 @Injectable()
 export class CatsService {
   constructor(@InjectModel(Cat.name, 'cats') private catModel: Model<Cat>) {}
@@ -308,7 +314,7 @@ Middleware (also called pre and post hooks) are functions which are passed contr
 export class AppModule {}
 ```
 
-Like other [factory providers](./fundamentals/custom-providers#factory-providers-usefactory), our factory function can be `async` and can inject dependencies through `inject`.
+Like other [factory providers](/fundamentals/custom-providers#factory-providers-usefactory), our factory function can be `async` and can inject dependencies through `inject`.
 
 ```typescript
 @Module({
@@ -358,7 +364,8 @@ export class AppModule {}
 
 To register a plugin for all schemas at once, call the `.plugin()` method of the `Connection` object. You should access the connection before models are created; to do this, use the `connectionFactory`:
 
-```typescript title="app.module"
+```typescript
+@@filename(app.module)
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 
@@ -381,7 +388,8 @@ export class AppModule {}
 
 Suppose you wanted to track different types of events in a single collection. Every event will have a timestamp.
 
-```typescript title="event.schema"
+```typescript
+@@filename(event.schema)
 @Schema({ discriminatorKey: 'kind' })
 export class Event {
   @Prop({
@@ -405,7 +413,8 @@ export const EventSchema = SchemaFactory.createForClass(Event);
 
 Now, let's define the `ClickedLinkEvent` class, as follows:
 
-```typescript title="click-link-event.schema"
+```typescript
+@@filename(click-link-event.schema)
 @Schema()
 export class ClickedLinkEvent {
   kind: string;
@@ -420,7 +429,8 @@ export const ClickedLinkEventSchema = SchemaFactory.createForClass(ClickedLinkEv
 
 And `SignUpEvent` class:
 
-```typescript title="sign-up-event.schema"
+```typescript
+@@filename(sign-up-event.schema)
 @Schema()
 export class SignUpEvent {
   kind: string;
@@ -435,7 +445,8 @@ export const SignUpEventSchema = SchemaFactory.createForClass(SignUpEvent);
 
 With this in place, use the `discriminators` option to register a discriminator for a given schema. It works on both `MongooseModule.forFeature` and `MongooseModule.forFeatureAsync`:
 
-```typescript title="event.module"
+```typescript
+@@filename(event.module)
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 
@@ -460,7 +471,7 @@ export class EventsModule {}
 
 When unit testing an application, we usually want to avoid any database connection, making our test suites simpler to set up and faster to execute. But our classes might depend on models that are pulled from the connection instance. How do we resolve these classes? The solution is to create mock models.
 
-To make this easier, the `@nestjs/mongoose` package exposes a `getModelToken()` function that returns a prepared [injection token](./fundamentals/custom-providers#di-fundamentals) based on a token name. Using this token, you can easily provide a mock implementation using any of the standard [custom provider](/fundamentals/custom-providers) techniques, including `useClass`, `useValue`, and `useFactory`. For example:
+To make this easier, the `@nestjs/mongoose` package exposes a `getModelToken()` function that returns a prepared [injection token](/fundamentals/custom-providers#di-fundamentals) based on a token name. Using this token, you can easily provide a mock implementation using any of the standard [custom provider](/fundamentals/custom-providers) techniques, including `useClass`, `useValue`, and `useFactory`. For example:
 
 ```typescript
 @Module({
@@ -493,7 +504,7 @@ MongooseModule.forRootAsync({
 });
 ```
 
-Like other [factory providers](./fundamentals/custom-providers#factory-providers-usefactory), our factory function can be `async` and can inject dependencies through `inject`.
+Like other [factory providers](/fundamentals/custom-providers#factory-providers-usefactory), our factory function can be `async` and can inject dependencies through `inject`.
 
 ```typescript
 MongooseModule.forRootAsync({
@@ -581,7 +592,8 @@ This provides a flexible way to manage connection events, enabling you to handle
 
 To nest subdocuments within a parent document, you can define your schemas as follows:
 
-```typescript title="name.schema"
+```typescript
+@@filename(name.schema)
 @Schema()
 export class Name {
   @Prop()
@@ -596,7 +608,8 @@ export const NameSchema = SchemaFactory.createForClass(Name);
 
 And then reference the subdocument in the parent schema:
 
-```typescript title="person.schema"
+```typescript
+@@filename(person.schema)
 @Schema()
 export class Person {
   @Prop(NameSchema)
@@ -614,7 +627,8 @@ export type PersonDocument = HydratedDocument<Person, PersonDocumentOverride>;
 
 If you want to include multiple subdocuments, you can use an array of subdocuments. It's important to override the type of the property accordingly:
 
-```typescript title="name.schema"
+```typescript
+@@filename(name.schema)
 @Schema()
 export class Person {
   @Prop([NameSchema])

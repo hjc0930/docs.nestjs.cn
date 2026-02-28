@@ -136,86 +136,6 @@ class DocumentTranslator {
   }
 
   /**
-   * 构建已有中文文档的路径映射
-   */
-  async buildPathMapping() {
-    try {
-      const pattern = path.join(this.docsDir, '**', '*.md').replace(/\\/g, '/');
-      const files = await glob(pattern);
-
-      for (const file of files) {
-        const fileName = path.basename(file);
-        const relativeToDocs = path.relative(this.docsDir, file).replace(/\\/g, '/');
-
-        // 如果文件在 unaudited 中，跳过记录（等审核正式移动之后再记录作为映射基础）
-        // 这样可以避免一直死循环放在 unaudited 里的情况
-        if (relativeToDocs.includes('unaudited/')) {
-          continue;
-        }
-
-        if (!this.pathMapping.has(fileName)) {
-          this.pathMapping.set(fileName, []);
-        }
-        // 数组形式存放，应对同名文件
-        this.pathMapping.get(fileName).push(relativeToDocs);
-      }
-
-      if (this.verbose) {
-        console.log(`🗺️ Built path mapping with ${this.pathMapping.size} unique file names`);
-      }
-    } catch (error) {
-      console.warn('⚠️ Failed to build path mapping:', error.message);
-    }
-  }
-
-  /**
-   * 查找最佳匹配路径（根据文件名和上游路径路径深度比对）
-   */
-  findBestMatchPath(fileName, originalRelativePath) {
-    if (!this.pathMapping.has(fileName)) {
-      return null;
-    }
-
-    const candidates = this.pathMapping.get(fileName);
-    if (candidates.length === 1) {
-      return candidates[0];
-    }
-
-    // 多个候选项时，拆分 originalRelativePath
-    // 例如 content/websockets/pipes.md -> [websockets, pipes.md]
-    const originalParts = originalRelativePath.replace(/\\/g, '/').split('/');
-
-    let bestMatch = candidates[0];
-    let maxScore = -1;
-
-    for (const candidate of candidates) {
-      const candidateParts = candidate.split('/');
-      let score = 0;
-
-      // 从后往前匹配各个目录层级（跳过文件名本身）
-      let i = originalParts.length - 2;
-      let j = candidateParts.length - 2;
-
-      while (i >= 0 && j >= 0) {
-        if (originalParts[i] === candidateParts[j]) {
-          score++;
-        } else {
-          break; // 一旦断层则停止加分
-        }
-        i--;
-        j--;
-      }
-
-      if (score > maxScore) {
-        maxScore = score;
-        bestMatch = candidate;
-      }
-    }
-
-    return bestMatch;
-  }
-
-  /**
    * 生成内容的哈希值用于缓存
    */
   generateContentHash(content) {
@@ -265,7 +185,12 @@ class DocumentTranslator {
    */
   restoreCodeBlocks(content) {
     for (const [placeholder, original] of this.codeBlockPlaceholders) {
-      content = content.replace(new RegExp(placeholder, 'g'), original);
+      // 对占位符名称中的正则特殊字符进行转义，虽然通常只是 __CODE_BLOCK_N__
+      const escapedPlaceholder = placeholder.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      // 这里的重点是：AI 可能会在占位符后面添加解释，比如 "__INLINE_CODE_1__ (是指...)"
+      // 我们需要匹配占位符本身，并考虑 AI 可能添加的额外非预期标记，但通常我们只替换占位符本身。
+      // 为了应对 AI 可能修改了占位符的情况，我们使用更稳健的替换策略
+      content = content.replace(new RegExp(escapedPlaceholder, 'g'), original);
     }
     return content;
   }
@@ -286,27 +211,29 @@ Translation Requirements:
 1. **Technical Terms**: Strict adherence to the provided glossary is required.${glossaryPrompt}
    - Other common terms: Provider -> 提供者, Controller -> 控制器, Middleware -> 中间件.
 
-2. **Code and Format Preservation**:
-   - Keep code examples, variable names, function names unchanged
-   - Maintain Markdown formatting, links, images, tables unchanged
-   - Translate code comments from English to Chinese
-   - Keep relative links unchanged (will be processed later)
+2. **Code and Format Preservation (CRITICAL)**:
+   - Keep code examples, variable names, function names unchanged.
+   - Maintain Markdown formatting, links, images, tables unchanged.
+   - Translate code comments from English to Chinese.
+   - **DO NOT EXPLAIN OR MODIFY placeholders like __INLINE_CODE_N__, __CODE_BLOCK_N__, __LINK_N__, __HTML_TAG_N__.**
+   - **Keep these placeholders EXACTLY as they are in the source text.**
+   - Keep relative links unchanged (will be processed later).
 
 3. **Special Syntax Processing**:
-   - Remove all @@switch blocks and content after them
-   - Convert @@filename(xxx) to rspress syntax: \`\`\`typescript title="xxx"
-   - Keep internal anchors unchanged (will be mapped later)
+   - Remove all @@switch blocks and content after them.
+   - Convert @@filename(xxx) to rspress syntax: \`\`\`typescript title="xxx".
+   - Keep internal anchors unchanged (will be mapped later).
 
 4. **Content Guidelines**:
    - Maintain professionalism and readability. Use natural, fluent Chinese.
-   - Keep content that is already in Chinese unchanged
-   - Don't add extra content not in the original
-   - Appropriate Chinese localization improvements are welcome
+   - Keep content that is already in Chinese unchanged.
+   - Don't add extra content not in the original.
+   - Appropriate Chinese localization improvements are welcome.
 
 5. **Link Handling**:
-   - Keep relative paths unchanged (e.g., ./guide/introduction)
-   - Keep docs.nestjs.com links unchanged (will be processed later)
-   - Maintain anchor links as-is (e.g., #provider-scope)
+   - Keep relative paths unchanged (e.g., ./guide/introduction).
+   - Keep docs.nestjs.com links unchanged (will be processed later).
+   - Maintain anchor links as-is (e.g., #provider-scope).
 
 Please translate the following English technical documentation to Chinese following these rules:`;
 
@@ -420,29 +347,32 @@ Please translate the following English technical documentation to Chinese follow
   async translateFile(contentPath) {
     try {
       const relativePath = path.relative(this.contentDir, contentPath);
-      const fileName = path.basename(relativePath);
-
-      // 使用智能层级查找寻找最贴切的真实结构位
-      let targetRelativePath = this.findBestMatchPath(fileName, relativePath);
-
-      if (!targetRelativePath) {
-        targetRelativePath = path.join('unaudited', relativePath);
-      }
-
-      const outputPath = path.join(this.docsDir, targetRelativePath);
+      const outputPath = path.join(this.docsDir, relativePath);
 
       this.processedFiles++;
 
       // 检查是否需要更新
       if (!this.needsUpdate(contentPath, outputPath)) {
         if (this.verbose) {
-          console.log(`⏭️ Skipped (up to date): ${targetRelativePath}`);
+          console.log(`Skipped (up to date): ${relativePath}`);
         }
         this.skippedFiles++;
         return false;
       }
 
-      const content = fs.readFileSync(contentPath, 'utf8');
+      let content = fs.readFileSync(contentPath, 'utf8');
+
+      // 1. 移除所有 @@switch 分支（从 @@switch 行到代码块结束前的所有内容）
+      content = content.replace(/@@switch[\s\S]*?(?=```|\n\n|$)/g, '');
+
+      // 2. 处理 @@filename 的两种场景：
+      // 场景A：@@filename 在代码块外，后面紧跟 ```lang 代码块起始符 → 替换为带注释的新代码块
+      content = content.replace(/\n?@@filename\s*\(([^)]*)\)\s*\n?```[\w]*/g, (match, filename) => {
+        return `\n\n\`\`\`typescript\n// @filename(${filename})`;
+      });
+
+      // 场景B：@@filename 在代码块内部（如 bash 块内独占一行）→ 直接删除该行
+      content = content.replace(/^@@filename\s*\([^)]*\)\s*\n/gm, '');
 
       // 确保输出目录存在
       const outputDir = path.dirname(outputPath);
@@ -450,24 +380,22 @@ Please translate the following English technical documentation to Chinese follow
         fs.mkdirSync(outputDir, { recursive: true });
       }
 
-      // 使用 AI 翻译内容
+      // 3. AI 翻译及占位符处理
       let translatedContent = content;
       if (this.useAI) {
-        console.log(`🤖 Translating: ${relativePath} -> ${targetRelativePath}`);
+        console.log(`🤖 Translating: ${relativePath} -> ${relativePath}`);
         translatedContent = await this.translateWithAI(content, relativePath);
       }
 
-      // 处理内容格式
-      const processedContent = this.processContent(translatedContent, relativePath);
+      // 4. 后期处理（修复链接、清理格式等）
+      const finalContent = this.processContent(translatedContent, relativePath);
 
-      // 写入文件
-      fs.writeFileSync(outputPath, processedContent, 'utf8');
-
-      // 保持修改时间同步
+      // 5. 写入文件并同步时间
+      fs.writeFileSync(outputPath, finalContent, 'utf8');
       const sourceStats = fs.statSync(contentPath);
       fs.utimesSync(outputPath, sourceStats.atime, sourceStats.mtime);
 
-      console.log(`✅ Translated: ${relativePath} -> ${targetRelativePath}`);
+      console.log(`✅ Processed: ${relativePath} -> ${relativePath}`);
       this.translatedFiles++;
       return true;
     } catch (error) {
@@ -480,70 +408,21 @@ Please translate the following English technical documentation to Chinese follow
   /**
    * 处理文档内容
    */
+  /**
+   * 处理文档内容
+   */
   processContent(content, filePath) {
     let processed = content;
 
-    // 1. 处理标准的 @@filename 模式
-    processed = processed.replace(/```(\w+)\s*\n@@filename\(([^)]*)\)([\s\S]*?)(?=\n```|@@switch|\n*$)/g, (match, lang, filename, codeContent) => {
-      if (this.verbose) {
-        console.log(`  Processing @@filename: ${filename} (${lang})`);
-      }
+    // 1. 处理链接（如果需要将 docs.nestjs.com 替换为本地路径）
+    if (!filePath.includes('index.md')) {
+      processed = processed.replace(/https:\/\/docs\.nestjs\.com\//g, '/');
+    }
 
-      // 查找 @@switch 位置
-      const switchIndex = codeContent.indexOf('\n@@switch\n');
-      let finalCodeContent = codeContent;
-
-      if (switchIndex !== -1) {
-        // 如果有 @@switch，只保留 @@switch 之前的代码
-        finalCodeContent = codeContent.substring(0, switchIndex);
-      }
-
-      // 清理代码开头和结尾的多余换行符
-      finalCodeContent = finalCodeContent.replace(/^\n+/, '').replace(/\n+$/, '');
-
-      // 使用 rspress 格式
-      if (filename.trim()) {
-        return `\`\`\`${lang} title="${filename}"\n${finalCodeContent}\n\`\`\``;
-      } else {
-        return `\`\`\`${lang}\n${finalCodeContent}\n\`\`\``;
-      }
-    });
-
-    // 2. 处理缺少开始标记的 @@filename
-    processed = processed.replace(/(\n|^)@@filename\(([^)]*)\)\n([\s\S]*?)(?=\n```|@@switch|\n*$)/g, (match, prefix, filename, codeContent) => {
-      if (this.verbose) {
-        console.log(`  Processing standalone @@filename: ${filename}`);
-      }
-
-      const switchIndex = codeContent.indexOf('\n@@switch\n');
-      let finalCodeContent = codeContent;
-
-      if (switchIndex !== -1) {
-        finalCodeContent = codeContent.substring(0, switchIndex);
-      }
-
-      finalCodeContent = finalCodeContent.replace(/^\n+/, '').replace(/\n+$/, '');
-
-      if (filename.trim()) {
-        return `${prefix}\`\`\`typescript title="${filename}"\n${finalCodeContent}\n\`\`\``;
-      } else {
-        return `${prefix}\`\`\`typescript\n${finalCodeContent}\n\`\`\``;
-      }
-    });
-
-    // 3. 移除所有剩余的 @@switch 标记及其后续内容
-    processed = processed.replace(/\n@@switch\n[\s\S]*?(?=\n```|\n*$)/g, '');
-    processed = processed.replace(/@@switch[\s\S]*?(?=\n```|\n*$)/g, '');
-
-    // 4. 修复可能的模板语法问题
-    processed = processed.replace(/\{\{\s*['"]\s*\{\s*['"]\s*\}\}/g, '{');
-    processed = processed.replace(/\{\{\s*['"]\s*\}\s*['"]\s*\}\}/g, '}');
-    processed = processed.replace(/&#125;/g, '}');
-
-    // 5. 清理多余的空行
+    // 2. 清理多余的空行
     processed = processed.replace(/\n{3,}/g, '\n\n');
 
-    // 6. 添加处理标记（仅在开头添加一次）
+    // 3. 添加处理标记（仅在开头添加一次）
     if (!processed.startsWith('<!--')) {
       const timestamp = new Date().toISOString();
       const header = `<!-- 此文件从 content/${filePath} 自动生成，请勿直接修改此文件 -->
@@ -580,7 +459,7 @@ Please translate the following English technical documentation to Chinese follow
       }
 
       // 构建智能路径映射字典
-      await this.buildPathMapping();
+
 
       // 查找所有 Markdown 文件
       const pattern = path.join(this.contentDir, '**', '*.md').replace(/\\/g, '/');

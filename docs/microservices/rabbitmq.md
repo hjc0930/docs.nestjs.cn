@@ -1,6 +1,6 @@
-<!-- 此文件从 content/microservices/rabbitmq.md 自动生成，请勿直接修改此文件 -->
-<!-- 生成时间: 2026-02-24T02:56:56.947Z -->
-<!-- 源文件: content/microservices/rabbitmq.md -->
+<!-- 此文件从 content/microservices\rabbitmq.md 自动生成，请勿直接修改此文件 -->
+<!-- 生成时间: 2026-02-28T06:24:18.125Z -->
+<!-- 源文件: content/microservices\rabbitmq.md -->
 
 ### RabbitMQ
 
@@ -18,7 +18,8 @@ $ npm i --save amqplib amqp-connection-manager
 
 To use the RabbitMQ transporter, pass the following options object to the `createMicroservice()` method:
 
-```typescript title="main"
+```typescript
+@@filename(main)
 const app = await NestFactory.createMicroservice<MicroserviceOptions>(AppModule, {
   transport: Transport.RMQ,
   options: {
@@ -110,9 +111,9 @@ The `options` property is specific to the chosen transporter. The <strong>Rabbit
 
 #### Client
 
-Like other microservice transporters, you have <a href="./microservices/basics#客户端">several options</a> for creating a RabbitMQ `ClientProxy` instance.
+Like other microservice transporters, you have <a href="/microservices/basics#客户端">several options</a> for creating a RabbitMQ `ClientProxy` instance.
 
-One method for creating an instance is to use the `ClientsModule`. To create a client instance with the `ClientsModule`, import it and use the `register()` method to pass an options object with the same properties shown above in the `createMicroservice()` method, as well as a `name` property to be used as the injection token. Read more about `ClientsModule` <a href="./microservices/basics#客户端">here</a>.
+One method for creating an instance is to use the `ClientsModule`. To create a client instance with the `ClientsModule`, import it and use the `register()` method to pass an options object with the same properties shown above in the `createMicroservice()` method, as well as a `name` property to be used as the injection token. Read more about `ClientsModule` <a href="/microservices/basics#客户端">here</a>.
 
 ```typescript
 @Module({
@@ -135,13 +136,14 @@ One method for creating an instance is to use the `ClientsModule`. To create a c
 })
 ```
 
-Other options to create a client (either `ClientProxyFactory` or `@Client()`) can be used as well. You can read about them <a href="./microservices/basics#客户端">here</a>.
+Other options to create a client (either `ClientProxyFactory` or `@Client()`) can be used as well. You can read about them <a href="/microservices/basics#客户端">here</a>.
 
 #### Context
 
 In more complex scenarios, you may need to access additional information about the incoming request. When using the RabbitMQ transporter, you can access the `RmqContext` object.
 
 ```typescript
+@@filename()
 @MessagePattern('notifications')
 getNotifications(@Payload() data: number[], @Ctx() context: RmqContext) {
   console.log(`Pattern: ${context.getPattern()}`);
@@ -153,6 +155,7 @@ getNotifications(@Payload() data: number[], @Ctx() context: RmqContext) {
 To access the original RabbitMQ message (with the `properties`, `fields`, and `content`), use the `getMessage()` method of the `RmqContext` object, as follows:
 
 ```typescript
+@@filename()
 @MessagePattern('notifications')
 getNotifications(@Payload() data: number[], @Ctx() context: RmqContext) {
   console.log(context.getMessage());
@@ -162,6 +165,7 @@ getNotifications(@Payload() data: number[], @Ctx() context: RmqContext) {
 To retrieve a reference to the RabbitMQ [channel](https://www.rabbitmq.com/channels.html), use the `getChannelRef` method of the `RmqContext` object, as follows:
 
 ```typescript
+@@filename()
 @MessagePattern('notifications')
 getNotifications(@Payload() data: number[], @Ctx() context: RmqContext) {
   console.log(context.getChannelRef());
@@ -188,6 +192,7 @@ options: {
 When manual consumer acknowledgements are turned on, we must send a proper acknowledgement from the worker to signal that we are done with a task.
 
 ```typescript
+@@filename()
 @MessagePattern('notifications')
 getNotifications(@Payload() data: number[], @Ctx() context: RmqContext) {
   const channel = context.getChannelRef();
@@ -220,6 +225,7 @@ this.client.send('replace-emoji', record).subscribe(...);
 And you can read these values on the server-side as well, by accessing the `RmqContext`, as follows:
 
 ```typescript
+@@filename()
 @MessagePattern('replace-emoji')
 replaceEmoji(@Payload() data: string, @Ctx() context: RmqContext): string {
   const { properties: { headers } } = context.getMessage();

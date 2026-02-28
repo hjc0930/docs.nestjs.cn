@@ -1,27 +1,28 @@
+<!-- 此文件从 content/recipes\sql-sequelize.md 自动生成，请勿直接修改此文件 -->
+<!-- 生成时间: 2026-02-28T06:24:18.002Z -->
+<!-- 源文件: content/recipes\sql-sequelize.md -->
+
 ### SQL (Sequelize)
 
-##### 本章仅适用于 TypeScript
+##### This chapter applies only to TypeScript
 
-:::warning 警告
-本文中，您将学习如何基于 **Sequelize** 包使用自定义组件从零开始创建 `DatabaseModule`。因此，该技术包含许多额外工作，您可以通过使用开箱即用的专用 `@nestjs/sequelize` 包来避免。了解更多信息，请参阅[此处](/techniques/sql#sequelize-集成) 。
-:::
+> **Warning** In this article, you'll learn how to create a `DatabaseModule` based on the **Sequelize** package from scratch using custom components. As a consequence, this technique contains a lot of overhead that you can avoid by using the dedicated, out-of-the-box `@nestjs/sequelize` package. To learn more, see [here](/techniques/database#sequelize-集成).
 
+[Sequelize](https://github.com/sequelize/sequelize) is a popular Object Relational Mapper (ORM) written in a vanilla JavaScript, but there is a [sequelize-typescript](https://github.com/RobinBuschmann/sequelize-typescript) TypeScript wrapper which provides a set of decorators and other extras for the base sequelize.
 
+#### Getting started
 
-[Sequelize](https://github.com/sequelize/sequelize) 是一个用原生 JavaScript 编写的流行对象关系映射器(ORM)，但有一个 [sequelize-typescript](https://github.com/RobinBuschmann/sequelize-typescript) TypeScript 包装器，为基础 sequelize 提供了一系列装饰器和其他附加功能。
-
-#### 快速开始
-
-要开始使用这个库的冒险之旅，我们需要先安装以下依赖项：
+To start the adventure with this library we have to install the following dependencies:
 
 ```bash
 $ npm install --save sequelize sequelize-typescript mysql2
 $ npm install --save-dev @types/sequelize
 ```
 
-第一步是创建一个带有选项对象的 **Sequelize** 实例，并将其传入构造函数。此外，我们需要添加所有模型（另一种方法是使用 `modelPaths` 属性）并 `sync()` 我们的数据库表。
+The first step we need to do is create a **Sequelize** instance with an options object passed into the constructor. Also, we need to add all models (the alternative is to use `modelPaths` property) and `sync()` our database tables.
 
- ```typescript title="database.providers.ts"
+```typescript
+@@filename(database.providers)
 import { Sequelize } from 'sequelize-typescript';
 import { Cat } from '../cats/cat.entity';
 
@@ -45,13 +46,9 @@ export const databaseProviders = [
 ];
 ```
 
-:::info 提示
-遵循最佳实践，我们在单独的文件中声明了自定义提供者，该文件具有 `*.providers.ts` 后缀。
-:::
+> info **Hint** Following best practices, we declared the custom provider in the separated file which has a `*.providers.ts` suffix.
 
-
-
-然后，我们需要导出这些提供者，使它们对应用程序的其余部分**可访问** 。
+Then, we need to export these providers to make them **accessible** for the rest part of the application.
 
 ```typescript
 import { Module } from '@nestjs/common';
@@ -64,13 +61,14 @@ import { databaseProviders } from './database.providers';
 export class DatabaseModule {}
 ```
 
-现在我们可以使用 `@Inject()` 装饰器注入 `Sequelize` 对象。每个依赖 `Sequelize` 异步提供者的类都将等待 `Promise` 解析完成。
+Now we can inject the `Sequelize` object using `@Inject()` decorator. Each class that would depend on the `Sequelize` async provider will wait until a `Promise` is resolved.
 
-#### 模型注入
+#### Model injection
 
-在 [Sequelize](https://github.com/sequelize/sequelize) 中，**Model** 定义了数据库中的一张表。该类的实例代表数据库中的一行记录。首先，我们至少需要一个实体：
+In [Sequelize](https://github.com/sequelize/sequelize) the **Model** defines a table in the database. Instances of this class represent a database row. Firstly, we need at least one entity:
 
- ```typescript title="cat.entity.ts"
+```typescript
+@@filename(cat.entity)
 import { Table, Column, Model } from 'sequelize-typescript';
 
 @Table
@@ -86,9 +84,10 @@ export class Cat extends Model {
 }
 ```
 
-`Cat` 实体属于 `cats` 目录，该目录代表 `CatsModule` 模块。现在该创建一个 **Repository** 提供者了：
+The `Cat` entity belongs to the `cats` directory. This directory represents the `CatsModule`. Now it's time to create a **Repository** provider:
 
- ```typescript title="cats.providers.ts"
+```typescript
+@@filename(cats.providers)
 import { Cat } from './cat.entity';
 
 export const catsProviders = [
@@ -99,15 +98,14 @@ export const catsProviders = [
 ];
 ```
 
-:::warning 注意
-在实际应用中应避免使用 **魔法字符串** 。建议将 `CATS_REPOSITORY` 和 `SEQUELIZE` 都存放在独立的 `constants.ts` 文件中。
-:::
+> warning **Warning** In the real-world applications you should avoid **magic strings**. Both `CATS_REPOSITORY` and `SEQUELIZE` should be kept in the separated `constants.ts` file.
 
-在 Sequelize 中，我们使用静态方法来操作数据，因此这里创建了一个**别名** 。
+In Sequelize, we use static methods to manipulate the data, and thus we created an **alias** here.
 
-现在我们可以通过 `@Inject()` 装饰器将 `CATS_REPOSITORY` 注入到 `CatsService` 中：
+Now we can inject the `CATS_REPOSITORY` to the `CatsService` using the `@Inject()` decorator:
 
- ```typescript title="cats.service.ts"
+```typescript
+@@filename(cats.service)
 import { Injectable, Inject } from '@nestjs/common';
 import { CreateCatDto } from './dto/create-cat.dto';
 import { Cat } from './cat.entity';
@@ -125,11 +123,12 @@ export class CatsService {
 }
 ```
 
-数据库连接是**异步的** ，但 Nest 使这个过程对终端用户完全透明。`CATS_REPOSITORY` 提供者会等待数据库连接完成，而 `CatsService` 会延迟到存储库准备就绪。整个应用会在所有类实例化完成后启动。
+The database connection is **asynchronous**, but Nest makes this process completely invisible for the end-user. The `CATS_REPOSITORY` provider is waiting for the db connection, and the `CatsService` is delayed until repository is ready to use. The entire application can start when each class is instantiated.
 
-以下是最终的 `CatsModule`：
+Here is a final `CatsModule`:
 
- ```typescript title="cats.module.ts"
+```typescript
+@@filename(cats.module)
 import { Module } from '@nestjs/common';
 import { CatsController } from './cats.controller';
 import { CatsService } from './cats.service';
@@ -147,8 +146,4 @@ import { DatabaseModule } from '../database/database.module';
 export class CatsModule {}
 ```
 
-:::info 提示
-不要忘记将 `CatsModule` 导入根模块 `AppModule`。
-:::
-
-
+> info **Hint** Do not forget to import the `CatsModule` into the root `AppModule`.

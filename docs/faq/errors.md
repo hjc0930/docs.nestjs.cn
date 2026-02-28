@@ -1,14 +1,16 @@
-### 常见错误
+<!-- 此文件从 content/faq\errors.md 自动生成，请勿直接修改此文件 -->
+<!-- 生成时间: 2026-02-28T06:24:18.284Z -->
+<!-- 源文件: content/faq\errors.md -->
 
-在使用 NestJS 进行开发时，随着对框架的学习，您可能会遇到各种错误。
+### Common errors
 
-#### "无法解析依赖项"错误
+During your development with NestJS, you may encounter various errors as you learn the framework.
 
-:::info 提示
-查看 [NestJS Devtools](/devtools/overview#排查无法解析依赖项错误) 可以帮助您轻松解决"无法解析依赖项"错误。
-:::
+#### "Cannot resolve dependency" error
 
-最常见的错误消息是关于 Nest 无法解析提供者的依赖项。错误消息通常如下所示：
+> info **Hint** Check out the [NestJS Devtools](/devtools/overview#调查无法解析依赖项错误) which can help you resolve the "Cannot resolve dependency" error effortlessly.
+
+Probably the most common error message is about Nest not being able to resolve dependencies of a provider. The error message usually looks something like this:
 
 ```bash
 Nest can't resolve dependencies of the <provider> (?). Please make sure that the argument <unknown_token> at index [<index>] is available in the <module> context.
@@ -22,24 +24,24 @@ Potential solutions:
   })
 ```
 
-导致此错误最常见的原因是没有将 `<provider>` 放入模块的 `providers` 数组中。请确保该提供者确实位于 `providers` 数组中，并遵循[标准 NestJS 提供者实践](/fundamentals/dependency-injection#di-基础)。
+The most common culprit of the error, is not having the `<provider>` in the module's `providers` array. Please make sure that the provider is indeed in the `providers` array and following [standard NestJS provider practices](/fundamentals/custom-providers#di-fundamentals).
 
-有几个常见的陷阱需要注意。其中之一是将提供者放入了 `imports` 数组中。如果是这种情况，错误消息中会在 `<module>` 应该出现的位置显示提供者的名称。
+There are a few gotchas, that are common. One is putting a provider in an `imports` array. If this is the case, the error will have the provider's name where `<module>` should be.
 
-在开发过程中遇到此错误时，请查看错误信息中提到的模块及其 `providers` 配置。对于 `providers` 数组中的每个提供者，请确保该模块能访问所有依赖项。常见情况是 `providers` 在"功能模块"和"根模块"中被重复声明，导致 Nest 会尝试实例化两次提供者。大多数情况下，包含重复 `<provider>` 的模块应该被添加到"根模块"的 `imports` 数组中。
+If you run across this error while developing, take a look at the module mentioned in the error message and look at its `providers`. For each provider in the `providers` array, make sure the module has access to all of the dependencies. Often times, `providers` are duplicated in a "Feature Module" and a "Root Module" which means Nest will try to instantiate the provider twice. More than likely, the module containing the `<provider>` being duplicated should be added in the "Root Module"'s `imports` array instead.
 
-如果上文的 `<unknown_token>` 是 `dependency`，可能存在循环文件导入。这与下文[循环依赖](#循环依赖错误)不同——不是指提供者在其构造函数中相互依赖，而是两个文件最终相互导入。典型场景是：模块文件声明令牌时导入提供者，而提供者又从模块文件导入令牌常量。如果使用桶文件，请确保桶文件导入不会形成此类循环导入关系。
+If the `<unknown_token>` above is `dependency`, you might have a circular file import. This is different from the [circular dependency](/faq/common-errors#循环依赖错误) below because instead of having providers depend on each other in their constructors, it just means that two files end up importing each other. A common case would be a module file declaring a token and importing a provider, and the provider import the token constant from the module file. If you are using barrel files, ensure that your barrel imports do not end up creating these circular imports as well.
 
-如果上方的 `<unknown_token>` 显示为 `Object`，说明您正在使用没有提供者令牌的类型/接口进行注入。要解决此问题，请确保：
+If the `<unknown_token>` above is `Object`, it means that you're injecting using an type/interface without a proper provider's token. To fix that, make sure that:
 
-1.  您已导入类引用或使用带有 `@Inject()` 装饰器的自定义令牌。请阅读[自定义提供者页面](/fundamentals/dependency-injection)，以及
-2.  对于基于类的提供者，您导入的是具体类而不仅仅是 [`import type ...`](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-3-8.html#type-only-imports-and-export) 语法引入的类型。
+1. you're importing the class reference or use a custom token with `@Inject()` decorator. Read the [custom providers page](/fundamentals/custom-providers), and
+2. for class-based providers, you're importing the concrete classes instead of only the type via [`import type ...`](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-3-8.html#type-only-imports-and-export) syntax.
 
-同时请确保没有出现提供者自我注入的情况，因为 NestJS 不允许自我注入。当发生这种情况时，`<unknown_token>` 很可能会等于 `<provider>`。
+Also, make sure you didn't end up injecting the provider on itself because self-injections are not allowed in NestJS. When this happens, `<unknown_token>` will likely be equal to `<provider>`.
 
 <app-banner-devtools></app-banner-devtools>
 
-如果你处于 **monorepo 设置**中，可能会遇到与上述相同的错误，但核心提供者 `ModuleRef` 会显示为 `<unknown_token>`：
+If you are in a **monorepo setup**, you may face the same error as above but for core provider called `ModuleRef` as a `<unknown_token>`:
 
 ```bash
 Nest can't resolve dependencies of the <provider> (?).
@@ -47,7 +49,7 @@ Please make sure that the argument ModuleRef at index [<index>] is available in 
 ...
 ```
 
-这种情况通常发生在你的项目最终加载了两个 `@nestjs/core` 包的 Node 模块时，例如：
+This likely happens when your project end up loading two Node modules of the package `@nestjs/core`, like this:
 
 ```text
 .
@@ -63,52 +65,55 @@ Please make sure that the argument ModuleRef at index [<index>] is available in 
     └── @nestjs/core
 ```
 
-解决方案：
+Solutions:
 
-- 对于 **Yarn** Workspaces，使用 [nohoist 特性](https://classic.yarnpkg.com/blog/2018/02/15/nohoist)来阻止提升 `@nestjs/core` 包。
-- 对于 **pnpm** 工作区，请在其他模块中将 `@nestjs/core` 设置为 peerDependencies，并在导入该模块的应用 package.json 中添加 `"dependenciesMeta": {"other-module-name": {"injected": true}}` 。参见：[dependenciesmetainjected](https://pnpm.io/package_json#dependenciesmetainjected)
+- For **Yarn** Workspaces, use the [nohoist feature](https://classic.yarnpkg.com/blog/2018/02/15/nohoist) to prevent hoisting the package `@nestjs/core`.
+- For **pnpm** Workspaces, set `@nestjs/core` as a peerDependencies in your other module and `"dependenciesMeta": {{ '{' }}"other-module-name": {{ '{' }}"injected": true &#125;&#125;` in the app package.json where the module is imported. see: [dependenciesmetainjected](https://pnpm.io/package_json#dependenciesmetainjected)
 
-#### "循环依赖"错误
+#### "Circular dependency" error
 
-有时您会发现应用中难以避免[循环依赖](/fundamentals/circular-dependency)问题。您需要采取一些措施帮助 Nest 解决这些问题。由循环依赖引发的错误通常如下所示：
+Occasionally you'll find it difficult to avoid [circular dependencies](/fundamentals/circular-dependency) in your application. You'll need to take some steps to help Nest resolve these. Errors that arise from circular dependencies look like this:
 
 ```bash
 Nest cannot create the <module> instance.
 The module at index [<index>] of the <module> "imports" array is undefined.
 
 Potential causes:
-- A circular dependency between modules. Use forwardRef() to avoid it. Read more: https://docs.nestjs.com/fundamentals/circular-dependency
+- A circular dependency between modules. Use forwardRef() to avoid it. Read more: /fundamentals/circular-dependency
 - The module at index [<index>] is of type "undefined". Check your import statements and the type of the module.
 
 Scope [<module_import_chain>]
 # example chain AppModule -> FooModule
 ```
 
-循环依赖可能源于提供者之间相互依赖，或是 TypeScript 文件间因常量而相互依赖（例如从模块文件导出常量并在服务文件中导入）。对于后者，建议为常量创建单独的文件。对于前者，请遵循循环依赖指南，确保模块**和**提供者都使用 `forwardRef` 进行标记。
+Circular dependencies can arise from both providers depending on each other, or typescript files depending on each other for constants, such as exporting constants from a module file and importing them in a service file. In the latter case, it is advised to create a separate file for your constants. In the former case, please follow the guide on circular dependencies and make sure that both the modules **and** the providers are marked with `forwardRef`.
 
-#### 调试依赖项错误
+#### Debugging dependency errors
 
-除了手动验证依赖项是否正确外，从 Nest 8.1.0 开始，您可以将 `NEST_DEBUG` 环境变量设置为可解析为真值的字符串，这样在 Nest 解析应用程序所有依赖项时就能获取额外的日志信息。
+Along with just manually verifying your dependencies are correct, as of Nest 8.1.0 you can set the `NEST_DEBUG` environment variable to a string that resolves as truthy, and get extra logging information while Nest is resolving all of the dependencies for the application.
 
-![](/assets/injector_logs.png)
+<figure><img src="/assets/injector_logs.png" /></figure>
 
-在上图中，黄色字符串表示被注入依赖项的主机类，蓝色字符串表示被注入依赖项的名称或其注入令牌，紫色字符串表示搜索该依赖项的模块。通过这些信息，通常可以追溯依赖项解析过程，了解发生了什么以及为何会出现依赖项注入问题。
+In the above image, the string in yellow is the host class of the dependency being injected, the string in blue is the name of the injected dependency, or its injection token, and the string in purple is the module in which the dependency is being searched for. Using this, you can usually trace back the dependency resolution for what's happening and why you're getting dependency injection problems.
 
-#### "检测到文件更改"无限循环
+#### "File change detected" loops endlessly
 
-使用 TypeScript 4.9 及以上版本的 Windows 用户可能会遇到此问题。当您尝试以监视模式运行应用程序时（例如 `npm run start:dev`），会出现日志消息的无限循环：
+Windows users who are using TypeScript version 4.9 and up may encounter this problem.
+This happens when you're trying to run your application in watch mode, e.g `npm run start:dev` and see an endless loop of the log messages:
 
 ```bash
 XX:XX:XX AM - File change detected. Starting incremental compilation...
 XX:XX:XX AM - Found 0 errors. Watching for file changes.
 ```
 
-当您使用 NestJS CLI 以监视模式启动应用程序时，实际上是通过调用 `tsc --watch` 实现的。从 TypeScript 4.9 版本开始，采用了一种 [新的策略](https://devblogs.microsoft.com/typescript/announcing-typescript-4-9/#file-watching-now-uses-file-system-events) 来检测文件变更，这很可能是导致此问题的原因。要解决此问题，您需要在 tsconfig.json 文件的 `"compilerOptions"` 选项后添加如下设置：
+When you're using the NestJS CLI to start your application in watch mode it is done by calling `tsc --watch`, and as of version 4.9 of TypeScript, a [new strategy](https://devblogs.microsoft.com/typescript/announcing-typescript-4-9/#file-watching-now-uses-file-system-events) for detecting file changes is used which is likely to be the cause of this problem.
+In order to fix this problem, you need to add a setting to your tsconfig.json file after the `"compilerOptions"` option as follows:
 
-```json
+```bash
   "watchOptions": {
     "watchFile": "fixedPollingInterval"
   }
 ```
 
-这将指示 TypeScript 使用轮询方法（而非新的默认文件系统事件方法）来检查文件变更，后者在某些机器上可能会引发问题。您可以在 [TypeScript 文档](https://www.typescriptlang.org/tsconfig#watch-watchDirectory) 中阅读更多关于 `"watchFile"` 选项的信息。
+This tells TypeScript to use the polling method for checking for file changes instead of file system events (the new default method), which can cause issues on some machines.
+You can read more about the `"watchFile"` option in [TypeScript documentation](https://www.typescriptlang.org/tsconfig#watch-watchDirectory).

@@ -1,10 +1,14 @@
-### 其他功能
+<!-- 此文件从 content/openapi\other-features.md 自动生成，请勿直接修改此文件 -->
+<!-- 生成时间: 2026-02-28T06:24:18.100Z -->
+<!-- 源文件: content/openapi\other-features.md -->
 
-本页面列出了您可能会觉得有用的所有其他可用功能。
+### Other features
 
-#### 全局前缀
+This page lists all the other available features that you may find useful.
 
-要忽略通过 `setGlobalPrefix()` 设置的路由全局前缀，请使用 `ignoreGlobalPrefix`：
+#### Global prefix
+
+To ignore a global prefix for routes set through `setGlobalPrefix()`, use `ignoreGlobalPrefix`:
 
 ```typescript
 const document = SwaggerModule.createDocument(app, options, {
@@ -12,9 +16,9 @@ const document = SwaggerModule.createDocument(app, options, {
 });
 ```
 
-#### 全局参数
+#### Global parameters
 
-您可以使用 `DocumentBuilder` 为所有路由定义参数，如下所示：
+You can define parameters for all routes using `DocumentBuilder`, as shown below:
 
 ```typescript
 const config = new DocumentBuilder()
@@ -26,9 +30,9 @@ const config = new DocumentBuilder()
   .build();
 ```
 
-#### 全局响应
+#### Global responses
 
-您可以使用 `DocumentBuilder` 为所有路由定义全局响应。这对于在应用程序的所有端点中设置一致的响应非常有用，例如错误代码 `401 Unauthorized` 或 `500 Internal Server Error`。
+You can define global responses for all routes using `DocumentBuilder`. This is useful for setting up consistent responses across all endpoints in your application, such as error codes like `401 Unauthorized` or `500 Internal Server Error`.
 
 ```typescript
 const config = new DocumentBuilder()
@@ -40,13 +44,13 @@ const config = new DocumentBuilder()
   .build();
 ```
 
-#### 多规格支持
+#### Multiple specifications
 
-`SwaggerModule` 提供了支持多规格的方式。换句话说，您可以在不同的端点上提供不同的文档和不同的用户界面。
+The `SwaggerModule` provides a way to support multiple specifications. In other words, you can serve different documentation, with different UIs, on different endpoints.
 
-为支持多种规范，您的应用程序必须采用模块化方式编写。`createDocument()` 方法接受第三个参数 `extraOptions`，这是一个包含名为 `include` 属性的对象。`include` 属性接收一个模块数组作为值。
+To support multiple specifications, your application must be written with a modular approach. The `createDocument()` method takes a 3rd argument, `extraOptions`, which is an object with a property named `include`. The `include` property takes a value which is an array of modules.
 
-您可以按如下方式设置多规范支持：
+You can setup multiple specifications support as shown below:
 
 ```typescript
 import { NestFactory } from '@nestjs/core';
@@ -99,27 +103,27 @@ async function bootstrap() {
 bootstrap();
 ```
 
-现在您可以通过以下命令启动服务器：
+Now you can start your server with the following command:
 
 ```bash
 $ npm run start
 ```
 
-导航至 `http://localhost:3000/api/cats` 查看 cats 的 Swagger UI 界面。
+Navigate to `http://localhost:3000/api/cats` to see the Swagger UI for cats:
 
-![](/assets/swagger-cats.png)
+<figure><img src="/assets/swagger-cats.png" /></figure>
 
-相应地， `http://localhost:3000/api/dogs` 将展示面向开发者的 Swagger UI 界面：
+In turn, `http://localhost:3000/api/dogs` will expose the Swagger UI for dogs:
 
-![](/assets/swagger-dogs.png)
+<figure><img src="/assets/swagger-dogs.png" /></figure>
 
-#### 资源管理器栏中的下拉菜单
+#### Dropdown in the explorer bar
 
-要在资源管理器栏的下拉菜单中启用多规范支持，您需要设置 `explorer: true` 并在 `SwaggerCustomOptions` 中配置 `swaggerOptions.urls`。
+To enable support for multiple specifications in the dropdown menu of the explorer bar, you'll need to set `explorer: true` and configure `swaggerOptions.urls` in your `SwaggerCustomOptions`.
 
-info **注意** 请确保 `swaggerOptions.urls` 指向您的 Swagger 文档的 JSON 格式！要指定 JSON 文档，请在 `SwaggerCustomOptions` 中使用 `jsonDocumentUrl`。更多设置选项请查看[此处](/openapi/introduction#设置选项) 。
+> info **Hint** Ensure that `swaggerOptions.urls` points to the JSON format of your Swagger documents! To specify the JSON document, use `jsonDocumentUrl` within `SwaggerCustomOptions`. For more setup options, check [here](/openapi/introduction#设置选项).
 
-以下是设置资源管理器栏下拉菜单中多个规格的方法：
+Here’s how to set up multiple specifications from a dropdown in the explorer bar:
 
 ```typescript
 import { NestFactory } from '@nestjs/core';
@@ -205,4 +209,4 @@ async function bootstrap() {
 bootstrap();
 ```
 
-在本示例中，我们设置了一个主 API 以及分别针对猫和狗的独立规格，每个规格都可以通过资源管理器栏的下拉菜单访问。
+In this example, we set up a main API along with separate specifications for Cats and Dogs, each accessible from the dropdown in the explorer bar.

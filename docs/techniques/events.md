@@ -1,20 +1,25 @@
-### 事件
+<!-- 此文件从 content/techniques\events.md 自动生成，请勿直接修改此文件 -->
+<!-- 生成时间: 2026-02-28T06:24:17.980Z -->
+<!-- 源文件: content/techniques\events.md -->
 
-[事件发射器](https://www.npmjs.com/package/@nestjs/event-emitter)包（`@nestjs/event-emitter`）提供了一个简单的观察者实现，允许您订阅和监听应用程序中发生的各种事件。事件是实现应用程序各模块解耦的绝佳方式，因为单个事件可以拥有多个彼此独立的监听器。
+### Events
 
-`EventEmitterModule` 内部使用了 [eventemitter2](https://github.com/EventEmitter2/EventEmitter2) 包。
+[Event Emitter](https://www.npmjs.com/package/@nestjs/event-emitter) package (`@nestjs/event-emitter`) provides a simple observer implementation, allowing you to subscribe and listen for various events that occur in your application. Events serve as a great way to decouple various aspects of your application, since a single event can have multiple listeners that do not depend on each other.
 
-#### 快速开始
+`EventEmitterModule` internally uses the [eventemitter2](https://github.com/EventEmitter2/EventEmitter2) package.
 
-首先安装所需包：
+#### Getting started
+
+First install the required package:
 
 ```shell
 $ npm i --save @nestjs/event-emitter
 ```
 
-安装完成后，将 `EventEmitterModule` 导入根模块 `AppModule`，并运行静态方法 `forRoot()`，如下所示：
+Once the installation is complete, import the `EventEmitterModule` into the root `AppModule` and run the `forRoot()` static method as shown below:
 
 ```typescript
+@@filename(app.module)
 import { Module } from '@nestjs/common';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 
@@ -26,42 +31,40 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 export class AppModule {}
 ```
 
-`.forRoot()` 调用会初始化事件发射器并注册应用中存在的所有声明式事件监听器。注册过程发生在 `onApplicationBootstrap` 生命周期钩子时，确保所有模块都已加载并声明了任何计划任务。
+The `.forRoot()` call initializes the event emitter and registers any declarative event listeners that exist within your app. Registration occurs when the `onApplicationBootstrap` lifecycle hook occurs, ensuring that all modules have loaded and declared any scheduled jobs.
 
-要配置底层的 `EventEmitter` 实例，请将配置对象传递给 `.forRoot()` 方法，如下所示：
+To configure the underlying `EventEmitter` instance, pass the configuration object to the `.forRoot()` method, as follows:
 
 ```typescript
 EventEmitterModule.forRoot({
-  // 设置为 `true` 以使用通配符
+  // set this to `true` to use wildcards
   wildcard: false,
-  // 用于分割命名空间的分隔符
+  // the delimiter used to segment namespaces
   delimiter: '.',
-  // 如果您希望触发 newListener 事件，请设置为 `true`
+  // set this to `true` if you want to emit the newListener event
   newListener: false,
-  // 如果您希望触发 removeListener 事件，请设置为 `true`
+  // set this to `true` if you want to emit the removeListener event
   removeListener: false,
-  // 可以分配给事件的最大监听器数量
+  // the maximum amount of listeners that can be assigned to an event
   maxListeners: 10,
-  // 当监听器数量超过最大值时，在内存泄漏消息中显示事件名称
+  // show event name in memory leak message when more than maximum amount of listeners is assigned
   verboseMemoryLeak: false,
-  // 当错误事件被触发且没有监听器时，禁用抛出 uncaughtException
+  // disable throwing uncaughtException if an error event is emitted and it has no listeners
   ignoreErrors: false,
 });
 ```
 
-#### 事件派发
+#### Dispatching events
 
-要派发（即触发）一个事件，首先使用标准的构造函数注入方式注入 `EventEmitter2`：
+To dispatch (i.e., fire) an event, first inject `EventEmitter2` using standard constructor injection:
 
 ```typescript
 constructor(private eventEmitter: EventEmitter2) {}
 ```
 
-:::info 提示
-从 `@nestjs/event-emitter` 包中导入 `EventEmitter2`。
-:::
+> info **Hint** Import the `EventEmitter2` from the `@nestjs/event-emitter` package.
 
-然后在类中按如下方式使用：
+Then use it in a class as follows:
 
 ```typescript
 this.eventEmitter.emit(
@@ -69,33 +72,31 @@ this.eventEmitter.emit(
   new OrderCreatedEvent({
     orderId: 1,
     payload: {},
-  })
+  }),
 );
 ```
 
-#### 监听事件
+#### Listening to events
 
-要声明事件监听器，请在包含待执行代码的方法定义前使用 `@OnEvent()` 装饰器进行修饰，如下所示：
+To declare an event listener, decorate a method with the `@OnEvent()` decorator preceding the method definition containing the code to be executed, as follows:
 
 ```typescript
 @OnEvent('order.created')
 handleOrderCreatedEvent(payload: OrderCreatedEvent) {
-  // 处理和处理 "OrderCreatedEvent" 事件
+  // handle and process "OrderCreatedEvent" event
 }
 ```
 
-:::warning 警告
-事件订阅者不能是请求作用域的。
-:::
+> warning **Warning** Event subscribers cannot be request-scoped.
 
-第一个参数可以是简单事件发射器的 `string` 或 `symbol`，在通配符发射器情况下则是 `string | symbol | Array<string | symbol>` 。
+The first argument can be a `string` or `symbol` for a simple event emitter and a `string | symbol | Array<string | symbol>` in a case of a wildcard emitter.
 
-第二个参数（可选）是如下所示的监听器选项对象：
+The second argument (optional) is a listener options object as follows:
 
 ```typescript
 export type OnEventOptions = OnOptions & {
   /**
-   * 如果为 "true"，则将给定的监听器前置（而非追加）到监听器数组中。
+   * If "true", prepends (instead of append) the given listener to the array of listeners.
    *
    * @see https://github.com/EventEmitter2/EventEmitter2#emitterprependlistenerevent-listener-options
    *
@@ -104,7 +105,7 @@ export type OnEventOptions = OnOptions & {
   prependListener?: boolean;
 
   /**
-   * 如果为 "true"，onEvent 回调在处理事件时不会抛出错误。如果为 "false"，则会抛出错误。
+   * If "true", the onEvent callback will not throw an error while handling the event. Otherwise, if "false" it will throw an error.
    *
    * @default true
    */
@@ -112,60 +113,54 @@ export type OnEventOptions = OnOptions & {
 };
 ```
 
-:::info 提示
-了解更多关于 `OnOptions` 选项对象的信息，请参阅 [`eventemitter2`](https://github.com/EventEmitter2/EventEmitter2#emitteronevent-listener-options-objectboolean)。
-:::
+> info **Hint** Read more about the `OnOptions` options object from [`eventemitter2`](https://github.com/EventEmitter2/EventEmitter2#emitteronevent-listener-options-objectboolean).
 
 ```typescript
 @OnEvent('order.created', { async: true })
 handleOrderCreatedEvent(payload: OrderCreatedEvent) {
-  // 处理和处理 "OrderCreatedEvent" 事件
+  // handle and process "OrderCreatedEvent" event
 }
 ```
 
-要使用命名空间/通配符，请将 `wildcard` 选项传入 `EventEmitterModule#forRoot()` 方法。启用命名空间/通配符后，事件可以是分隔符分隔的字符串(`foo.bar`)或数组(`['foo', 'bar']`)。分隔符也可作为配置属性(`delimiter`)进行配置。启用命名空间功能后，您可以使用通配符订阅事件：
+To use namespaces/wildcards, pass the `wildcard` option into the `EventEmitterModule#forRoot()` method. When namespaces/wildcards are enabled, events can either be strings (`foo.bar`) separated by a delimiter or arrays (`['foo', 'bar']`). The delimiter is also configurable as a configuration property (`delimiter`). With namespaces feature enabled, you can subscribe to events using a wildcard:
 
 ```typescript
 @OnEvent('order.*')
 handleOrderEvents(payload: OrderCreatedEvent | OrderRemovedEvent | OrderUpdatedEvent) {
-  // 处理和处理事件
+  // handle and process an event
 }
 ```
 
-请注意，此类通配符仅适用于单个区块。参数 `order.*` 将匹配例如事件 `order.created` 和 `order.shipped`，但不会匹配 `order.delayed.out_of_stock`。要监听此类事件，请使用`多级通配符`模式（即 `**`），详见 `EventEmitter2` [文档](https://github.com/EventEmitter2/EventEmitter2#multi-level-wildcards) 。
+Note that such a wildcard only applies to one block. The argument `order.*` will match, for example, the events `order.created` and `order.shipped` but not `order.delayed.out_of_stock`. In order to listen to such events,
+use the `multilevel wildcard` pattern (i.e, `**`), described in the `EventEmitter2` [documentation](https://github.com/EventEmitter2/EventEmitter2#multi-level-wildcards).
 
-通过此模式，您可以创建捕获所有事件的事件监听器。
+With this pattern, you can, for example, create an event listener that catches all events.
 
 ```typescript
 @OnEvent('**')
 handleEverything(payload: any) {
-  // 处理和处理事件
+  // handle and process an event
 }
 ```
 
-:::info 提示
-`EventEmitter2` 类提供了多个实用方法来处理事件，例如 `waitFor` 和 `onAny`。您可以点击[此处](https://github.com/EventEmitter2/EventEmitter2)了解更多信息。
-:::
+> info **Hint** `EventEmitter2` class provides several useful methods for interacting with events, like `waitFor` and `onAny`. You can read more about them [here](https://github.com/EventEmitter2/EventEmitter2).
 
-#### 防止事件丢失
+#### Preventing event loss
 
-在 `onApplicationBootstrap` 生命周期钩子之前或期间触发的事件（例如来自模块构造函数或 `onModuleInit` 方法的事件）可能会被遗漏，因为 `EventSubscribersLoader` 可能尚未完成监听器的设置。
+Events triggered before or during the `onApplicationBootstrap` lifecycle hook—such as those from module constructors or the `onModuleInit` method—may be missed because the `EventSubscribersLoader` might not have finished setting up the listeners.
 
-为避免此问题，您可以使用 `EventEmitterReadinessWatcher` 的 `waitUntilReady` 方法，该方法返回一个在所有监听器注册完成后解析的 Promise。可以在模块的 `onApplicationBootstrap` 生命周期钩子中调用此方法，以确保所有事件都能被正确捕获。
+To avoid this issue, you can use the `waitUntilReady` method of the `EventEmitterReadinessWatcher`, which returns a promise that resolves once all listeners have been registered. This method can be called in the `onApplicationBootstrap` lifecycle hook of a module to ensure that all events are properly captured.
 
 ```typescript
 await this.eventEmitterReadinessWatcher.waitUntilReady();
 this.eventEmitter.emit(
   'order.created',
-  new OrderCreatedEvent({ orderId: 1, payload: {} })
+  new OrderCreatedEvent({ orderId: 1, payload: {} }),
 );
 ```
 
-:::info 注意
-这仅适用于在 `onApplicationBootstrap` 生命周期钩子完成之前发出的事件。
-:::
+> info **Note** This is only necessary for events emitted before the `onApplicationBootstrap` lifecycle hook is complete.
 
+#### Example
 
-#### 示例
-
-一个可用的示例[在此处](https://github.com/nestjs/nest/tree/master/sample/30-event-emitter)查看。
+A working example is available [here](https://github.com/nestjs/nest/tree/master/sample/30-event-emitter).

@@ -1,22 +1,27 @@
+<!-- 此文件从 content/microservices\redis.md 自动生成，请勿直接修改此文件 -->
+<!-- 生成时间: 2026-02-28T06:24:18.122Z -->
+<!-- 源文件: content/microservices\redis.md -->
+
 ### Redis
 
-[Redis](https://redis.io/) 传输器实现了发布/订阅消息范式，并利用了 Redis 的 [Pub/Sub](https://redis.io/topics/pubsub) 功能。发布的消息按通道分类，无需知晓最终哪些订阅者（如果有）会接收该消息。每个微服务可订阅任意数量的通道，同时还能一次性订阅多个通道。通过通道交换的消息采用**即发即弃**模式，这意味着如果发布消息时没有感兴趣的订阅者，该消息将被移除且无法恢复。因此，无法保证消息或事件至少会被一个服务处理。单个消息可被多个订阅者同时订阅（并接收）。
+The [Redis](https://redis.io/) transporter implements the publish/subscribe messaging paradigm and leverages the [Pub/Sub](https://redis.io/topics/pubsub) feature of Redis. Published messages are categorized in channels, without knowing what subscribers (if any) will eventually receive the message. Each microservice can subscribe to any number of channels. In addition, more than one channel can be subscribed to at a time. Messages exchanged through channels are **fire-and-forget**, which means that if a message is published and there are no subscribers interested in it, the message is removed and cannot be recovered. Thus, you don't have a guarantee that either messages or events will be handled by at least one service. A single message can be subscribed to (and received) by multiple subscribers.
 
-![](/assets/Redis_1.png)
+<figure><img class="illustrative-image" src="/assets/Redis_1.png" /></figure>
 
-#### 安装
+#### Installation
 
-要开始构建基于 Redis 的微服务，首先需安装以下必备包：
+To start building Redis-based microservices, first install the required package:
 
 ```bash
 $ npm i --save ioredis
 ```
 
-#### 概述
+#### Overview
 
-要使用 Redis 传输器，请将以下配置对象传入 `createMicroservice()` 方法：
+To use the Redis transporter, pass the following options object to the `createMicroservice()` method:
 
- ```typescript title="main.ts"
+```typescript
+@@filename(main)
 const app = await NestFactory.createMicroservice<MicroserviceOptions>(AppModule, {
   transport: Transport.REDIS,
   options: {
@@ -26,31 +31,42 @@ const app = await NestFactory.createMicroservice<MicroserviceOptions>(AppModule,
 });
 ```
 
-:::info 提示
-`Transport` 枚举是从 `@nestjs/microservices` 包中导入的。
-:::
+> info **Hint** The `Transport` enum is imported from the `@nestjs/microservices` package.
 
+#### Options
 
+The `options` property is specific to the chosen transporter. The <strong>Redis</strong> transporter exposes the properties described below.
 
-#### 选项
+<table>
+  <tr>
+    <td><code>host</code></td>
+    <td>Connection url</td>
+  </tr>
+  <tr>
+    <td><code>port</code></td>
+    <td>Connection port</td>
+  </tr>
+  <tr>
+    <td><code>retryAttempts</code></td>
+    <td>Number of times to retry message (default: <code>0</code>)</td>
+  </tr>
+  <tr>
+    <td><code>retryDelay</code></td>
+    <td>Delay between message retry attempts (ms) (default: <code>0</code>)</td>
+  </tr>
+   <tr>
+    <td><code>wildcards</code></td>
+    <td>Enables Redis wildcard subscriptions, instructing transporter to use <code>psubscribe</code>/<code>pmessage</code> under the hood. (default: <code>false</code>)</td>
+  </tr>
+</table>
 
-`options` 属性取决于所选传输器类型。**Redis** 传输器暴露的配置属性如下所述：
+All the properties supported by the official [ioredis](https://redis.github.io/ioredis/index.html#RedisOptions) client are also supported by this transporter.
 
-| 选项            | 描述                                                                                          |
-| --------------- | --------------------------------------------------------------------------------------------- |
-| `host`          | 连接 URL                                                                                     |
-| `port`          | 连接端口                                                                                     |
-| `retryAttempts` | 消息重试次数（默认：`0`）                                                                    |
-| `retryDelay`    | 消息重试尝试之间的延迟（毫秒）（默认：`0`）                                                   |
-| `wildcards`     | 启用 Redis 通配符订阅功能，指示传输器在底层使用 `psubscribe`/`pmessage`（默认：`false`）     |
+#### Client
 
-官方 [ioredis](https://redis.github.io/ioredis/index.html#RedisOptions) 客户端支持的所有属性，该传输器同样支持。
+Like other microservice transporters, you have <a href="/microservices/basics#客户端">several options</a> for creating a Redis `ClientProxy` instance.
 
-#### 客户端
-
-与其他微服务传输器类似，创建 Redis `ClientProxy` 实例时您有 [多种选择](./basics#客户端) 。
-
-一种创建实例的方法是使用 `ClientsModule`。要通过 `ClientsModule` 创建客户端实例，需先导入该模块，然后使用 `register()` 方法传入一个选项对象（包含与上文 `createMicroservice()` 方法相同的属性），以及用作注入令牌的 `name` 属性。更多关于 `ClientsModule` 的信息请参阅[此处](./basics#客户端) 。
+One method for creating an instance is to use the `ClientsModule`. To create a client instance with the `ClientsModule`, import it and use the `register()` method to pass an options object with the same properties shown above in the `createMicroservice()` method, as well as a `name` property to be used as the injection token. Read more about `ClientsModule` <a href="/microservices/basics#客户端">here</a>.
 
 ```typescript
 @Module({
@@ -70,26 +86,25 @@ const app = await NestFactory.createMicroservice<MicroserviceOptions>(AppModule,
 })
 ```
 
-也可以使用其他方式创建客户端（`ClientProxyFactory` 或 `@Client()`）。相关说明请查看[此文档](./basics#客户端) 。
+Other options to create a client (either `ClientProxyFactory` or `@Client()`) can be used as well. You can read about them <a href="/microservices/basics#客户端">here</a>.
 
-#### 上下文
+#### Context
 
-在更复杂的场景中，您可能需要访问有关传入请求的额外信息。使用 Redis 传输器时，您可以访问 `RedisContext` 对象。
+In more complex scenarios, you may need to access additional information about the incoming request. When using the Redis transporter, you can access the `RedisContext` object.
 
 ```typescript
+@@filename()
 @MessagePattern('notifications')
 getNotifications(@Payload() data: number[], @Ctx() context: RedisContext) {
   console.log(`Channel: ${context.getChannel()}`);
 }
 ```
 
-:::info 提示
-`@Payload()`、`@Ctx()` 和 `RedisContext` 均从 `@nestjs/microservices` 包导入。
-:::
+> info **Hint** `@Payload()`, `@Ctx()` and `RedisContext` are imported from the `@nestjs/microservices` package.
 
-#### 通配符
+#### Wildcards
 
-要启用通配符支持，请将 `wildcards` 选项设置为 `true`。这将指示传输器在底层使用 `psubscribe` 和 `pmessage`。
+To enable wildcards support, set the `wildcards` option to `true`. This instructs the transporter to use `psubscribe` and `pmessage` under the hood.
 
 ```typescript
 const app = await NestFactory.createMicroservice(AppModule, {
@@ -101,17 +116,17 @@ const app = await NestFactory.createMicroservice(AppModule, {
 });
 ```
 
-创建客户端实例时也请确保传递 `wildcards` 选项。
+Make sure to pass the `wildcards` option when creating a client instance as well.
 
-启用此选项后，您可以在消息和事件模式中使用通配符。例如，要订阅所有以 `notifications` 开头的频道，可以使用以下模式：
+With this option enabled, you can use wildcards in your message and event patterns. For example, to subscribe to all channels starting with `notifications`, you can use the following pattern:
 
 ```typescript
 @EventPattern('notifications.*')
 ```
 
-#### 实例状态更新
+#### Instance status updates
 
-要获取连接及底层驱动实例状态的实时更新，您可以订阅 `status` 流。该流提供特定于所选驱动的状态更新。对于 Redis 驱动，`status` 流会发出 `connected`、`disconnected` 和 `reconnecting` 事件。
+To get real-time updates on the connection and the state of the underlying driver instance, you can subscribe to the `status` stream. This stream provides status updates specific to the chosen driver. For the Redis driver, the `status` stream emits `connected`, `disconnected`, and `reconnecting` events.
 
 ```typescript
 this.client.status.subscribe((status: RedisStatus) => {
@@ -119,11 +134,9 @@ this.client.status.subscribe((status: RedisStatus) => {
 });
 ```
 
-:::info 提示
-`RedisStatus` 类型是从 `@nestjs/microservices` 包导入的。
-:::
+> info **Hint** The `RedisStatus` type is imported from the `@nestjs/microservices` package.
 
-同样地，您可以订阅服务器的 `status` 流来接收有关服务器状态的通知。
+Similarly, you can subscribe to the server's `status` stream to receive notifications about the server's status.
 
 ```typescript
 const server = app.connectMicroservice<MicroserviceOptions>(...);
@@ -132,9 +145,9 @@ server.status.subscribe((status: RedisStatus) => {
 });
 ```
 
-#### 监听 Redis 事件
+#### Listening to Redis events
 
-在某些情况下，您可能需要监听微服务发出的内部事件。例如，您可以监听 `error` 事件，以便在发生错误时触发其他操作。为此，请使用如下所示的 `on()` 方法：
+In some cases, you might want to listen to internal events emitted by the microservice. For example, you could listen for the `error` event to trigger additional operations when an error occurs. To do this, use the `on()` method, as shown below:
 
 ```typescript
 this.client.on('error', (err) => {
@@ -142,7 +155,7 @@ this.client.on('error', (err) => {
 });
 ```
 
-同样地，您可以监听服务器的内部事件：
+Similarly, you can listen to the server's internal events:
 
 ```typescript
 server.on<RedisEvents>('error', (err) => {
@@ -150,27 +163,24 @@ server.on<RedisEvents>('error', (err) => {
 });
 ```
 
-:::info 注意
-`RedisEvents` 类型是从 `@nestjs/microservices` 包中导入的。
-:::
+> info **Hint** The `RedisEvents` type is imported from the `@nestjs/microservices` package.
 
+#### Underlying driver access
 
-#### 底层驱动访问
+For more advanced use cases, you may need to access the underlying driver instance. This can be useful for scenarios like manually closing the connection or using driver-specific methods. However, keep in mind that for most cases, you **shouldn't need** to access the driver directly.
 
-对于更高级的用例，您可能需要访问底层驱动实例。这在手动关闭连接或使用驱动特定方法等场景中非常有用。但请注意，在大多数情况下，您**不需要**直接访问驱动。
-
-为此，您可以使用 `unwrap()` 方法，该方法会返回底层驱动实例。泛型类型参数应指定您预期的驱动实例类型。
+To do so, you can use the `unwrap()` method, which returns the underlying driver instance. The generic type parameter should specify the type of driver instance you expect.
 
 ```typescript
 const [pub, sub] =
   this.client.unwrap<[import('ioredis').Redis, import('ioredis').Redis]>();
 ```
 
-同样地，您可以访问服务器的底层驱动实例：
+Similarly, you can access the server's underlying driver instance:
 
 ```typescript
 const [pub, sub] =
   server.unwrap<[import('ioredis').Redis, import('ioredis').Redis]>();
 ```
 
-请注意，与其他传输器不同，Redis 传输器会返回一个由两个 `ioredis` 实例组成的元组：第一个实例用于发布消息，第二个实例用于订阅消息。
+Note that, in contrary to other transporters, the Redis transporter returns a tuple of two `ioredis` instances: the first one is used for publishing messages, and the second one is used for subscribing to messages.

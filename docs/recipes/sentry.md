@@ -1,25 +1,27 @@
+<!-- 此文件从 content/recipes\sentry.md 自动生成，请勿直接修改此文件 -->
+<!-- 生成时间: 2026-02-28T06:24:18.006Z -->
+<!-- 源文件: content/recipes\sentry.md -->
+
 ### Sentry
 
-[Sentry](https://sentry.io) 是一个错误追踪和性能监控平台，可帮助开发者实时识别并修复问题。本指南展示如何将 Sentry 的 [NestJS SDK](https://docs.sentry.io/platforms/javascript/guides/nestjs/) 集成到您的 NestJS 应用中。
+[Sentry](https://sentry.io) is an error tracking and performance monitoring platform that helps developers identify and fix issues in real-time. This recipe shows how to integrate Sentry's [NestJS SDK](https://docs.sentry.io/platforms/javascript/guides/nestjs/) with your NestJS application.
 
-#### 安装
+#### Installation
 
-首先，安装所需依赖：
+First, install the required dependencies:
 
 ```bash
 $ npm install --save @sentry/nestjs @sentry/profiling-node
 ```
 
-:::info 注意
-`@sentry/profiling-node` 是可选项，但建议用于性能分析。
-:::
+> info **Hint** `@sentry/profiling-node` is optional, but recommended for performance profiling.
 
+#### Basic setup
 
-#### 基础设置
+To get started with Sentry, you'll need to create a file named `instrument.ts` that should be imported before any other modules in your application:
 
-要开始使用 Sentry，您需要创建一个名为 `instrument.ts` 的文件，该文件应在应用程序中其他模块之前导入：
-
- ```typescript title="instrument.ts"
+```typescript
+@@filename(instrument)
 const Sentry = require("@sentry/nestjs");
 const { nodeProfilingIntegration } = require("@sentry/profiling-node");
 
@@ -35,16 +37,17 @@ Sentry.init({
   // We recommend adjusting this value in production
   tracesSampleRate: 1.0,
 
-  // Set sampling rate for profiling
+  // 设置 sampling rate for profiling
   // This is relative to tracesSampleRate
   profilesSampleRate: 1.0,
 });
 ```
 
-更新您的 `main.ts` 文件，确保在其他导入之前引入 `instrument.ts`：
+Update your `main.ts` file to import `instrument.ts` before other imports:
 
- ```typescript title="main.ts"
-// Import this first!
+```typescript
+@@filename(main)
+// 导入 this first!
 import "./instrument";
 
 // Now import other modules
@@ -59,9 +62,10 @@ async function bootstrap() {
 bootstrap();
 ```
 
-随后，将 `SentryModule` 作为根模块添加到您的主模块中：
+Afterwards, add the `SentryModule` as a root module to your main module:
 
- ```typescript title="app.module.ts"
+```typescript
+@@filename(app.module)
 import { Module } from "@nestjs/common";
 import { SentryModule } from "@sentry/nestjs/setup";
 import { AppController } from "./app.controller";
@@ -78,9 +82,9 @@ import { AppService } from "./app.service";
 export class AppModule {}
 ```
 
-#### 异常处理
+#### Exception handling
 
-如果您正在使用全局捕获所有异常的过滤器（即通过 `app.useGlobalFilters()` 注册的过滤器，或在应用模块 providers 中注册的带有无参数 `@Catch()` 装饰器的过滤器），请在该过滤器的 `catch()` 方法上添加 `@SentryExceptionCaptured()` 装饰器。此装饰器会将全局错误过滤器接收到的所有意外错误报告给 Sentry：
+If you're using a global catch-all exception filter (which is either a filter registered with `app.useGlobalFilters()` or a filter registered in your app module providers annotated with a `@Catch()` decorator without arguments), add a `@SentryExceptionCaptured()` decorator to the filter's `catch()` method. This decorator will report all unexpected errors that are received by your global error filter to Sentry:
 
 ```typescript
 import { Catch, ExceptionFilter } from '@nestjs/common';
@@ -95,15 +99,14 @@ export class YourCatchAllExceptionFilter implements ExceptionFilter {
 }
 ```
 
-默认情况下，只有未被错误过滤器捕获的未处理异常才会报告给 Sentry。`HttpExceptions`（包括[派生类](../overview/exception-filters#内置-http-异常) ）默认也不会被捕获，因为它们主要用作控制流载体。
+By default, only unhandled exceptions that are not caught by an error filter are reported to Sentry. `HttpExceptions` (including [derivatives](/exception-filters#内置-http-异常)) are also not captured by default because they mostly act as control flow vehicles.
 
-如果您没有全局捕获所有异常的过滤器，请将 `SentryGlobalFilter` 添加到主模块的 providers 中。该过滤器会将其他错误过滤器未捕获的任何未处理错误报告给 Sentry。
+If you don't have a global catch-all exception filter, add the `SentryGlobalFilter` to the providers of your main module. This filter will report any unhandled errors that aren't caught by other error filters to Sentry.
 
-:::warning 警告
-需要在注册其他异常过滤器之前注册 `SentryGlobalFilter`。
-:::
+> warning **Warning** The `SentryGlobalFilter` needs to be registered before any other exception filters.
 
- ```typescript title="app.module.ts"
+```typescript
+@@filename(app.module)
 import { Module } from "@nestjs/common";
 import { APP_FILTER } from "@nestjs/core";
 import { SentryGlobalFilter } from "@sentry/nestjs/setup";
@@ -120,19 +123,19 @@ import { SentryGlobalFilter } from "@sentry/nestjs/setup";
 export class AppModule {}
 ```
 
-#### 可读的堆栈跟踪
+#### Readable stack traces
 
-根据项目配置方式，Sentry 错误中的堆栈跟踪可能不会显示实际代码。
+Depending on how you've set up your project, the stack traces in your Sentry errors probably won't look like your actual code.
 
-要解决此问题，请将源映射上传至 Sentry。最简单的方法是使用 Sentry 向导：
+To fix this, upload your source maps to Sentry. The easiest way to do this is by using the Sentry Wizard:
 
 ```bash
 npx @sentry/wizard@latest -i sourcemaps
 ```
 
-#### 测试集成功能
+#### Testing the integration
 
-要验证您的 Sentry 集成是否正常工作，可以添加一个会抛出错误的测试端点：
+To verify your Sentry integration is working, you can add a test endpoint that throws an error:
 
 ```typescript
 @Get("debug-sentry")
@@ -141,10 +144,10 @@ getError() {
 }
 ```
 
-访问应用程序中的 `/debug-sentry`，您应该能在 Sentry 仪表板中看到该错误。
+Visit `/debug-sentry` in your application, and you should see the error appear in your Sentry dashboard.
 
-### 摘要
+### Summary
 
-有关 Sentry 的 NestJS SDK 完整文档（包括高级配置选项和功能），请访问 [Sentry 官方文档](https://docs.sentry.io/platforms/javascript/guides/nestjs/) 。
+For complete documentation about Sentry's NestJS SDK, including advanced configuration options and features, visit the [official Sentry documentation](https://docs.sentry.io/platforms/javascript/guides/nestjs/).
 
-虽然 Sentry 专长是处理软件错误，但我们自己也会写出 bug。如果您在安装我们的 SDK 时遇到任何问题，请提交 [GitHub Issue](https://github.com/getsentry/sentry-javascript/issues) 或在 [Discord](https://discord.com/invite/sentry) 上联系我们。
+While software bugs are Sentry's thing, we still write them. If you come across any problems while installing our SDK, please open a [GitHub Issue](https://github.com/getsentry/sentry-javascript/issues) or reach out on [Discord](https://discord.com/invite/sentry).

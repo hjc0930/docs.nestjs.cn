@@ -1,29 +1,30 @@
+<!-- 此文件从 content/recipes\nest-commander.md 自动生成，请勿直接修改此文件 -->
+<!-- 生成时间: 2026-02-28T06:24:18.019Z -->
+<!-- 源文件: content/recipes\nest-commander.md -->
+
 ### Nest Commander
 
-除了[独立应用](/standalone-applications)文档外，还有 [nest-commander](https://jmcdo29.github.io/nest-commander) 包可用于编写命令行应用程序，其结构类似于典型的 Nest 应用。
+Expanding on the [standalone application](/standalone-applications) docs there's also the [nest-commander](https://jmcdo29.github.io/nest-commander) package for writing command line applications in a structure similar to your typical Nest application.
 
-:::info 注意
-`nest-commander` 是第三方包，并非由 NestJS 核心团队全面管理。如发现该库的任何问题，请在[对应代码库](https://github.com/jmcdo29/nest-commander/issues/new/choose)中报告
-:::
+> info **info** `nest-commander` is a third party package and is not managed by the entirety of the NestJS core team. Please, report any issues found with the library in the [appropriate repository](https://github.com/jmcdo29/nest-commander/issues/new/choose)
 
+#### Installation
 
-#### 安装
-
-与任何其他包一样，您需要先安装它才能使用。
+Just like any other package, you've got to install it before you can use it.
 
 ```bash
 $ npm i nest-commander
 ```
 
-#### 命令文件
+#### A Command file
 
-`nest-commander` 通过类的 `@Command()` 装饰器和方法上的 `@Option()` 装饰器，可以轻松编写新的命令行应用。每个命令文件都应实现 `CommandRunner` 抽象类，并使用 `@Command()` 装饰器进行修饰。
+`nest-commander` makes it easy to write new command-line applications with [decorators](https://www.typescriptlang.org/docs/handbook/decorators.html) via the `@Command()` decorator for classes and the `@Option()` decorator for methods of that class. Every command file should implement the `CommandRunner` abstract class and should be decorated with a `@Command()` decorator.
 
-Nest 将每个命令都视为 `@Injectable()`，因此常规的依赖注入仍会如预期般工作。唯一需要注意的是抽象类 `CommandRunner`，每个命令都应实现它。该抽象类确保所有命令都具有返回 `Promise<void>` 的 `run` 方法，并接收参数 `string[], Record<string, any>`。`run` 方法是启动所有逻辑的地方，它会将未匹配选项标志的参数作为数组传入，以便处理多参数场景。至于选项 `Record<string, any>`，其属性名对应 `@Option()` 装饰器的 `name` 属性，值则来自选项处理器的返回值。如需更好的类型安全，也可以为选项创建接口。
+Every command is seen as an `@Injectable()` by Nest, so your normal Dependency Injection still works as you would expect it to. The only thing to take note of is the abstract class `CommandRunner`, which should be implemented by each command. The `CommandRunner` abstract class ensures that all commands have a `run` method that returns a `Promise<void>` and takes in the parameters `string[], Record<string, any>`. The `run` command is where you can kick all of your logic off from, it will take in whatever parameters did not match option flags and pass them in as an array, just in case you are really meaning to work with multiple parameters. As for the options, the `Record<string, any>`, the names of these properties match the `name` property given to the `@Option()` decorators, while their value matches the return of the option handler. If you'd like better type safety, you are welcome to create an interface for your options as well.
 
-#### 运行命令
+#### Running the Command
 
-类似于在 NestJS 应用中我们可以使用 `NestFactory` 创建服务器并通过 `listen` 运行它，`nest-commander` 包也提供了简洁的 API 来运行你的服务。导入 `CommandFactory` 并使用其 `static` 方法 `run`，传入应用的根模块即可。具体实现可能如下所示：
+Similar to how in a NestJS application we can use the `NestFactory` to create a server for us, and run it using `listen`, the `nest-commander` package exposes a simple to use API to run your server. Import the `CommandFactory` and use the `static` method `run` and pass in the root module of your application. This would probably look like below
 
 ```ts
 import { CommandFactory } from 'nest-commander';
@@ -36,7 +37,7 @@ async function bootstrap() {
 bootstrap();
 ```
 
-默认情况下，使用 `CommandFactory` 时 Nest 的日志记录器是禁用的。但可以通过将其作为 `run` 函数的第二个参数来启用。你可以传入自定义的 NestJS 日志记录器，或是需要保留的日志级别数组——如果只想输出 Nest 的错误日志，至少传入 `['error']` 会很有帮助。
+By default, Nest's logger is disabled when using the `CommandFactory`. It's possible to provide it though, as the second argument to the `run` function. You can either provide a custom NestJS logger, or an array of log levels you want to keep - it might be useful to at least provide `['error']` here, if you only want to print out Nest's error logs.
 
 ```ts
 import { CommandFactory } from 'nest-commander';
@@ -53,15 +54,15 @@ async function bootstrap() {
 bootstrap();
 ```
 
-就这样。`CommandFactory` 会在底层自动为你调用 `NestFactory` 并在必要时执行 `app.close()`，因此你无需担心内存泄漏问题。如需添加错误处理，可以用 `try/catch` 包裹 `run` 命令，或者在 `bootstrap()` 调用后链式添加 `.catch()` 方法。
+And that's it. Under the hood, `CommandFactory` will worry about calling `NestFactory` for you and calling `app.close()` when necessary, so you shouldn't need to worry about memory leaks there. If you need to add in some error handling, there's always `try/catch` wrapping the `run` command, or you can chain on some `.catch()` method to the `bootstrap()` call.
 
-#### 测试
+#### Testing
 
-如果无法轻松测试，编写一个超级强大的命令行脚本又有什么用呢？幸运的是，`nest-commander` 提供了一些实用工具，它们与 NestJS 生态系统完美契合，对任何 Nest 开发者来说都会感到非常熟悉。在测试模式下构建命令时，你可以使用 `CommandTestFactory` 并传入元数据，而不是使用 `CommandFactory`，这与 `@nestjs/testing` 中的 `Test.createTestingModule` 工作方式非常相似。实际上，它在底层就使用了这个包。你仍然可以在调用 `compile()` 之前链式调用 `overrideProvider` 方法，这样就可以在测试中直接替换依赖注入的组件。
+So what's the use of writing a super awesome command line script if you can't test it super easily, right? Fortunately, `nest-commander` has some utilities you can make use of that fits in perfectly with the NestJS ecosystem, it'll feel right at home to any Nestlings out there. Instead of using the `CommandFactory` for building the command in test mode, you can use `CommandTestFactory` and pass in your metadata, very similarly to how `Test.createTestingModule` from `@nestjs/testing` works. In fact, it uses this package under the hood. You're also still able to chain on the `overrideProvider` methods before calling `compile()` so you can swap out DI pieces right in the test.
 
-#### 整合所有内容
+#### Putting it all together
 
-以下类相当于一个 CLI 命令，可以接收子命令 `basic` 或直接调用，支持 `-n`、`-s` 和 `-b`（以及它们的长标志形式），每个选项都有自定义解析器。按照 commander 的惯例，`--help` 标志也同样支持。
+The following class would equate to having a CLI command that can take in the subcommand `basic` or be called directly, with `-n`, `-s`, and `-b` (along with their long flags) all being supported and with custom parsers for each option. The `--help` flag is also supported, as is customary with commander.
 
 ```ts
 import { Command, CommandRunner, Option } from 'nest-commander';
@@ -76,12 +77,12 @@ interface BasicCommandOptions {
 @Command({ name: 'basic', description: 'A parameter parse' })
 export class BasicCommand extends CommandRunner {
   constructor(private readonly logService: LogService) {
-    super();
+    super()
   }
 
   async run(
     passedParam: string[],
-    options?: BasicCommandOptions
+    options?: BasicCommandOptions,
   ): Promise<void> {
     if (options?.boolean !== undefined && options?.boolean !== null) {
       this.runWithBoolean(passedParam, options.boolean);
@@ -136,7 +137,7 @@ export class BasicCommand extends CommandRunner {
 }
 ```
 
-确保命令类已添加到模块中
+Make sure the command class is added to a module
 
 ```ts
 @Module({
@@ -145,7 +146,7 @@ export class BasicCommand extends CommandRunner {
 export class AppModule {}
 ```
 
-现在，要在你的 main.ts 中运行 CLI，可以按照以下步骤操作
+And now to be able to run the CLI in your main.ts you can do the following
 
 ```ts
 async function bootstrap() {
@@ -155,8 +156,8 @@ async function bootstrap() {
 bootstrap();
 ```
 
-就这样，你已经拥有了一个命令行应用程序。
+And just like that, you've got a command line application.
 
-#### 更多信息
+#### More Information
 
-访问 [nest-commander 文档站点](https://jmcdo29.github.io/nest-commander)获取更多信息、示例和 API 文档。
+Visit the [nest-commander docs site](https://jmcdo29.github.io/nest-commander) for more information, examples, and API documentation.

@@ -1,5 +1,5 @@
 <!-- 此文件从 content/pipes.md 自动生成，请勿直接修改此文件 -->
-<!-- 生成时间: 2026-02-24T02:49:47.009Z -->
+<!-- 生成时间: 2026-02-28T06:24:17.799Z -->
 <!-- 源文件: content/pipes.md -->
 
 ### Pipes
@@ -97,6 +97,7 @@ async findOne(@Query('id', ParseIntPipe) id: number) {
 Here's an example of using the `ParseUUIDPipe` to parse a string parameter and validate if it is a UUID.
 
 ```typescript
+@@filename()
 @Get(':uuid')
 async findOne(@Param('uuid', new ParseUUIDPipe()) uuid: string) {
   return this.catsService.findOne(uuid);
@@ -115,12 +116,20 @@ As mentioned, you can build your own custom pipes. While Nest provides a robust 
 
 We start with a simple `ValidationPipe`. Initially, we'll have it simply take an input value and immediately return the same value, behaving like an identity function.
 
-```typescript title="validation.pipe"
+```typescript
+@@filename(validation.pipe)
 import { PipeTransform, Injectable, ArgumentMetadata } from '@nestjs/common';
 
 @Injectable()
 export class ValidationPipe implements PipeTransform {
   transform(value: any, metadata: ArgumentMetadata) {
+    return value;
+  }
+}
+
+@Injectable()
+export class ValidationPipe {
+  transform(value, metadata) {
     return value;
   }
 }
@@ -183,6 +192,7 @@ These properties describe the currently processed argument.
 Let's make our validation pipe a little more useful. Take a closer look at the `create()` method of the `CatsController`, where we probably would like to ensure that the post body object is valid before attempting to run our service method.
 
 ```typescript
+@@filename()
 @Post()
 async create(@Body() createCatDto: CreateCatDto) {
   this.catsService.create(createCatDto);
@@ -191,7 +201,8 @@ async create(@Body() createCatDto: CreateCatDto) {
 
 Let's focus in on the `createCatDto` body parameter. Its type is `CreateCatDto`:
 
-```typescript title="create-cat.dto"
+```typescript
+@@filename(create-cat.dto)
 export class CreateCatDto {
   name: string;
   age: number;
@@ -228,6 +239,7 @@ As noted earlier, a **validation pipe** either returns the value unchanged or th
 In the next section, you'll see how we supply the appropriate schema for a given controller method using the `@UsePipes()` decorator. Doing so makes our validation pipe reusable across contexts, just as we set out to do.
 
 ```typescript
+@@filename()
 import { PipeTransform, ArgumentMetadata, BadRequestException } from '@nestjs/common';
 import { ZodSchema  } from 'zod';
 
@@ -243,6 +255,20 @@ export class ZodValidationPipe implements PipeTransform {
     }
   }
 }
+
+export class ZodValidationPipe {
+  constructor(private schema) {}
+
+  transform(value, metadata) {
+    try {
+      const parsedValue = this.schema.parse(value);
+      return parsedValue;
+    } catch (error) {
+      throw new BadRequestException('Validation failed');
+    }
+  }
+}
+
 ```
 
 #### Binding validation pipes
@@ -275,7 +301,8 @@ export type CreateCatDto = z.infer<typeof createCatSchema>;
 
 We do that using the `@UsePipes()` decorator as shown below:
 
-```typescript title="cats.controller"
+```typescript
+@@filename(cats.controller)
 @Post()
 @UsePipes(new ZodValidationPipe(createCatSchema))
 async create(@Body() createCatDto: CreateCatDto) {
@@ -301,7 +328,8 @@ $ npm i --save class-validator class-transformer
 
 Once these are installed, we can add a few decorators to the `CreateCatDto` class. Here we see a significant advantage of this technique: the `CreateCatDto` class remains the single source of truth for our Post body object (rather than having to create a separate validation class).
 
-```typescript title="create-cat.dto"
+```typescript
+@@filename(create-cat.dto)
 import { IsString, IsInt } from 'class-validator';
 
 export class CreateCatDto {
@@ -320,7 +348,8 @@ export class CreateCatDto {
 
 Now we can create a `ValidationPipe` class that uses these annotations.
 
-```typescript title="validation.pipe"
+```typescript
+@@filename(validation.pipe)
 import { PipeTransform, Injectable, ArgumentMetadata, BadRequestException } from '@nestjs/common';
 import { validate } from 'class-validator';
 import { plainToInstance } from 'class-transformer';
@@ -363,7 +392,8 @@ Finally, as noted earlier, since this is a **validation pipe** it either returns
 The last step is to bind the `ValidationPipe`. Pipes can be parameter-scoped, method-scoped, controller-scoped, or global-scoped. Earlier, with our Zod-based validation pipe, we saw an example of binding the pipe at the method level.
 In the example below, we'll bind the pipe instance to the route handler `@Body()` decorator so that our pipe is called to validate the post body.
 
-```typescript title="cats.controller"
+```typescript
+@@filename(cats.controller)
 @Post()
 async create(
   @Body(new ValidationPipe()) createCatDto: CreateCatDto,
@@ -378,7 +408,8 @@ Parameter-scoped pipes are useful when the validation logic concerns only one sp
 
 Since the `ValidationPipe` was created to be as generic as possible, we can realize its full utility by setting it up as a **global-scoped** pipe so that it is applied to every route handler across the entire application.
 
-```typescript title="main"
+```typescript
+@@filename(main)
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.useGlobalPipes(new ValidationPipe());
@@ -393,7 +424,8 @@ Global pipes are used across the whole application, for every controller and eve
 
 Note that in terms of dependency injection, global pipes registered from outside of any module (with `useGlobalPipes()` as in the example above) cannot inject dependencies since the binding has been done outside the context of any module. In order to solve this issue, you can set up a global pipe **directly from any module** using the following construction:
 
-```typescript title="app.module"
+```typescript
+@@filename(app.module)
 import { Module } from '@nestjs/common';
 import { APP_PIPE } from '@nestjs/core';
 
@@ -422,7 +454,8 @@ When is this useful? Consider that sometimes the data passed from the client nee
 
 Here's a simple `ParseIntPipe` which is responsible for parsing a string into an integer value. (As noted above, Nest has a built-in `ParseIntPipe` that is more sophisticated; we include this as a simple example of a custom transformation pipe).
 
-```typescript title="parse-int.pipe"
+```typescript
+@@filename(parse-int.pipe)
 import { PipeTransform, Injectable, ArgumentMetadata, BadRequestException } from '@nestjs/common';
 
 @Injectable()
@@ -435,11 +468,23 @@ export class ParseIntPipe implements PipeTransform<string, number> {
     return val;
   }
 }
+
+@Injectable()
+export class ParseIntPipe {
+  transform(value, metadata) {
+    const val = parseInt(value, 10);
+    if (isNaN(val)) {
+      throw new BadRequestException('Validation failed');
+    }
+    return val;
+  }
+}
 ```
 
 We can then bind this pipe to the selected param as shown below:
 
 ```typescript
+@@filename()
 @Get(':id')
 async findOne(@Param('id', new ParseIntPipe()) id) {
   return this.catsService.findOne(id);
@@ -449,6 +494,7 @@ async findOne(@Param('id', new ParseIntPipe()) id) {
 Another useful transformation case would be to select an **existing user** entity from the database using an id supplied in the request:
 
 ```typescript
+@@filename()
 @Get(':id')
 findOne(@Param('id', UserByIdPipe) userEntity: UserEntity) {
   return userEntity;
@@ -462,6 +508,7 @@ We leave the implementation of this pipe to the reader, but note that like all o
 `Parse*` pipes expect a parameter's value to be defined. They throw an exception upon receiving `null` or `undefined` values. To allow an endpoint to handle missing querystring parameter values, we have to provide a default value to be injected before the `Parse*` pipes operate on these values. The `DefaultValuePipe` serves that purpose. Simply instantiate a `DefaultValuePipe` in the `@Query()` decorator before the relevant `Parse*` pipe, as shown below:
 
 ```typescript
+@@filename()
 @Get()
 async findAll(
   @Query('activeOnly', new DefaultValuePipe(false), ParseBoolPipe) activeOnly: boolean,

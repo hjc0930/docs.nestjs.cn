@@ -1,26 +1,25 @@
+<!-- 此文件从 content/recipes\mongodb.md 自动生成，请勿直接修改此文件 -->
+<!-- 生成时间: 2026-02-28T06:24:18.023Z -->
+<!-- 源文件: content/recipes\mongodb.md -->
+
 ### MongoDB (Mongoose)
 
-:::warning 警告
+> **Warning** In this article, you'll learn how to create a `DatabaseModule` based on the **Mongoose** package from scratch using custom components. As a consequence, this solution contains a lot of overhead that you can omit using ready to use and available out-of-the-box dedicated `@nestjs/mongoose` package. To learn more, see [here](/techniques/mongodb).
 
-在本文中，您将学习如何基于 **Mongoose** 包从头开始使用自定义组件创建 `DatabaseModule`。因此，该解决方案包含许多额外工作，您可以直接使用现成的专用 `@nestjs/mongoose` 包来避免这些操作。了解更多信息，请参阅[此处](/techniques/mongo) 。
+[Mongoose](https://mongoosejs.com) is the most popular [MongoDB](https://www.mongodb.org/) object modeling tool.
 
-:::
+#### Getting started
 
-
-
-[Mongoose](https://mongoosejs.com) 是最受欢迎的 [MongoDB](https://www.mongodb.org/) 对象建模工具。
-
-#### 快速开始
-
-要开始使用这个库，我们需要先安装所有必需的依赖项：
+To start the adventure with this library we have to install all required dependencies:
 
 ```typescript
 $ npm install --save mongoose
 ```
 
-我们首先需要使用 `connect()` 函数建立与数据库的连接。`connect()` 函数返回一个 `Promise`，因此我们必须创建一个[异步提供者](/fundamentals/async-components) 。
+The first step we need to do is to establish the connection with our database using `connect()` function. The `connect()` function returns a `Promise`, and therefore we have to create an [async provider](/fundamentals/async-components).
 
- ```typescript title="database.providers.ts"
+```typescript
+@@filename(database.providers)
 import * as mongoose from 'mongoose';
 
 export const databaseProviders = [
@@ -30,17 +29,21 @@ export const databaseProviders = [
       mongoose.connect('mongodb://localhost/nest'),
   },
 ];
+
+export const databaseProviders = [
+  {
+    provide: 'DATABASE_CONNECTION',
+    useFactory: () => mongoose.connect('mongodb://localhost/nest'),
+  },
+];
 ```
 
-:::info 提示
-遵循最佳实践，我们在单独的文件中声明了自定义提供者，该文件具有 `*.providers.ts` 后缀。
-:::
+> info **Hint** Following best practices, we declared the custom provider in the separated file which has a `*.providers.ts` suffix.
 
+Then, we need to export these providers to make them **accessible** for the rest part of the application.
 
-
-接下来，我们需要导出这些提供者，使它们对应用程序的其余部分**可访问** 。
-
- ```typescript title="database.module.ts"
+```typescript
+@@filename(database.module)
 import { Module } from '@nestjs/common';
 import { databaseProviders } from './database.providers';
 
@@ -51,13 +54,14 @@ import { databaseProviders } from './database.providers';
 export class DatabaseModule {}
 ```
 
-现在我们可以使用 `@Inject()` 装饰器注入 `Connection` 对象。每个依赖于 `Connection` 异步提供者的类都将等待 `Promise` 解析完成。
+Now we can inject the `Connection` object using `@Inject()` decorator. Each class that would depend on the `Connection` async provider will wait until a `Promise` is resolved.
 
-#### 模型注入
+#### Model injection
 
-在 Mongoose 中，所有内容都源自 [Schema](https://mongoosejs.com/docs/guide.html)。让我们定义 `CatSchema`：
+With Mongoose, everything is derived from a [Schema](https://mongoosejs.com/docs/guide.html). Let's define the `CatSchema`:
 
- ```typescript title="schemas/cat.schema.ts"
+```typescript
+@@filename(schemas/cat.schema)
 import * as mongoose from 'mongoose';
 
 export const CatSchema = new mongoose.Schema({
@@ -67,11 +71,12 @@ export const CatSchema = new mongoose.Schema({
 });
 ```
 
-`CatsSchema` 属于 `cats` 目录。该目录代表 `CatsModule`。
+The `CatsSchema` belongs to the `cats` directory. This directory represents the `CatsModule`.
 
-现在是时候创建一个 **Model** 提供者了：
+Now it's time to create a **Model** provider:
 
- ```typescript title="cats.providers.ts"
+```typescript
+@@filename(cats.providers)
 import { Connection } from 'mongoose';
 import { CatSchema } from './schemas/cat.schema';
 
@@ -82,15 +87,22 @@ export const catsProviders = [
     inject: ['DATABASE_CONNECTION'],
   },
 ];
+
+export const catsProviders = [
+  {
+    provide: 'CAT_MODEL',
+    useFactory: (connection) => connection.model('Cat', CatSchema),
+    inject: ['DATABASE_CONNECTION'],
+  },
+];
 ```
 
-:::warning 警告
-在实际应用中应避免使用**魔法字符串** 。`CAT_MODEL` 和 `DATABASE_CONNECTION` 都应保存在独立的 `constants.ts` 文件中。
-:::
+> warning **Warning** In the real-world applications you should avoid **magic strings**. Both `CAT_MODEL` and `DATABASE_CONNECTION` should be kept in the separated `constants.ts` file.
 
-现在我们可以通过 `@Inject()` 装饰器将 `CAT_MODEL` 注入到 `CatsService` 中：
+Now we can inject the `CAT_MODEL` to the `CatsService` using the `@Inject()` decorator:
 
- ```typescript title="cats.service.ts"
+```typescript
+@@filename(cats.service)
 import { Model } from 'mongoose';
 import { Injectable, Inject } from '@nestjs/common';
 import { Cat } from './interfaces/cat.interface';
@@ -112,9 +124,26 @@ export class CatsService {
     return this.catModel.find().exec();
   }
 }
+
+@Injectable()
+@Dependencies('CAT_MODEL')
+export class CatsService {
+  constructor(catModel) {
+    this.catModel = catModel;
+  }
+
+  async create(createCatDto) {
+    const createdCat = new this.catModel(createCatDto);
+    return createdCat.save();
+  }
+
+  async findAll() {
+    return this.catModel.find().exec();
+  }
+}
 ```
 
-在上例中我们使用了 `Cat` 接口。该接口扩展了 mongoose 包中的 `Document`：
+In the above example we have used the `Cat` interface. This interface extends the `Document` from the mongoose package:
 
 ```typescript
 import { Document } from 'mongoose';
@@ -126,11 +155,12 @@ export interface Cat extends Document {
 }
 ```
 
-数据库连接是**异步的** ，但 Nest 使这个过程对终端用户完全透明。`CatModel` 类会等待数据库连接，而 `CatsService` 会延迟到模型准备就绪。整个应用会在所有类实例化完成后启动。
+The database connection is **asynchronous**, but Nest makes this process completely invisible for the end-user. The `CatModel` class is waiting for the db connection, and the `CatsService` is delayed until model is ready to use. The entire application can start when each class is instantiated.
 
-以下是最终的 `CatsModule`：
+Here is a final `CatsModule`:
 
- ```typescript title="cats.module.ts"
+```typescript
+@@filename(cats.module)
 import { Module } from '@nestjs/common';
 import { CatsController } from './cats.controller';
 import { CatsService } from './cats.service';
@@ -148,12 +178,8 @@ import { DatabaseModule } from '../database/database.module';
 export class CatsModule {}
 ```
 
-:::info 提示
-不要忘记将 `CatsModule` 导入根模块 `AppModule`。
-:::
+> info **Hint** Do not forget to import the `CatsModule` into the root `AppModule`.
 
+#### Example
 
-
-#### 示例
-
-一个可用的示例[在此处](https://github.com/nestjs/nest/tree/master/sample/14-mongoose-base)查看。
+A working example is available [here](https://github.com/nestjs/nest/tree/master/sample/14-mongoose-base).

@@ -1,6 +1,6 @@
-<!-- 此文件从 content/microservices/basics.md 自动生成，请勿直接修改此文件 -->
-<!-- 生成时间: 2026-02-24T02:57:32.702Z -->
-<!-- 源文件: content/microservices/basics.md -->
+<!-- 此文件从 content/microservices\basics.md 自动生成，请勿直接修改此文件 -->
+<!-- 生成时间: 2026-02-28T06:24:18.154Z -->
+<!-- 源文件: content/microservices\basics.md -->
 
 ### Overview
 
@@ -24,7 +24,8 @@ $ npm i --save @nestjs/microservices
 
 To instantiate a microservice, use the `createMicroservice()` method of the `NestFactory` class:
 
-```typescript title="main"
+```typescript
+@@filename(main)
 import { NestFactory } from '@nestjs/core';
 import { Transport, MicroserviceOptions } from '@nestjs/microservices';
 import { AppModule } from './app.module';
@@ -102,13 +103,14 @@ Microservices recognize both messages and events by **patterns**. A pattern is a
 
 #### Request-response
 
-The request-response message style is useful when you need to **exchange** messages between various external services. This paradigm ensures that the service has actually received the message (without requiring you to manually implement an acknowledgment protocol). However, the request-response approach may not always be the best fit. For example, streaming transporters, such as [Kafka](https://docs.confluent.io/3.0.0/streams/) or [NATS streaming](https://github.com/nats-io/node-nats-streaming), which use log-based persistence, are optimized for addressing a different set of challenges, more aligned with the event messaging paradigm (see [event-based messaging](./microservices/basics#event-based) for more details).
+The request-response message style is useful when you need to **exchange** messages between various external services. This paradigm ensures that the service has actually received the message (without requiring you to manually implement an acknowledgment protocol). However, the request-response approach may not always be the best fit. For example, streaming transporters, such as [Kafka](https://docs.confluent.io/3.0.0/streams/) or [NATS streaming](https://github.com/nats-io/node-nats-streaming), which use log-based persistence, are optimized for addressing a different set of challenges, more aligned with the event messaging paradigm (see [event-based messaging](/microservices/basics#event-based) for more details).
 
 To enable the request-response message type, Nest creates two logical channels: one for transferring data and another for waiting for incoming responses. For some underlying transports, like [NATS](https://nats.io/), this dual-channel support is provided out-of-the-box. For others, Nest compensates by manually creating separate channels. While this is effective, it can introduce some overhead. Therefore, if you don’t require a request-response message style, you may want to consider using the event-based method.
 
-To create a message handler based on the request-response paradigm, use the `@MessagePattern()` decorator, which is imported from the `@nestjs/microservices` package. This decorator should only be used within [controller](./controllers) classes, as they serve as the entry points for your application. Using it in providers will have no effect, as they will be ignored by the Nest runtime.
+To create a message handler based on the request-response paradigm, use the `@MessagePattern()` decorator, which is imported from the `@nestjs/microservices` package. This decorator should only be used within [controller](/controllers) classes, as they serve as the entry points for your application. Using it in providers will have no effect, as they will be ignored by the Nest runtime.
 
-```typescript title="math.controller"
+```typescript
+@@filename(math.controller)
 import { Controller } from '@nestjs/common';
 import { MessagePattern } from '@nestjs/microservices';
 
@@ -121,13 +123,14 @@ export class MathController {
 }
 ```
 
-In the above code, the `accumulate()` **message handler** listens for messages that match the `{ cmd: 'sum' }` message pattern. The message handler takes a single argument, the `data` passed from the client. In this case, the data is an array of numbers that need to be accumulated.
+In the above code, the `accumulate()` **message handler** listens for messages that match the `{{ '{' }} cmd: 'sum' {{ '}' }}` message pattern. The message handler takes a single argument, the `data` passed from the client. In this case, the data is an array of numbers that need to be accumulated.
 
 #### Asynchronous responses
 
 Message handlers can respond either synchronously or **asynchronously**, meaning that `async` methods are supported.
 
 ```typescript
+@@filename()
 @MessagePattern({ cmd: 'sum' })
 async accumulate(data: number[]): Promise<number> {
   return (data || []).reduce((a, b) => a + b);
@@ -137,6 +140,7 @@ async accumulate(data: number[]): Promise<number> {
 A message handler can also return an `Observable`, in which case the result values will be emitted until the stream completes.
 
 ```typescript
+@@filename()
 @MessagePattern({ cmd: 'sum' })
 accumulate(data: number[]): Observable<number> {
   return from([1, 2, 3]);
@@ -154,6 +158,7 @@ For example, if you want to notify another service that a specific condition has
 To create an event handler, you can use the `@EventPattern()` decorator, which is imported from the `@nestjs/microservices` package.
 
 ```typescript
+@@filename()
 @EventPattern('user_created')
 async handleUserCreated(data: Record<string, unknown>) {
   // business logic
@@ -171,6 +176,7 @@ The `handleUserCreated()` **event handler** listens for the `'user_created'` eve
 In more advanced scenarios, you might need to access additional details about the incoming request. For instance, when using NATS with wildcard subscriptions, you may want to retrieve the original subject that the producer sent the message to. Similarly, with Kafka, you may need to access the message headers. To achieve this, you can leverage built-in decorators as shown below:
 
 ```typescript
+@@filename()
 @MessagePattern('time.us.*')
 getDate(@Payload() data: number[], @Ctx() context: NatsContext) {
   console.log(`Subject: ${context.getSubject()}`); // e.g. "time.us.east"
@@ -188,7 +194,7 @@ A client Nest application can exchange messages or publish events to a Nest micr
 
 One approach is to import the `ClientsModule`, which exposes the static `register()` method. This method takes an array of objects representing microservice transporters. Each object must include a `name` property, and optionally a `transport` property (defaulting to `Transport.TCP`), as well as an optional `options` property.
 
-The `name` property acts as an **injection token**, which you can use to inject an instance of `ClientProxy` wherever needed. The value of this `name` property can be any arbitrary string or JavaScript symbol, as described [here](./fundamentals/custom-providers#非基于类的提供者令牌).
+The `name` property acts as an **injection token**, which you can use to inject an instance of `ClientProxy` wherever needed. The value of this `name` property can be any arbitrary string or JavaScript symbol, as described [here](/fundamentals/custom-providers#非基于类的提供者令牌).
 
 The `options` property is an object that includes the same properties we saw in the `createMicroservice()` method earlier.
 
@@ -268,6 +274,7 @@ Using the `@Client()` decorator is not the preferred technique, as it is harder 
 The `ClientProxy` is **lazy**. It doesn't initiate a connection immediately. Instead, it will be established before the first microservice call, and then reused across each subsequent call. However, if you want to delay the application bootstrapping process until a connection is established, you can manually initiate a connection using the `ClientProxy` object's `connect()` method inside the `OnApplicationBootstrap` lifecycle hook.
 
 ```typescript
+@@filename()
 async onApplicationBootstrap() {
   await this.client.connect();
 }
@@ -280,6 +287,7 @@ If the connection cannot be created, the `connect()` method will reject with the
 The `ClientProxy` exposes a `send()` method. This method is intended to call the microservice and returns an `Observable` with its response. Thus, we can subscribe to the emitted values easily.
 
 ```typescript
+@@filename()
 accumulate(): Observable<number> {
   const pattern = { cmd: 'sum' };
   const payload = [1, 2, 3];
@@ -294,6 +302,7 @@ The `send()` method takes two arguments, `pattern` and `payload`. The `pattern` 
 To send an event, use the `ClientProxy` object's `emit()` method. This method publishes an event to the message broker.
 
 ```typescript
+@@filename()
 async publish() {
   this.client.emit<number>('user_created', new UserCreatedEvent());
 }
@@ -398,6 +407,7 @@ In distributed systems, microservices might sometimes be down or unavailable. To
 To implement this, you'll need to use the [`rxjs`](https://github.com/ReactiveX/rxjs) package. Simply use the `timeout` operator within the pipe:
 
 ```typescript
+@@filename()
 this.client
   .send<TResult, TInput>(pattern, data)
   .pipe(timeout(5000));

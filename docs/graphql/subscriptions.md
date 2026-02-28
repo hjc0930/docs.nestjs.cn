@@ -1,6 +1,6 @@
-<!-- 此文件从 content/graphql/subscriptions.md 自动生成，请勿直接修改此文件 -->
-<!-- 生成时间: 2026-02-24T02:57:52.821Z -->
-<!-- 源文件: content/graphql/subscriptions.md -->
+<!-- 此文件从 content/graphql\subscriptions.md 自动生成，请勿直接修改此文件 -->
+<!-- 生成时间: 2026-02-28T06:24:18.159Z -->
+<!-- 源文件: content/graphql\subscriptions.md -->
 
 ### Subscriptions
 
@@ -82,7 +82,8 @@ This construct produces the same SDL as the previous code sample, but allows us 
 
 Now, to publish the event, we use the `PubSub#publish` method. This is often used within a mutation to trigger a client-side update when a part of the object graph has changed. For example:
 
-```typescript title="posts/posts.resolver"
+```typescript
+@@filename(posts/posts.resolver)
 @Mutation(() => Comment)
 async addComment(
   @Args('postId', { type: () => Int }) postId: number,
@@ -102,7 +103,7 @@ type Subscription {
 }
 ```
 
-This tells us that the subscription must return an object with a top-level property name of `commentAdded` that has a value which is a `Comment` object. The important point to note is that the shape of the event payload emitted by the `PubSub#publish` method must correspond to the shape of the value expected to return from the subscription. So, in our example above, the `pubSub.publish('commentAdded', { commentAdded: newComment })` statement publishes a `commentAdded` event with the appropriately shaped payload. If these shapes don't match, your subscription will fail during the GraphQL validation phase.
+This tells us that the subscription must return an object with a top-level property name of `commentAdded` that has a value which is a `Comment` object. The important point to note is that the shape of the event payload emitted by the `PubSub#publish` method must correspond to the shape of the value expected to return from the subscription. So, in our example above, the `pubSub.publish('commentAdded', {{ '{' }} commentAdded: newComment {{ '}' }})` statement publishes a `commentAdded` event with the appropriately shaped payload. If these shapes don't match, your subscription will fail during the GraphQL validation phase.
 
 #### Filtering subscriptions
 
@@ -131,7 +132,7 @@ commentAdded() {
 }
 ```
 
-> warning **Note** If you use the `resolve` option, you should return the unwrapped payload (e.g., with our example, return a `newComment` object directly, not a `{ commentAdded: newComment }` object).
+> warning **Note** If you use the `resolve` option, you should return the unwrapped payload (e.g., with our example, return a `newComment` object directly, not a `{{ '{' }} commentAdded: newComment {{ '}' }}` object).
 
 If you need to access injected providers (e.g., use an external service to validate the data), use the following construction.
 
@@ -414,7 +415,8 @@ This construct produces the same SDL as the previous code sample, but allows us 
 
 Now, to publish the event, we use the `PubSub#publish` method. This is often used within a mutation to trigger a client-side update when a part of the object graph has changed. For example:
 
-```typescript title="posts/posts.resolver"
+```typescript
+@@filename(posts/posts.resolver)
 @Mutation(() => Comment)
 async addComment(
   @Args('postId', { type: () => Int }) postId: number,
@@ -440,7 +442,7 @@ type Subscription {
 }
 ```
 
-This tells us that the subscription must return an object with a top-level property name of `commentAdded` that has a value which is a `Comment` object. The important point to note is that the shape of the event payload emitted by the `PubSub#publish` method must correspond to the shape of the value expected to return from the subscription. So, in our example above, the `pubSub.publish({ topic: 'commentAdded', payload: { commentAdded: newComment } })` statement publishes a `commentAdded` event with the appropriately shaped payload. If these shapes don't match, your subscription will fail during the GraphQL validation phase.
+This tells us that the subscription must return an object with a top-level property name of `commentAdded` that has a value which is a `Comment` object. The important point to note is that the shape of the event payload emitted by the `PubSub#publish` method must correspond to the shape of the value expected to return from the subscription. So, in our example above, the `pubSub.publish({{ '{' }} topic: 'commentAdded', payload: {{ '{' }} commentAdded: newComment {{ '}' }} {{ '}' }})` statement publishes a `commentAdded` event with the appropriately shaped payload. If these shapes don't match, your subscription will fail during the GraphQL validation phase.
 
 #### Filtering subscriptions
 

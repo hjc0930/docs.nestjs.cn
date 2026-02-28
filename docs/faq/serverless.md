@@ -1,6 +1,6 @@
-<!-- 此文件从 content/faq/serverless.md 自动生成，请勿直接修改此文件 -->
-<!-- 生成时间: 2026-02-24T03:01:12.418Z -->
-<!-- 源文件: content/faq/serverless.md -->
+<!-- 此文件从 content/faq\serverless.md 自动生成，请勿直接修改此文件 -->
+<!-- 生成时间: 2026-02-28T06:24:18.257Z -->
+<!-- 源文件: content/faq\serverless.md -->
 
 ### Serverless
 
@@ -313,7 +313,8 @@ return {
 Alternatively, if you want to keep your function very lightweight and you don't need any HTTP-related features (routing, but also guards, interceptors, pipes, etc.),
 you can just use `NestFactory.createApplicationContext` (as mentioned earlier) instead of running the entire HTTP server (and `express` under the hood), as follows:
 
-```typescript title="main"
+```typescript
+@@filename(main)
 import { HttpStatus } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { Callback, Context, Handler } from 'aws-lambda';
